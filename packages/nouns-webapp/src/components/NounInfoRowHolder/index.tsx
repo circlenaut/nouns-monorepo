@@ -1,54 +1,101 @@
-import { useQuery } from '@apollo/client';
-import React from 'react';
-import { Image } from 'react-bootstrap';
-import _LinkIcon from '../../assets/icons/Link.svg';
-import { auctionQuery } from '../../wrappers/subgraph';
-import _HeartIcon from '../../assets/icons/Heart.svg';
-import classes from './NounInfoRowHolder.module.css';
+import { Trans } from '@lingui/macro'
+import { useQueryClient } from '@tanstack/react-query'
+import { print } from 'graphql/language/printer'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import { Image } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+// import { HeartIcon, LinkIcon } from '@heroicons/react/solid'
 
-import config from '../../config';
-import { buildEtherscanAddressLink } from '../../utils/etherscan';
-import ShortAddress from '../ShortAddress';
+import ShortAddress from '@/components/ShortAddress'
+import Tooltip from '@/components/Tooltip'
+import { useAppSelector } from '@/hooks'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { useConfig } from '@/hooks/useConfig'
+import { buildEtherscanAddressLink } from '@/utils/etherscan'
+import { auctionQuery, useQuery } from '@/wrappers/subgraph'
 
-import { useAppSelector } from '../../hooks';
-import { Trans } from '@lingui/macro';
-import Tooltip from '../Tooltip';
+import classes from './NounInfoRowHolder.module.css'
+
+import _HeartIcon from '@/assets/icons/Heart.svg'
+import _LinkIcon from '@/assets/icons/Link.svg'
+import { constants } from 'ethers'
+import { toShortAddress } from '../../utils/addressAndChainNameDisplayUtils'
 
 interface NounInfoRowHolderProps {
-  nounId: number;
+  nounId: number
 }
 
-const NounInfoRowHolder: React.FC<NounInfoRowHolderProps> = props => {
-  const { nounId } = props;
-  const isCool = useAppSelector(state => state.application.isCoolBackground);
-  const { loading, error, data } = useQuery(auctionQuery(nounId));
+const NounInfoRowHolder: React.FC<NounInfoRowHolderProps> = (props) => {
+  const { nounId } = props
+  const isCool = useAppSelector((state) => state.application.isCoolBackground)
 
-  const winner = data && data.auction.bidder?.id;
+  const { app } = useConfig()
 
-  if (loading || !winner) {
+  const queryClient = useQueryClient()
+
+  const fetchAuction = useCallback(async () => {
+    if (!nounId) return
+
+    const query = print(auctionQuery(nounId))
+    const response = await fetch(app.subgraphApiUri, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    })
+    const { data } = await response.json()
+    return data
+  }, [nounId])
+
+  useEffect(
+    () =>
+      void !!nounId &&
+      queryClient.prefetchQuery({
+        queryKey: [auctionQuery(nounId)],
+        queryFn: fetchAuction,
+      }),
+    [nounId, queryClient],
+  )
+
+  const { loading, data, error } = useQuery({
+    queryKey: [auctionQuery(nounId)],
+    queryFn: fetchAuction,
+  })
+  const isLoading = useMemo(() => loading, [loading])
+
+  const { contractAddresses } = useContractAddresses()
+  const shortZero = toShortAddress(constants.AddressZero)
+
+  const winner = useMemo(
+    () => (!!data?.auction.bidder ? data?.auction.bidder.id : shortZero),
+    [data],
+  )
+
+  if (isLoading || !winner) {
     return (
       <div className={classes.nounHolderInfoContainer}>
         <span className={classes.nounHolderLoading}>
           <Trans>Loading...</Trans>
         </span>
       </div>
-    );
+    )
   } else if (error) {
     return (
       <div>
         <Trans>Failed to fetch Noun info</Trans>
       </div>
-    );
+    )
   }
 
-  const etherscanURL = buildEtherscanAddressLink(winner);
-  const shortAddressComponent = <ShortAddress address={winner} />;
+  const etherscanURL = buildEtherscanAddressLink(winner)
+  const shortAddressComponent = (
+    <ShortAddress address={winner} showZero={true} />
+  )
 
   return (
     <Tooltip
       tip="View on Etherscan"
       tooltipContent={(tip: string) => {
-        return <Trans>View on Etherscan</Trans>;
+        return <Trans>`${tip}`</Trans>
       }}
       id="holder-etherscan-tooltip"
     >
@@ -60,15 +107,18 @@ const NounInfoRowHolder: React.FC<NounInfoRowHolderProps> = props => {
           <Trans>Winner</Trans>
         </span>
         <span>
-          <a
+          <Link
             className={
-              isCool ? classes.nounHolderEtherscanLinkCool : classes.nounHolderEtherscanLinkWarm
+              isCool
+                ? classes.nounHolderEtherscanLinkCool
+                : classes.nounHolderEtherscanLinkWarm
             }
-            href={etherscanURL}
+            to={etherscanURL}
             target={'_blank'}
             rel="noreferrer"
           >
-            {winner.toLowerCase() === config.addresses.nounsAuctionHouseProxy.toLowerCase() ? (
+            {winner.toLowerCase() ===
+            contractAddresses.nounsAuctionHouseProxy.toLowerCase() ? (
               <Trans>Nouns Auction House</Trans>
             ) : (
               shortAddressComponent
@@ -76,11 +126,11 @@ const NounInfoRowHolder: React.FC<NounInfoRowHolderProps> = props => {
             <span className={classes.linkIconSpan}>
               <Image src={_LinkIcon} className={classes.linkIcon} />
             </span>
-          </a>
+          </Link>
         </span>
       </div>
     </Tooltip>
-  );
-};
+  )
+}
 
-export default NounInfoRowHolder;
+export default NounInfoRowHolder

@@ -9,3 +9,8 @@ dist
 .DS_Store
 *.tsbuildinfo
 *.log
+.history
+.yarn
+.yarnrc
+packages/nouns-subgraph/config/*-fork.json
+lib

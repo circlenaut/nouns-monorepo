@@ -1,23 +1,35 @@
 /**
  * LanguageProvider.tsx is a modified version of https://github.com/Uniswap/interface/blob/main/src/lib/i18n.tsx
  */
-import { SupportedLocale } from './locales';
-import { initialLocale, useActiveLocale } from '../hooks/useActivateLocale';
-import { dynamicActivate, NounsI18nProvider } from './NounsI18nProvider';
-import { ReactNode, useCallback } from 'react';
+import React, { ReactNode, useCallback } from 'react'
 
-dynamicActivate(initialLocale);
+import { initialLocale, useActiveLocale } from '@/hooks/useActivateLocale'
+import { SupportedLocale } from '@/i18n/locales'
+import { dynamicActivate, NounsI18nProvider } from '@/i18n/NounsI18nProvider'
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const locale = useActiveLocale();
+dynamicActivate(initialLocale)
 
-  const onActivate = useCallback((locale: SupportedLocale) => {
-    dynamicActivate(locale);
-  }, []);
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}: {
+  children: ReactNode
+}) => {
+  const locale = useActiveLocale()
+
+  const onActivate = useCallback(
+    (locale: SupportedLocale) => {
+      dynamicActivate(locale)
+    },
+    [locale, dynamicActivate],
+  )
 
   return (
-    <NounsI18nProvider locale={locale} forceRenderAfterLocaleChange={true} onActivate={onActivate}>
+    <NounsI18nProvider
+      locale={locale}
+      forceRenderAfterLocaleChange={true}
+      onActivate={onActivate}
+    >
       {children}
     </NounsI18nProvider>
-  );
+  )
 }

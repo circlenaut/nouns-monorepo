@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers } from 'ethers'
 
 /**
  * Get address from query param
@@ -10,21 +10,25 @@ export const getAddressFromQueryParams = (
   paramName: string,
   useLocationResult: string,
 ): string | undefined => {
-  console.log(useLocationResult);
   const splitLocationResult = useLocationResult
     .split('=')
-    .map((s: string) => s.replace('?', '').replace('&', ''));
+    .map((s: string) => s.replace('?', '').replace('&', ''))
 
-  const paramIndex = splitLocationResult.indexOf(paramName);
+  const paramIndex = splitLocationResult.indexOf(paramName)
   if (paramIndex < 0 || paramIndex === splitLocationResult.length - 1) {
-    return undefined;
+    return undefined
   }
 
-  const maybeAddress = splitLocationResult[paramIndex + 1];
+  const maybeAddress = splitLocationResult[paramIndex + 1]
 
-  if (maybeAddress.endsWith('.eth') || maybeAddress.endsWith(encodeURIComponent('.⌐◨-◨'))) {
-    return decodeURIComponent(maybeAddress);
+  if (
+    maybeAddress?.endsWith('.eth') ||
+    maybeAddress?.endsWith(encodeURIComponent('.⌐◨-◨'))
+  ) {
+    return decodeURIComponent(maybeAddress)
   }
 
-  return ethers.utils.isAddress(maybeAddress) ? maybeAddress : undefined;
-};
+  return maybeAddress && ethers.utils.isAddress(maybeAddress)
+    ? maybeAddress
+    : undefined
+}

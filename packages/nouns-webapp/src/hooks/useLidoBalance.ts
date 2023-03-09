@@ -1,30 +1,41 @@
-import { useMemo, useEffect, useState } from 'react';
-import { Contract } from '@ethersproject/contracts';
-import { useEthers } from '@usedapp/core';
-import { utils, BigNumber } from 'ethers';
-import config from '../config';
-import ERC20 from '../libs/abi/ERC20.json';
+import { Contract } from '@ethersproject/contracts'
+import { useEthers } from '@usedapp/core'
+import { BigNumber, utils } from 'ethers'
+import { useEffect, useMemo, useState } from 'react'
 
-const { addresses } = config;
+import { CHAIN_ID } from '@/configs'
+import { useContractAddresses } from '@/hooks/useAddresses'
 
-const erc20Interface = new utils.Interface(ERC20);
+import ERC20 from '@/libs/abi/ERC20.json'
 
-function useLidoBalance(): BigNumber | undefined {
-  const { library } = useEthers();
+const erc20Interface = new utils.Interface(ERC20)
 
-  const [balance, setBalance] = useState(undefined);
+const useLidoBalance = (): BigNumber | undefined => {
+  const { chainId, library } = useEthers()
+  const { contractAddresses } = useContractAddresses()
+
+  const [balance, setBalance] = useState(undefined)
 
   const lidoContract = useMemo((): Contract | undefined => {
-    if (!library || !addresses.lidoToken) return;
-    return new Contract(addresses.lidoToken, erc20Interface, library);
-  }, [library]);
+    if (!library || !contractAddresses?.lidoToken) return
+    return new Contract(contractAddresses.lidoToken, erc20Interface, library)
+  }, [library, contractAddresses.lidoToken])
 
   useEffect(() => {
-    if (!lidoContract || !addresses.nounsDaoExecutor) return;
-    lidoContract.balanceOf(addresses.nounsDaoExecutor).then(setBalance);
-  }, [lidoContract]);
+    ;(async () => {
+      if (
+        !lidoContract ||
+        !contractAddresses?.nounsDaoExecutor ||
+        Number(CHAIN_ID) !== chainId
+      )
+        return
+      await lidoContract
+        .balanceOf(contractAddresses.nounsDaoExecutor)
+        .then(setBalance)
+    })()
+  }, [lidoContract, chainId, contractAddresses.nounsDaoExecutor])
 
-  return balance;
+  return balance
 }
 
-export default useLidoBalance;
+export default useLidoBalance

@@ -1,9 +1,13 @@
-import { Handler } from '@netlify/functions';
-import { isNounOwner, nounsQuery } from '../theGraph';
-import { sharedResponseHeaders } from '../utils';
+import { Handler } from '@netlify/functions'
+import { isNounOwner, nounsQuery } from '../theGraph'
+import { sharedResponseHeaders } from '../utils'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const handler: Handler = async (event, context) => {
-  const nouns = await nounsQuery();
+  if (!event.body) {
+    return { statusCode: 400 }
+  }
+  const nouns = await nounsQuery()
   return {
     statusCode: 200,
     headers: {
@@ -11,7 +15,7 @@ const handler: Handler = async (event, context) => {
       ...sharedResponseHeaders,
     },
     body: JSON.stringify(isNounOwner(event.body, nouns)),
-  };
-};
+  }
+}
 
-export { handler };
+export { handler }

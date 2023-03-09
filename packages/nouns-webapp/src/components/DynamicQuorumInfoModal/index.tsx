@@ -1,15 +1,21 @@
-import { useQuery } from '@apollo/client';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import config from '../../config';
-import { Proposal, useDynamicQuorumProps } from '../../wrappers/nounsDao';
-import { totalNounSupplyAtPropSnapshot } from '../../wrappers/subgraph';
-import { Backdrop } from '../Modal';
-import classes from './DynamicQuorumInfoModal.module.css';
-import { XIcon } from '@heroicons/react/solid';
-import { Trans } from '@lingui/macro';
-import clsx from 'clsx';
-import responsiveUiUtilsClasses from '../../utils/ResponsiveUIUtils.module.css';
+import { Trans } from '@lingui/macro'
+import { useConfig } from '@/hooks/useConfig'
+import { useQuery } from '@/wrappers/subgraph'
+import { XIcon } from '@heroicons/react/solid'
+import { useQueryClient } from '@tanstack/react-query'
+import clsx from 'clsx'
+import { print } from 'graphql/language/printer'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import ReactDOM from 'react-dom'
+
+import { Backdrop } from '@/components/Modal'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { Proposal, useDynamicQuorumProps } from '@/wrappers/nounsDao'
+import { totalNounSupplyAtPropSnapshot } from '@/wrappers/subgraph'
+
+// tslint:disable:ordered-imports
+import classes from './DynamicQuorumInfoModal.module.css'
+import responsiveUiUtilsClasses from '@/utils/ResponsiveUIUtils.module.css'
 
 const PLOTTING_CONSTANTS = {
   width: 950,
@@ -19,19 +25,19 @@ const PLOTTING_CONSTANTS = {
   maxQHeightPlotSpace: 32,
   slopeDQFunctionPlotSpace: -0.54468085106,
   mobileScreenCutoffWidthPixels: 1200,
-};
+}
 
 const DynamicQuorumInfoModalOverlay: React.FC<{
-  proposal: Proposal;
-  againstVotesBps: number;
-  againstVotesAbs: number;
-  minQuorumBps: number;
-  maxQuorumBps: number;
-  quorumCoefficent: number;
-  totalNounSupply: number;
-  onDismiss: () => void;
-  currentQuorum?: number;
-}> = props => {
+  proposal: Proposal
+  againstVotesBps: number
+  againstVotesAbs: number
+  minQuorumBps: number
+  maxQuorumBps: number
+  quorumCoefficent: number
+  totalNounSupply: number
+  onDismiss: () => void
+  currentQuorum?: number
+}> = (props) => {
   const {
     onDismiss,
     proposal,
@@ -42,34 +48,44 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
     maxQuorumBps,
     totalNounSupply,
     currentQuorum,
-  } = props;
+  } = props
 
-  const linearToConstantCrossoverBPS = (maxQuorumBps - minQuorumBps) / quorumCoefficent;
+  const linearToConstantCrossoverBPS =
+    (maxQuorumBps - minQuorumBps) / quorumCoefficent
 
   const dqmFunction = (bps: number) => {
-    return Math.min(minQuorumBps + quorumCoefficent * bps, maxQuorumBps);
-  };
+    return Math.min(minQuorumBps + quorumCoefficent * bps, maxQuorumBps)
+  }
 
   const plotSpaceFunction = (x: number) => {
-    return PLOTTING_CONSTANTS.slopeDQFunctionPlotSpace * x + PLOTTING_CONSTANTS.minQHeightPlotSpace;
-  };
+    return (
+      PLOTTING_CONSTANTS.slopeDQFunctionPlotSpace * x +
+      PLOTTING_CONSTANTS.minQHeightPlotSpace
+    )
+  }
 
   const calcPlotFrac = () => {
-    if (Math.floor((linearToConstantCrossoverBPS * totalNounSupply) / 10_000) <= 0) {
-      return 0;
+    if (
+      Math.floor((linearToConstantCrossoverBPS * totalNounSupply) / 10_000) <= 0
+    ) {
+      return 0
     }
     return (
-      (againstVotesAbs / Math.floor((linearToConstantCrossoverBPS * totalNounSupply) / 10_000)) *
+      (againstVotesAbs /
+        Math.floor((linearToConstantCrossoverBPS * totalNounSupply) / 10_000)) *
       PLOTTING_CONSTANTS.dqFunctionMaxQXCrossoverPlotSpace
-    );
-  };
+    )
+  }
 
   const x =
     againstVotesBps < linearToConstantCrossoverBPS
       ? calcPlotFrac()
       : PLOTTING_CONSTANTS.dqFunctionMaxQXCrossoverPlotSpace +
-        0.5 * PLOTTING_CONSTANTS.width * (againstVotesBps / 10_000);
-  const y = Math.max(plotSpaceFunction(x), PLOTTING_CONSTANTS.maxQHeightPlotSpace);
+        0.5 * PLOTTING_CONSTANTS.width * (againstVotesBps / 10_000)
+  const y = Math.max(
+    plotSpaceFunction(x),
+    PLOTTING_CONSTANTS.maxQHeightPlotSpace,
+  )
 
   return (
     <>
@@ -87,43 +103,57 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
           <p className={classes.mainCopy}>
             {window.innerWidth < 1200 ? (
               <Trans>
-                The Threshold (minimum number of For votes required to pass a proposal) is set as a
-                function of the number of Against votes a proposal has received. It increases
-                linearly as a function of the % of Nouns voting against a prop, varying between Min
+                The Threshold (minimum number of For votes required to pass a
+                proposal) is set as a function of the number of Against votes a
+                proposal has received. It increases linearly as a function of
+                the % of Nouns voting against a prop, varying between Min
                 Threshold and Max Threshold.
               </Trans>
             ) : (
               <Trans>
-                The Threshold (minimum number of For votes required to pass a proposal) is set as a
-                function of the number of Against votes a proposal has received. The number of For
-                votes required to pass Proposal {proposal.id} is given by the following curve:
+                The Threshold (minimum number of For votes required to pass a
+                proposal) is set as a function of the number of Against votes a
+                proposal has received. The number of For votes required to pass
+                Proposal {proposal.id} is given by the following curve:
               </Trans>
             )}
           </p>
 
           {/* Mobile - no graph content */}
-          <div className={clsx(responsiveUiUtilsClasses.mobileOnly, classes.mobileQuorumWrapper)}>
+          <div
+            className={clsx(
+              responsiveUiUtilsClasses.mobileOnly,
+              classes.mobileQuorumWrapper,
+            )}
+          >
             <div className={classes.mobileQuorumInfo}>
-              <span>Min Threshold:</span> {Math.floor((minQuorumBps * totalNounSupply) / 10_000)}{' '}
-              Nouns
+              <span>Min Threshold:</span>{' '}
+              {Math.floor((minQuorumBps * totalNounSupply) / 10_000)} Nouns
             </div>
 
             <div className={classes.mobileQuorumInfo}>
               <span>Current Threshold:</span>{' '}
               {Math.floor(
-                (Math.min(maxQuorumBps, dqmFunction(againstVotesBps)) * totalNounSupply) / 10_000,
+                (Math.min(maxQuorumBps, dqmFunction(againstVotesBps)) *
+                  totalNounSupply) /
+                  10_000,
               )}{' '}
               Nouns
             </div>
 
             <div className={classes.mobileQuorumInfo}>
-              <span>Max Threshold:</span> {Math.floor((maxQuorumBps * totalNounSupply) / 10_000)}{' '}
-              Nouns
+              <span>Max Threshold:</span>{' '}
+              {Math.floor((maxQuorumBps * totalNounSupply) / 10_000)} Nouns
             </div>
           </div>
 
           {/* Outter container */}
-          <div className={clsx(classes.graphContainer, classes.outterGraphContainer)}>
+          <div
+            className={clsx(
+              classes.graphContainer,
+              classes.outterGraphContainer,
+            )}
+          >
             <div className={classes.graphWrapper}>
               {/* Y-Axis label */}
               <div className={classes.yAxisText}>
@@ -131,17 +161,25 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
               </div>
 
               {/* Inner graph container */}
-              <div className={clsx(classes.graphContainer, classes.innerGraphContainer)}>
+              <div
+                className={clsx(
+                  classes.graphContainer,
+                  classes.innerGraphContainer,
+                )}
+              >
                 {/* <svg width="950" height="320"> */}
-                <svg width={PLOTTING_CONSTANTS.width} height={PLOTTING_CONSTANTS.height}>
+                <svg
+                  width={PLOTTING_CONSTANTS.width}
+                  height={PLOTTING_CONSTANTS.height}
+                >
                   <line
                     x1="0"
                     y1={PLOTTING_CONSTANTS.minQHeightPlotSpace}
                     x2="100%"
                     y2={PLOTTING_CONSTANTS.minQHeightPlotSpace}
                     stroke="#151C3B40"
-                    stroke-width="4"
-                    stroke-dasharray="5"
+                    strokeWidth="4"
+                    strokeDasharray="5"
                   />
                   <line
                     x1="0"
@@ -149,8 +187,8 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
                     x2="100%"
                     y2={PLOTTING_CONSTANTS.maxQHeightPlotSpace}
                     stroke="#151C3B40"
-                    stroke-width="4"
-                    stroke-dasharray="5"
+                    strokeWidth="4"
+                    strokeDasharray="5"
                   />
                   <line
                     x1={470}
@@ -158,8 +196,8 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
                     x2={470}
                     y2={PLOTTING_CONSTANTS.height}
                     stroke="#151C3B40"
-                    stroke-width="4"
-                    stroke-dasharray="5"
+                    strokeWidth="4"
+                    strokeDasharray="5"
                   />
                   <g fill="#4965F080" stroke="none">
                     <polygon points={`950,288 950,32 470,32 0,288`} />
@@ -181,7 +219,7 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
                     y2={y}
                     x2={x}
                     stroke="var(--brand-color-red)"
-                    stroke-width="4"
+                    strokeWidth="4"
                   />
                   {/* Horizontal Line Indicating Required For BPS */}
                   <line
@@ -190,20 +228,31 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
                     y2={y}
                     x2={x}
                     stroke="var(--brand-color-green)"
-                    stroke-width="4"
+                    strokeWidth="4"
                   />
-                  <circle cy={y} cx={x} r="7" fill="var(--brand-gray-light-text)" />
+                  <circle
+                    cy={y}
+                    cx={x}
+                    r="7"
+                    fill="var(--brand-gray-light-text)"
+                  />
                   <text x="20" y="24">
-                    Max Threshold: {Math.floor((maxQuorumBps * totalNounSupply) / 10_000)} Nouns{' '}
+                    Max Threshold:{' '}
+                    {Math.floor((maxQuorumBps * totalNounSupply) / 10_000)}{' '}
+                    Nouns{' '}
                     <tspan fill="var(--brand-gray-light-text)">
                       ({maxQuorumBps / 100}% of Nouns)
                     </tspan>
                   </text>
-                  {Math.abs(y - 10 - PLOTTING_CONSTANTS.minQHeightPlotSpace) > 100 ? (
+                  {Math.abs(y - 10 - PLOTTING_CONSTANTS.minQHeightPlotSpace) >
+                  100 ? (
                     <>
                       <text x="20" y="280">
-                        Min Threshold: {Math.floor((minQuorumBps * totalNounSupply) / 10_000)}{' '}
-                        {Math.floor((minQuorumBps * totalNounSupply) / 10_000) === 1
+                        Min Threshold:{' '}
+                        {Math.floor((minQuorumBps * totalNounSupply) / 10_000)}{' '}
+                        {Math.floor(
+                          (minQuorumBps * totalNounSupply) / 10_000,
+                        ) === 1
                           ? 'Noun'
                           : 'Nouns'}{' '}
                         <tspan fill="var(--brand-gray-light-text)">
@@ -214,44 +263,70 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
                   ) : (
                     <>
                       <text x="550" y="280">
-                        Min Thresold: {Math.floor((minQuorumBps * totalNounSupply) / 10_000)} Nouns{' '}
+                        Min Thresold:{' '}
+                        {Math.floor((minQuorumBps * totalNounSupply) / 10_000)}{' '}
+                        Nouns{' '}
                         <tspan fill="var(--brand-gray-light-text)">
                           ({minQuorumBps / 100}% of Nouns)
                         </tspan>
                       </text>
                     </>
                   )}
-                  {againstVotesBps >= 400 && againstVotesAbs >= maxQuorumBps && (
-                    <text x={10} y={y - 10} fill="var(--brand-gray-light-text)">
-                      {Math.floor(Math.min(maxQuorumBps, dqmFunction(againstVotesBps)) / 100)}% of
-                      Nouns
-                    </text>
-                  )}
+                  {againstVotesBps >= 400 &&
+                    againstVotesAbs >= maxQuorumBps && (
+                      <text
+                        x={10}
+                        y={y - 10}
+                        fill="var(--brand-gray-light-text)"
+                      >
+                        {Math.floor(
+                          Math.min(maxQuorumBps, dqmFunction(againstVotesBps)) /
+                            100,
+                        )}
+                        % of Nouns
+                      </text>
+                    )}
                   {againstVotesBps > 4000 ? (
                     <text
                       x={x - 390}
-                      y={y + (againstVotesBps > 0.9 * linearToConstantCrossoverBPS ? 20 : -10)}
+                      y={
+                        y +
+                        (againstVotesBps > 0.9 * linearToConstantCrossoverBPS
+                          ? 20
+                          : -10)
+                      }
                     >
                       Current Threshold: {currentQuorum}{' '}
                       <tspan fill="var(--brand-gray-light-text)">
-                        ({againstVotesAbs} {againstVotesAbs === 1 ? 'Noun' : 'Nouns'} Currently
+                        ({againstVotesAbs}{' '}
+                        {againstVotesAbs === 1 ? 'Noun' : 'Nouns'} Currently
                         Against)
                       </tspan>
                     </text>
                   ) : (
                     <text
                       x={x + 10}
-                      y={y + (againstVotesBps > 0.9 * linearToConstantCrossoverBPS ? 20 : -10)}
+                      y={
+                        y +
+                        (againstVotesBps > 0.9 * linearToConstantCrossoverBPS
+                          ? 20
+                          : -10)
+                      }
                     >
                       Current Threshold: {currentQuorum}{' '}
                       <tspan fill="var(--brand-gray-light-text)">
-                        ({againstVotesAbs} {againstVotesAbs === 1 ? 'Noun' : 'Nouns'} Currently
+                        ({againstVotesAbs}{' '}
+                        {againstVotesAbs === 1 ? 'Noun' : 'Nouns'} Currently
                         Against)
                       </tspan>
                     </text>
                   )}
                   {againstVotesAbs > 0 && (
-                    <text x={x + (x < 712 ? 10 : -110)} y={310} fill="var(--brand-gray-light-text)">
+                    <text
+                      x={x + (x < 712 ? 10 : -110)}
+                      y={310}
+                      fill="var(--brand-gray-light-text)"
+                    >
                       {Math.floor(againstVotesBps / 100)}% of Nouns
                     </text>
                   )}
@@ -279,64 +354,106 @@ const DynamicQuorumInfoModalOverlay: React.FC<{
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
 const DynamicQuorumInfoModal: React.FC<{
-  proposal: Proposal;
-  againstVotesAbsolute: number;
-  onDismiss: () => void;
-  currentQuorum?: number;
-}> = props => {
-  const { onDismiss, proposal, againstVotesAbsolute, currentQuorum } = props;
+  proposal: Proposal
+  againstVotesAbsolute: number
+  onDismiss: () => void
+  currentQuorum?: number
+}> = (props) => {
+  const { onDismiss, proposal, againstVotesAbsolute, currentQuorum } = props
+  const { contractAddresses } = useContractAddresses()
 
-  const { data, loading, error } = useQuery(
-    totalNounSupplyAtPropSnapshot(proposal && proposal.id ? proposal.id : '0'),
-  );
+  const { app } = useConfig()
 
-  const dynamicQuorumProps = useDynamicQuorumProps(
-    config.addresses.nounsDAOProxy,
+  const queryClient = useQueryClient()
+
+  const fetchTotalNounSupplyAtPropSnapshot = useCallback(async () => {
+    if (!proposal?.id) return
+
+    const query = print(totalNounSupplyAtPropSnapshot(proposal.id))
+    const response = await fetch(app.subgraphApiUri, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    })
+    const { data } = await response.json()
+    return data
+  }, [proposal])
+
+  useEffect(
+    () =>
+      void !!proposal &&
+      proposal.id &&
+      queryClient.prefetchQuery({
+        queryKey: [totalNounSupplyAtPropSnapshot(proposal.id)],
+        queryFn: fetchTotalNounSupplyAtPropSnapshot,
+      }),
+    [proposal, queryClient],
+  )
+
+  // const { data, loading, error } = useQuery(
+  //   totalNounSupplyAtPropSnapshot(proposal && proposal.id ? proposal.id : '0'),
+  // )
+  const { loading, data, error } = useQuery({
+    queryKey: [
+      totalNounSupplyAtPropSnapshot(
+        proposal && proposal.id ? proposal.id : '0',
+      ),
+    ],
+    queryFn: fetchTotalNounSupplyAtPropSnapshot,
+  })
+
+  const dynamicQuorumPropsCall = useDynamicQuorumProps(
+    contractAddresses.nounsDAOProxy,
     proposal.startBlock,
-  );
+  )
+  const dynamicQuorumProps = useMemo(
+    () => dynamicQuorumPropsCall,
+    [dynamicQuorumPropsCall],
+  )
 
   if (error) {
-    return <>Failed to fetch dynamic threshold info</>;
+    return <>Failed to fetch dynamic threshold info</>
   }
 
   if (loading) {
-    return <></>;
+    return <></>
   }
 
   // coeffient is represented as fixed point number multiplied by 1e6, thus we need to divide by this number to rescale it
-  const scalingFactor = 1_000_000;
+  const scalingFactor = 1_000_000
+  const backdropRoot = document.getElementById('backdrop-root')
+  const overlayRoot = document.getElementById('overlay-root')
   return (
     <>
-      {ReactDOM.createPortal(
-        <Backdrop onDismiss={onDismiss} />,
-        document.getElementById('backdrop-root')!,
-      )}
-      {ReactDOM.createPortal(
-        <DynamicQuorumInfoModalOverlay
-          againstVotesBps={Math.floor(
-            (againstVotesAbsolute / data.proposals[0].totalSupply) * 10_000,
-          )}
-          againstVotesAbs={againstVotesAbsolute}
-          minQuorumBps={dynamicQuorumProps?.minQuorumVotesBPS ?? 0}
-          maxQuorumBps={dynamicQuorumProps?.maxQuorumVotesBPS ?? 0}
-          quorumCoefficent={
-            dynamicQuorumProps?.quorumCoefficient
-              ? dynamicQuorumProps?.quorumCoefficient / scalingFactor
-              : 0
-          }
-          onDismiss={onDismiss}
-          proposal={proposal}
-          totalNounSupply={data.proposals[0].totalSupply}
-          currentQuorum={currentQuorum}
-        />,
-        document.getElementById('overlay-root')!,
-      )}
+      {backdropRoot &&
+        ReactDOM.createPortal(<Backdrop onDismiss={onDismiss} />, backdropRoot)}
+      {overlayRoot &&
+        ReactDOM.createPortal(
+          <DynamicQuorumInfoModalOverlay
+            againstVotesBps={Math.floor(
+              (againstVotesAbsolute / data.proposals[0].totalSupply) * 10_000,
+            )}
+            againstVotesAbs={againstVotesAbsolute}
+            minQuorumBps={dynamicQuorumProps?.minQuorumVotesBPS ?? 0}
+            maxQuorumBps={dynamicQuorumProps?.maxQuorumVotesBPS ?? 0}
+            quorumCoefficent={
+              dynamicQuorumProps?.quorumCoefficient
+                ? dynamicQuorumProps?.quorumCoefficient / scalingFactor
+                : 0
+            }
+            onDismiss={onDismiss}
+            proposal={proposal}
+            totalNounSupply={data.proposals[0].totalSupply}
+            currentQuorum={currentQuorum}
+          />,
+          overlayRoot,
+        )}
     </>
-  );
-};
+  )
+}
 
-export default DynamicQuorumInfoModal;
+export default DynamicQuorumInfoModal

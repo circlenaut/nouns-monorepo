@@ -1,39 +1,58 @@
-import { Button, Row, Col } from 'react-bootstrap';
-import { useAppSelector } from '../../hooks';
-import classes from './Winner.module.css';
-import ShortAddress from '../ShortAddress';
-import clsx from 'clsx';
-import { isMobileScreen } from '../../utils/isMobile';
-import { Trans } from '@lingui/macro';
-import { useActiveLocale } from '../../hooks/useActivateLocale';
-import React from 'react';
-import { buildEtherscanAddressLink } from '../../utils/etherscan';
-import Tooltip from '../Tooltip';
+import { Trans } from '@lingui/macro'
+import clsx from 'clsx'
+import React, { useMemo } from 'react'
+import { Button, Col, Row } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+
+import ShortAddress from '@/components/ShortAddress'
+import Tooltip from '@/components/Tooltip'
+import { useAppSelector } from '@/hooks'
+import { useActiveLocale } from '@/hooks/useActivateLocale'
+import { useEnv } from '@/hooks/useEnv'
+import { Locales } from '@/i18n/locales'
+import { buildEtherscanAddressLink } from '@/utils/etherscan'
+import { isMobileScreen } from '@/utils/isMobile'
+
+import classes from './Winner.module.css'
 
 interface WinnerProps {
-  winner: string;
-  isNounders?: boolean;
+  winner: string
+  isNounders?: boolean
 }
 
-const Winner: React.FC<WinnerProps> = props => {
-  const { winner, isNounders } = props;
-  const activeAccount = useAppSelector(state => state.account.activeAccount);
+const Winner: React.FC<WinnerProps> = (props) => {
+  const { winner, isNounders } = props
+  const isCool = useAppSelector((state) => state.application.isCoolBackground)
+  const isMobile = isMobileScreen()
 
-  const isCool = useAppSelector(state => state.application.isCoolBackground);
-  const isMobile = isMobileScreen();
+  const { activeAccount, activeChainId: chainId } = useAppSelector(
+    (state) => state.account,
+  )
 
-  const isWinnerYou =
-    activeAccount !== undefined && activeAccount.toLocaleLowerCase() === winner.toLocaleLowerCase();
+  const isWinnerYou = useMemo(
+    () =>
+      chainId &&
+      activeAccount !== undefined &&
+      activeAccount.toLocaleLowerCase() === winner.toLocaleLowerCase(),
+    [chainId, activeAccount, winner],
+  )
 
-  const activeLocale = useActiveLocale();
+  const activeLocale = useActiveLocale()
+
+  const envs = useEnv()
 
   const nonNounderNounContent = isWinnerYou ? (
     <Row className={classes.youSection}>
-      <Col lg={activeLocale === 'ja-JP' ? 8 : 4} className={classes.youCopy}>
+      <Col
+        lg={activeLocale === Locales.ja_JP ? 8 : 4}
+        className={classes.youCopy}
+      >
         <h2
           className={classes.winnerContent}
           style={{
-            color: isCool ? 'var(--brand-cool-dark-text)' : 'var(--brand-warm-dark-text)',
+            color: isCool
+              ? 'var(--brand-cool-dark-text)'
+              : 'var(--brand-warm-dark-text)',
           }}
         >
           <Trans>You</Trans>
@@ -41,8 +60,8 @@ const Winner: React.FC<WinnerProps> = props => {
       </Col>
       {!isMobile && (
         <Col>
-          <a
-            href="https://nouns.center/groups"
+          <Link
+            to="https://nouns.center/groups"
             target="_blank"
             rel="noreferrer noopener"
             className={classes.verifyLink}
@@ -50,9 +69,9 @@ const Winner: React.FC<WinnerProps> = props => {
             <Button className={classes.verifyButton}>
               <Trans>Get Involved</Trans>
             </Button>
-          </a>
-          <a
-            href="https://www.nounsagora.com/"
+          </Link>
+          <Link
+            to="https://www.nounsagora.com/"
             target="_blank"
             rel="noreferrer noopener"
             className={classes.verifyLink}
@@ -60,17 +79,17 @@ const Winner: React.FC<WinnerProps> = props => {
             <Button className={classes.verifyButton}>
               <Trans>Delegate</Trans>
             </Button>
-          </a>
+          </Link>
         </Col>
       )}
     </Row>
   ) : (
-    <ShortAddress size={40} address={winner} avatar={true} />
-  );
+    <ShortAddress size={40} address={winner} avatar={true} showZero={true} />
+  )
 
   const nounderNounContent = (
-    <a
-      href={buildEtherscanAddressLink('nounders.eth')}
+    <Link
+      to={buildEtherscanAddressLink(envs.NOUNDERS_ADDRESS)}
       target={'_blank'}
       rel="noreferrer"
       className={classes.link}
@@ -78,14 +97,14 @@ const Winner: React.FC<WinnerProps> = props => {
       <Tooltip
         tip="View on Etherscan"
         tooltipContent={(tip: string) => {
-          return <Trans>View on Etherscan</Trans>;
+          return <Trans>${tip}</Trans>
         }}
         id="holder-etherscan-tooltip"
       >
-        nounders.eth
+        {envs.NOUNDERS_ADDRESS}
       </Tooltip>
-    </a>
-  );
+    </Link>
+  )
 
   return (
     <>
@@ -93,7 +112,9 @@ const Winner: React.FC<WinnerProps> = props => {
         <Col xs={1} lg={12} className={classes.leftCol}>
           <h4
             style={{
-              color: isCool ? 'var(--brand-cool-light-text)' : 'var(--brand-warm-light-text)',
+              color: isCool
+                ? 'var(--brand-cool-light-text)'
+                : 'var(--brand-warm-light-text)',
             }}
             className={classes.winnerCopy}
           >
@@ -104,7 +125,9 @@ const Winner: React.FC<WinnerProps> = props => {
           <h2
             className={classes.winnerContent}
             style={{
-              color: isCool ? 'var(--brand-cool-dark-text)' : 'var(--brand-warm-dark-text)',
+              color: isCool
+                ? 'var(--brand-cool-dark-text)'
+                : 'var(--brand-warm-dark-text)',
             }}
           >
             {isNounders ? nounderNounContent : nonNounderNounContent}
@@ -113,8 +136,8 @@ const Winner: React.FC<WinnerProps> = props => {
       </Row>
       {isWinnerYou && isMobile && (
         <Row>
-          <a
-            href="https://nouns.center/groups"
+          <Link
+            to="https://nouns.center/groups"
             target="_blank"
             rel="noreferrer noopener"
             className={classes.verifyLink}
@@ -122,9 +145,9 @@ const Winner: React.FC<WinnerProps> = props => {
             <Button className={classes.verifyButton}>
               <Trans>Get Involved</Trans>
             </Button>
-          </a>
-          <a
-            href="https://www.nounsagora.com/"
+          </Link>
+          <Link
+            to="https://www.nounsagora.com/"
             target="_blank"
             rel="noreferrer noopener"
             className={classes.verifyLink}
@@ -132,11 +155,11 @@ const Winner: React.FC<WinnerProps> = props => {
             <Button className={classes.verifyButton}>
               <Trans>Delegate</Trans>
             </Button>
-          </a>
+          </Link>
         </Row>
       )}
     </>
-  );
-};
+  )
+}
 
-export default Winner;
+export default Winner

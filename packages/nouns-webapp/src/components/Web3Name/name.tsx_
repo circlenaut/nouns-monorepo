@@ -1,0 +1,188 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { constants, utils } from 'ethers'
+import LRUCache from 'lru-cache'
+// import { createHash } from 'crypto'
+import { SHA1, SHA256 } from 'crypto-js';
+
+
+import { useActiveLocale } from '@/hooks/useActivateLocale'
+import { useReverseENSLookUp } from '@/utils/ensLookup'
+import { useNounsNameService } from '@/wrappers/nounsNameService'
+import { containsBlockedText } from '@/utils/moderation/containsBlockedText'
+import { isValidNameFormat, toShortAddress, toShortENS, toShortNNS, toVeryShortAddress, toVeryShortENS, toVeryShortNNS } from '@/utils/addressAndChainNameDisplayUtils'
+import { Spinner } from 'react-bootstrap'
+
+interface NetworkNameProps {
+  address: string
+  showZero?: boolean
+  renderName?: boolean
+  fetchIsLoading?: (isRunning: boolean) => void
+}
+
+const cache = new LRUCache<string, string>({
+  max: 100, // maximum number of entries to store
+  ttl: 5 * 60 * 1000, // maximum age of an entry in milliseconds (5 minutes in this case)
+})
+
+const getAddressHash = (address: string, algorithm = 'sha256') => {
+  // const message, nonce, path, privateKey; // ...
+  switch (algorithm) {
+    case 'sha256': return SHA256(address);
+    case 'sha1': return SHA1(address);
+    default:
+      break;
+  }
+  // const hmacDigest = Base64.stringify(hmacSHA512(path + hashDigest, privateKey));
+  // const hash = createHash(algorithm)
+  // hash.update(address)
+  // return hash.digest('hex')
+}
+
+const Web3Name: React.FC<NetworkNameProps> = ({
+  address,
+  showZero = false,
+  renderName = true,
+  fetchIsLoading = () => true,
+}) => {
+  const activeLocaleCall = useActiveLocale()
+  const activeLocale = useMemo(() => activeLocaleCall, [activeLocaleCall])
+
+  const [validAddress, setValidAddress] = useState<string>(
+    constants.AddressZero,
+  )
+
+  const [displayName, setDisplayName] = useState<string>()
+
+  const shortAddress = useMemo(() => toShortAddress(address), [address])
+  const renderAddress = useCallback(
+    (addr: string) =>
+      {
+        if (isValidNameFormat(address)) return
+        return activeLocale === 'ja-JP' ? toVeryShortAddress(addr) : shortAddress
+      }, [activeLocale, address, shortAddress],
+  )
+
+  const renderENS = useCallback(
+    (ens: string) =>
+      activeLocale === 'ja-JP' && isValidNameFormat(ens) ? toVeryShortENS(ens) : toShortENS(ens),
+    [activeLocale],
+  )
+
+  const renderNNS = useCallback(
+    (nns: string) =>
+      activeLocale === 'ja-JP' && isValidNameFormat(nns)? toVeryShortNNS(nns) : toShortNNS(nns),
+    [activeLocale],
+  )
+
+  if (showZero){
+    return <>{renderAddress(constants.AddressZero)}</>
+  }
+
+  useEffect(() => {
+    if (!renderName) return;
+    try {
+      // catch addresses being passed as names before validating addresses
+      !isValidNameFormat(address) && setValidAddress(utils.getAddress(address))
+    } catch (error) {}
+  }, [showZero, address])
+
+  const cacheEnsKey = useMemo(() => `${validAddress}_${activeLocale}_ens`, [validAddress, activeLocale])
+  const cachedEnsResult = useMemo(() => cache.get(cacheEnsKey), [cacheEnsKey])
+
+  const ens = useReverseENSLookUp(validAddress)
+
+  const [ethName, setEthName] = useState<string>()
+
+  useEffect(() => {
+    if (renderName && validAddress !== constants.AddressZero && !cachedEnsResult) {
+      try {
+        // const ens = useReverseENSLookUp(validAddress)
+        // const ens = `${getAddressHash(validAddress, 'sha1')}.eth` // for testing
+        const ethName = ens && !containsBlockedText(ens || '', 'en') ? ens : undefined
+        setEthName(ethName)
+
+        console.debug(`Caching ${validAddress} name ${nounsName} to cache ...`)
+        ethName && cache.set(cacheEnsKey, ethName)
+      } catch (error) {   
+        console.error(`Failed to get ENS name for address ${validAddress}: ${error}`)
+        error instanceof Error ? error.message : `Unknown Error: ${error}`
+      }
+    }
+    if (cachedEnsResult) {
+      setEthName(cachedEnsResult)
+    }
+  }, [renderName, validAddress, cachedEnsResult, cacheEnsKey])
+
+  const cacheNnsKey = useMemo(() => `${validAddress}_${activeLocale}_nns`, [validAddress, activeLocale])
+  const cachedNnsResult = useMemo(() => cache.get(cacheNnsKey), [cacheNnsKey])
+
+  // const nns = useNounsNameService(validAddress, !!cachedNnsResult || showZero || !renderName)
+  const nns = useNounsNameService(validAddress)
+  // const setNounsNameCache = useMemo(() => {
+  //   if (cachedNnsResult) {
+  //     return cachedNnsResult
+  //   }
+  //   const result = nnsCall
+  //   result && cache.set(cacheNnsKey, result)
+  //   return result
+  // }, [nnsCall, cachedNnsResult, cacheNnsKey])
+
+  const [nounsName, setNounsName] = useState<string>()
+  useEffect(() => {
+    if (renderName && validAddress !== constants.AddressZero && !cachedNnsResult) {
+      try {
+        // const nns = useNounsNameService(validAddress)
+        // const nns =  `${getAddressHash(validAddress, 'sha256')}.⌐◨-◨` // for testing
+        const nounsName = nns && !containsBlockedText(nns || '', 'en') ? nns : undefined
+
+        console.debug(`Caching ${validAddress} name ${nounsName} to cache ...`)
+        setNounsName(nounsName)
+
+        nounsName && cache.set(cacheNnsKey, nounsName)
+        
+      } catch (error) {   
+        console.error(`Failed to get NNS name for address ${validAddress}: ${error}`)
+        error instanceof Error ? error.message : `Unknown Error: ${error}`
+      }
+    }
+    if (cachedNnsResult) {
+      setNounsName(cachedNnsResult)
+    }
+  }, [renderName, validAddress, cachedNnsResult, cacheNnsKey, nns])
+
+  useEffect(() => {
+    if (!renderName) return;
+  
+    // setDisplayName(address);
+  
+    const name = nounsName
+      ? renderNNS(nounsName)
+      : ethName
+      && renderENS(ethName);
+    const ensMatchesBlocklistRegex = containsBlockedText(name || '', 'en');
+    if (!ensMatchesBlocklistRegex && isValidNameFormat(nounsName || ethName)) {
+      setDisplayName(name);
+    }
+  
+    fetchIsLoading(true); // Start loading
+    return () => {
+      fetchIsLoading(false); // Stop loading when component unmounts
+    };
+  }, [showZero, nounsName, ethName]);
+   
+
+  const nameToRender = useMemo(() => {
+    console.warn('displayName', displayName)
+    if (renderName && displayName) {
+      return displayName
+    }
+    if (showZero) {
+      return shortAddress
+    }
+    // return <Spinner animation="border" />
+  }, [renderName, displayName, showZero, shortAddress])
+  
+  return <>{nameToRender}</>
+}
+
+export default Web3Name

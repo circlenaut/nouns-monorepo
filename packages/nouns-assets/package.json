@@ -12,19 +12,12 @@
     "encode-more": "ts-node scripts/encode-more.ts",
     "append-image-data": "ts-node scripts/append-image-data.ts",
     "clean": "rimraf dist tsconfig.build.tsbuildinfo",
+    "clean:modules": "rimraf dist modules tsconfig.build.tsbuildinfo",
     "build": "tsc -p tsconfig.build.json",
     "prepare": "yarn build",
-    "test": "mocha -r ts-node/register \"test/**/*.test.ts\""
+    "test": "ts-mocha -n loader=ts-node/esm -p tsconfig.json \"test/**/*.test.ts\""
   },
   "devDependencies": {
-    "@nouns/sdk": "^0.4.0",
-    "@types/pngjs": "^6.0.1",
-    "chai": "^4.2.0",
-    "mocha": "^8.4.0",
-    "pngjs": "^6.0.0"
-  },
-  "dependencies": {
-    "@ethersproject/bignumber": "^5.5.0",
-    "@ethersproject/solidity": "^5.5.0"
+    "@nouns/sdk": "^0.4.0"
   }
 }

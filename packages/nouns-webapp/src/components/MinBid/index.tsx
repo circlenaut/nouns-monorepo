@@ -1,18 +1,34 @@
-import nounPointerImg from '../../assets/noun-pointer.png';
-import classes from './MinBid.module.css';
-import BigNumber from 'bignumber.js';
-import TruncatedAmount from '../TruncatedAmount';
+import BigNumber from 'bignumber.js'
+import React from 'react'
 
-const MinBid: React.FC<{ minBid: BigNumber; onClick: () => void }> = props => {
-  const { minBid, onClick } = props;
+import TruncatedAmount from '@/components/TruncatedAmount'
+
+import classes from './MinBid.module.css'
+
+import nounPointerImg from '@/assets/noun-pointer.png'
+
+const MinBid: React.FC<{ minBid: BigNumber; onClick: () => void }> = (
+  props,
+) => {
+  const { minBid, onClick } = props
 
   return (
-    <div className={classes.minBidWrapper} onClick={onClick}>
+    <div
+      className={classes.minBidWrapper}
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter') {
+          onClick()
+        }
+      }}
+    >
       <img src={nounPointerImg} alt="Pointer noun" />
       <h3 className={classes.minBid}>
         You must bid at least {minBid && <TruncatedAmount amount={minBid} />}
       </h3>
     </div>
-  );
-};
-export default MinBid;
+  )
+}
+export default MinBid

@@ -1,45 +1,47 @@
-import { Auction } from '../../wrappers/nounsAuction';
-import React, { useState, useEffect } from 'react';
-import BigNumber from 'bignumber.js';
-import { Row, Col } from 'react-bootstrap';
-import classes from './AuctionActivity.module.css';
-import bidHistoryClasses from './BidHistory.module.css';
-import Bid from '../Bid';
-import AuctionTimer from '../AuctionTimer';
-import CurrentBid from '../CurrentBid';
-import Winner from '../Winner';
-import BidHistory from '../BidHistory';
-import AuctionNavigation from '../AuctionNavigation';
-import AuctionActivityWrapper from '../AuctionActivityWrapper';
-import AuctionTitleAndNavWrapper from '../AuctionTitleAndNavWrapper';
-import AuctionActivityNounTitle from '../AuctionActivityNounTitle';
-import AuctionActivityDateHeadline from '../AuctionActivityDateHeadline';
-import BidHistoryBtn from '../BidHistoryBtn';
-import config from '../../config';
-import { buildEtherscanAddressLink } from '../../utils/etherscan';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import NounInfoCard from '../NounInfoCard';
-import { useAppSelector } from '../../hooks';
-import BidHistoryModal from '../BidHistoryModal';
-import { Trans } from '@lingui/macro';
-import Holder from '../Holder';
+import { Trans } from '@lingui/macro'
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import BigNumber from 'bignumber.js'
+import React, { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Col, Row } from 'react-bootstrap'
 
-const openEtherscanBidHistory = () => {
-  const url = buildEtherscanAddressLink(config.addresses.nounsAuctionHouseProxy);
-  window.open(url);
-};
+import AuctionActivityDateHeadline from '@/components/AuctionActivityDateHeadline'
+import AuctionActivityNounTitle from '@/components/AuctionActivityNounTitle'
+import AuctionActivityWrapper from '@/components/AuctionActivityWrapper'
+import AuctionNavigation from '@/components/AuctionNavigation'
+import AuctionTimer from '@/components/AuctionTimer'
+import AuctionTitleAndNavWrapper from '@/components/AuctionTitleAndNavWrapper'
+import Bid from '@/components/Bid'
+import BidHistory from '@/components/BidHistory'
+import BidHistoryBtn from '@/components/BidHistoryBtn'
+import BidHistoryModal from '@/components/BidHistoryModal'
+import CurrentBid from '@/components/CurrentBid'
+import Holder from '@/components/Holder'
+import NounInfoCard from '@/components/NounInfoCard'
+import Winner from '@/components/Winner'
+import { FOMO_NOUNS_URL } from '@/configs'
+import { useAppSelector } from '@/hooks'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { buildEtherscanAddressLink } from '@/utils/etherscan'
+import { Auction } from '@/wrappers/nounsAuction'
+
+// tslint:disable:ordered-imports
+import classes from './AuctionActivity.module.css'
+import bidHistoryClasses from './BidHistory.module.css'
 
 interface AuctionActivityProps {
-  auction: Auction;
-  isFirstAuction: boolean;
-  isLastAuction: boolean;
-  onPrevAuctionClick: () => void;
-  onNextAuctionClick: () => void;
-  displayGraphDepComps: boolean;
+  auction: Auction
+  isFirstAuction: boolean
+  isLastAuction: boolean
+  onPrevAuctionClick: () => void
+  onNextAuctionClick: () => void
+  displayGraphDepComps: boolean
 }
 
-const AuctionActivity: React.FC<AuctionActivityProps> = (props: AuctionActivityProps) => {
+const AuctionActivity: React.FC<AuctionActivityProps> = (
+  props: AuctionActivityProps,
+) => {
   const {
     auction,
     isFirstAuction,
@@ -47,45 +49,55 @@ const AuctionActivity: React.FC<AuctionActivityProps> = (props: AuctionActivityP
     onPrevAuctionClick,
     onNextAuctionClick,
     displayGraphDepComps,
-  } = props;
+  } = props
 
-  const isCool = useAppSelector(state => state.application.isCoolBackground);
+  const isCool = useAppSelector((state) => state.application.isCoolBackground)
+  const { contractAddresses } = useContractAddresses()
 
-  const [auctionEnded, setAuctionEnded] = useState(false);
-  const [auctionTimer, setAuctionTimer] = useState(false);
+  const [auctionEnded, setAuctionEnded] = useState(false)
+  const [auctionTimer, setAuctionTimer] = useState(false)
 
-  const [showBidHistoryModal, setShowBidHistoryModal] = useState(false);
+  const [showBidHistoryModal, setShowBidHistoryModal] = useState(false)
   const showBidModalHandler = () => {
-    setShowBidHistoryModal(true);
-  };
+    setShowBidHistoryModal(true)
+  }
   const dismissBidModalHanlder = () => {
-    setShowBidHistoryModal(false);
-  };
+    setShowBidHistoryModal(false)
+  }
 
   // timer logic - check auction status every 30 seconds, until five minutes remain, then check status every second
   useEffect(() => {
-    if (!auction) return;
+    if (!auction) return
 
-    const timeLeft = Number(auction.endTime) - Math.floor(Date.now() / 1000);
+    const timeLeft = Number(auction.endTime) - Math.floor(Date.now() / 1000)
 
     if (auction && timeLeft <= 0) {
-      setAuctionEnded(true);
+      setAuctionEnded(true)
+      return
     } else {
-      setAuctionEnded(false);
+      setAuctionEnded(false)
       const timer = setTimeout(
         () => {
-          setAuctionTimer(!auctionTimer);
+          setAuctionTimer(!auctionTimer)
         },
         timeLeft > 300 ? 30000 : 1000,
-      );
+      )
 
       return () => {
-        clearTimeout(timer);
-      };
+        clearTimeout(timer)
+      }
     }
-  }, [auctionTimer, auction]);
+  }, [auctionTimer, auction])
 
-  if (!auction) return null;
+  if (!auction) return null
+
+  const openEtherscanBidHistory = () => {
+    if (!contractAddresses) return
+    const url = buildEtherscanAddressLink(
+      contractAddresses.nounsAuctionHouseProxy,
+    )
+    window.open(url)
+  }
 
   return (
     <>
@@ -108,7 +120,10 @@ const AuctionActivity: React.FC<AuctionActivityProps> = (props: AuctionActivityP
               <AuctionActivityDateHeadline startTime={auction.startTime} />
             </AuctionTitleAndNavWrapper>
             <Col lg={12}>
-              <AuctionActivityNounTitle isCool={isCool} nounId={auction.nounId} />
+              <AuctionActivityNounTitle
+                isCool={isCool}
+                nounId={auction.nounId}
+              />
             </Col>
           </Row>
           <Row className={classes.activityRow}>
@@ -123,7 +138,7 @@ const AuctionActivity: React.FC<AuctionActivityProps> = (props: AuctionActivityP
                 isLastAuction ? (
                   <Winner winner={auction.bidder} />
                 ) : (
-                  <Holder nounId={auction.nounId.toNumber()} />
+                  <Holder nounId={auction.nounId?.toNumber()} />
                 )
               ) : (
                 <AuctionTimer auction={auction} auctionEnded={auctionEnded} />
@@ -135,9 +150,14 @@ const AuctionActivity: React.FC<AuctionActivityProps> = (props: AuctionActivityP
           <Row className={classes.activityRow}>
             <Col lg={12} className={classes.fomoNounsLink}>
               <FontAwesomeIcon icon={faInfoCircle} />
-              <a href={'https://fomonouns.wtf'} target={'_blank'} rel="noreferrer">
+              <Link
+                to={FOMO_NOUNS_URL}
+                className={classes.fomoNounsLink}
+                target={'_blank'}
+                rel="noreferrer"
+              >
                 <Trans>Help mint the next Noun</Trans>
-              </a>
+              </Link>
             </Col>
           </Row>
         )}
@@ -179,7 +199,7 @@ const AuctionActivity: React.FC<AuctionActivityProps> = (props: AuctionActivityP
         </Row>
       </AuctionActivityWrapper>
     </>
-  );
-};
+  )
+}
 
-export default AuctionActivity;
+export default AuctionActivity

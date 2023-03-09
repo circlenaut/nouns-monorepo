@@ -1,26 +1,26 @@
-import { ScaleIcon } from '@heroicons/react/solid';
-import React from 'react';
-import ReactTooltip from 'react-tooltip';
-import ShortAddress from '../../../../ShortAddress';
-import classes from './DelegatePill.module.css';
+import { ScaleIcon } from '@heroicons/react/solid'
+import React from 'react'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
+
+import ShortAddress from '@/components/ShortAddress'
+
+import classes from './DelegatePill.module.css'
 
 interface DelegatePillProps {
-  address: string;
-  proposalId: string;
+  address: string
+  proposalId: string
 }
 
-const DelegatePill: React.FC<DelegatePillProps> = props => {
-  const { address, proposalId } = props;
+const DelegatePill: React.FC<DelegatePillProps> = (props) => {
+  const { address, proposalId } = props
 
   return (
     <div className={classes.wrapper}>
       <ReactTooltip
         id={'noun-profile-delegate'}
-        effect={'solid'}
         className={classes.delegateHover}
-        getContent={dataTip => {
-          return <div>{dataTip}</div>;
-        }}
+        content={`Delegate for Proposal ${proposalId}`}
+        place={'top'}
       />
       <div
         data-tip={`Delegate for Proposal ${proposalId}`}
@@ -31,7 +31,7 @@ const DelegatePill: React.FC<DelegatePillProps> = props => {
         <ShortAddress address={address} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default DelegatePill;
+export default DelegatePill

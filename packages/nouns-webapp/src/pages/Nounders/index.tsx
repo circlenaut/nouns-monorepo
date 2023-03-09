@@ -1,18 +1,22 @@
-import React from 'react';
-import classes from './NoundersPage.module.css';
-import Section from '../../layout/Section';
-import { Col, Row, Card } from 'react-bootstrap';
-import pfp4156 from '../../assets/nounder-pfps/4156.png';
-import pfp9999 from '../../assets/nounder-pfps/9999.png';
-import pfpCryptoseneca from '../../assets/nounder-pfps/cryptoseneca.png';
-import pfpDevcarrot from '../../assets/nounder-pfps/devcarrot.png';
-import pfpDom from '../../assets/nounder-pfps/dom.png';
-import pfpKai from '../../assets/nounder-pfps/kai.png';
-import pfpSolimander from '../../assets/nounder-pfps/solimander.png';
-import pfpGremplin from '../../assets/nounder-pfps/gremplin.png';
-import pfpTimpers from '../../assets/nounder-pfps/timpers.png';
-import pfpVapeape from '../../assets/nounder-pfps/vapeape.png';
-import { Trans } from '@lingui/macro';
+import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Card, Col, Row } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+
+import Section from '@/layout/Section'
+
+import classes from './Nounders.module.css'
+
+import pfp4156 from '@/assets/nounder-pfps/4156.png'
+import pfp9999 from '@/assets/nounder-pfps/9999.png'
+import pfpCryptoseneca from '@/assets/nounder-pfps/cryptoseneca.png'
+import pfpDevcarrot from '@/assets/nounder-pfps/devcarrot.png'
+import pfpDom from '@/assets/nounder-pfps/dom.png'
+import pfpGremplin from '@/assets/nounder-pfps/gremplin.png'
+import pfpKai from '@/assets/nounder-pfps/kai.png'
+import pfpSolimander from '@/assets/nounder-pfps/solimander.png'
+import pfpTimpers from '@/assets/nounder-pfps/timpers.png'
+import pfpVapeape from '@/assets/nounder-pfps/vapeape.png'
 
 const bios = [
   {
@@ -75,21 +79,25 @@ const bios = [
     description: undefined,
     handle: 'lastpunk9999',
   },
-];
+]
 
 const BioCard: React.FC<{
-  name: string;
-  description?: string | undefined;
-  image: string;
-  handle?: string | undefined;
-}> = props => {
-  const { name, description, image, handle } = props;
+  name: string
+  description?: string | undefined
+  image: string
+  handle?: string | undefined
+}> = (props) => {
+  const { name, description, image, handle } = props
   return (
     <>
       <Card.Img variant="top" src={image} />
       <Card.Title>
         {handle && (
-          <a href={`https://twitter.com/${handle}`} target="_blank" rel="noreferrer">
+          <Link
+            to={`https://twitter.com/${handle}`}
+            target="_blank"
+            rel="noreferrer"
+          >
             <svg
               fill="currentColor"
               viewBox="0 0 20 20"
@@ -103,30 +111,30 @@ const BioCard: React.FC<{
               ></path>
             </svg>
             {name}
-          </a>
+          </Link>
         )}
 
         {!handle && name}
       </Card.Title>
       {description && <Card.Text>{description}</Card.Text>}
     </>
-  );
-};
+  )
+}
 
-const BioCards: React.FC<{ min: number; max: number }> = props => {
-  const { min, max } = props;
+const BioCards: React.FC<{ min: number; max: number }> = (props) => {
+  const { min, max } = props
   return (
     <>
-      {bios.slice(min, max).map(bio => (
-        <Col xs={6} md={3} lg={3} className={classes.bioGroup}>
-          <BioCard {...bio} />
+      {bios.slice(min, max).map((bio) => (
+        <Col key={bio.name} xs={6} md={3} lg={3} className={classes.bioGroup}>
+          <BioCard key={bio.name} {...bio} />
         </Col>
       ))}
     </>
-  );
-};
+  )
+}
 
-const NoundersPage = () => {
+const NoundersPage: React.FC = () => {
   return (
     <Section fullWidth={true} className={classes.noundersPage}>
       <Col lg={{ span: 6, offset: 3 }}>
@@ -141,27 +149,29 @@ const NoundersPage = () => {
           <BioCards min={5} max={10} />
         </Row>
         <h3>
-          <Trans>Nounders' Reward</Trans>
+          <Trans>Nounders&apos; Reward</Trans>
         </h3>
         <p style={{ textAlign: 'justify' }}>
           <Trans>
-            All Noun auction proceeds are sent to the Nouns DAO. For this reason, we, the project's
-            founders (‘Nounders’) have chosen to compensate ourselves with Nouns. Every 10th noun
-            for the first 5 years of the project will be sent to our multisig (5/10), where it will
-            be vested and distributed to individual Nounders.
+            All Noun auction proceeds are sent to the Nouns DAO. For this
+            reason, we, the project&apos;s founders (‘Nounders’) have chosen to
+            compensate ourselves with Nouns. Every 10th noun for the first 5
+            years of the project will be sent to our multisig (5/10), where it
+            will be vested and distributed to individual Nounders.
           </Trans>
         </p>
         <p style={{ textAlign: 'justify' }}>
           <Trans>
-            The Nounders reward is intended as compensation for our pre and post-launch
-            contributions to the project, and to help us participate meaningfully in governance as
-            the project matures. Since there are 10 Nounders, after 5 years each Nounder could
-            receive up to 1% of the Noun supply.
+            The Nounders reward is intended as compensation for our pre and
+            post-launch contributions to the project, and to help us participate
+            meaningfully in governance as the project matures. Since there are
+            10 Nounders, after 5 years each Nounder could receive up to 1% of
+            the Noun supply.
           </Trans>
         </p>
       </Col>
     </Section>
-  );
-};
+  )
+}
 
-export default NoundersPage;
+export default NoundersPage

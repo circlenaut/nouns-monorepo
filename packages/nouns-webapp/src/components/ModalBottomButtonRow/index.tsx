@@ -1,23 +1,26 @@
-import React from 'react';
-import NavBarButton, { NavBarButtonStyle } from '../NavBarButton';
-import classes from './ModalBottomButtonRow.module.css';
+import { ProposalTransaction } from '@/wrappers/nounsDao'
+import React, { UIEvent } from 'react'
+
+import NavBarButton, { NavBarButtonStyle } from '@/components/NavBarButton'
+
+import classes from './ModalBottomButtonRow.module.css'
 
 export interface ModalBottomButtonRowProps {
-  onPrevBtnClick: (e?: any) => void;
-  onNextBtnClick: (e?: any) => void;
-  prevBtnText: React.ReactNode;
-  nextBtnText: React.ReactNode;
-  isNextBtnDisabled?: boolean;
+  onPrevBtnClick: (e?: ProposalTransaction | UIEvent) => void
+  onNextBtnClick: (e?: ProposalTransaction | UIEvent) => void
+  prevBtnText: React.ReactNode
+  nextBtnText: React.ReactNode
+  isNextBtnDisabled?: boolean
 }
 
-const ModalBottomButtonRow: React.FC<ModalBottomButtonRowProps> = props => {
+const ModalBottomButtonRow: React.FC<ModalBottomButtonRowProps> = (props) => {
   const {
     onPrevBtnClick,
     onNextBtnClick,
     prevBtnText,
     nextBtnText,
     isNextBtnDisabled = false,
-  } = props;
+  } = props
 
   return (
     <div className={classes.buttonWrapper}>
@@ -37,7 +40,7 @@ const ModalBottomButtonRow: React.FC<ModalBottomButtonRowProps> = props => {
         disabled={isNextBtnDisabled}
       />
     </div>
-  );
-};
+  )
+}
 
-export default ModalBottomButtonRow;
+export default ModalBottomButtonRow

@@ -1,18 +1,19 @@
-import classes from './VoteCardPager.module.css';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid';
-import React from 'react';
-import clsx from 'clsx';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid'
+import clsx from 'clsx'
+import React from 'react'
+
+import classes from './VoteCardPager.module.css'
 
 interface VoteCardPagerProps {
-  onRightArrowClick: () => void;
-  onLeftArrowClick: () => void;
-  isRightArrowDisabled: boolean;
-  isLeftArrowDisabled: boolean;
-  numPages: number;
-  currentPage: number;
+  onRightArrowClick: () => void
+  onLeftArrowClick: () => void
+  isRightArrowDisabled: boolean
+  isLeftArrowDisabled: boolean
+  numPages: number
+  currentPage: number
 }
 
-const VoteCardPager: React.FC<VoteCardPagerProps> = props => {
+const VoteCardPager: React.FC<VoteCardPagerProps> = (props) => {
   const {
     onRightArrowClick,
     onLeftArrowClick,
@@ -20,20 +21,34 @@ const VoteCardPager: React.FC<VoteCardPagerProps> = props => {
     isLeftArrowDisabled,
     numPages,
     currentPage,
-  } = props;
+  } = props
 
-  const isOnePage = numPages === 1;
+  const isOnePage = numPages === 1
 
   return (
     <>
       {/* Dots */}
-      <div className={clsx(classes.pageDots, isOnePage ? classes.disabled : '')}>
+      <div
+        className={clsx(classes.pageDots, isOnePage ? classes.disabled : '')}
+      >
         {Array.from(Array(numPages).keys()).map((n: number) => {
-          return <span className={n === currentPage ? '' : classes.disabledPageDot}>•</span>;
+          return (
+            <span
+              key={n}
+              className={n === currentPage ? '' : classes.disabledPageDot}
+            >
+              •
+            </span>
+          )
         })}
       </div>
       {/* Arrows */}
-      <div className={clsx(classes.paginationArrowsWrapper, isOnePage ? classes.disabled : '')}>
+      <div
+        className={clsx(
+          classes.paginationArrowsWrapper,
+          isOnePage ? classes.disabled : '',
+        )}
+      >
         <button
           className={classes.paginationArrowBtnWrapper}
           disabled={isLeftArrowDisabled || isOnePage}
@@ -51,7 +66,7 @@ const VoteCardPager: React.FC<VoteCardPagerProps> = props => {
         </button>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default VoteCardPager;
+export default VoteCardPager

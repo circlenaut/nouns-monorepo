@@ -1,12 +1,16 @@
-import classes from './NounsIntroSection.module.css';
-import Section from '../../layout/Section';
-import { Col, Nav } from 'react-bootstrap';
-import { Trans } from '@lingui/macro';
-import { Link } from 'react-router-dom';
-import nounsIosGif from '../../assets/nouns-ios.gif';
-import dlFromAppStoreImg from '../../assets/download-on-app-store.svg';
+import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Col, Nav } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
-const NounsIntroSection = () => {
+import Section from '@/layout/Section'
+
+import classes from './NounsIntroSection.module.css'
+
+import dlFromAppStoreImg from '@/assets/download-on-app-store.svg'
+import nounsIosGif from '@/assets/nouns-ios.gif'
+
+const NounsIntroSection: React.FC = () => {
   return (
     <>
       <Section fullWidth={false} className={classes.videoSection}>
@@ -17,9 +21,10 @@ const NounsIntroSection = () => {
             </h1>
             <p>
               <Trans>
-                Behold, an infinite work of art! Nouns is a community-owned brand that makes a
-                positive impact by funding ideas and fostering collaboration. From collectors
-                and technologists, to non-profits and brands, Nouns is for everyone.
+                Behold, an infinite work of art! Nouns is a community-owned
+                brand that makes a positive impact by funding ideas and
+                fostering collaboration. From collectors and technologists, to
+                non-profits and brands, Nouns is for everyone.
               </Trans>
             </p>
           </div>
@@ -55,12 +60,13 @@ const NounsIntroSection = () => {
             </h1>
             <p>
               <Trans>
-                Every new Noun pushed right to your pocket! View the current auction, remix your own
-                Noun, and explore the entire history directly from the app.
+                Every new Noun pushed right to your pocket! View the current
+                auction, remix your own Noun, and explore the entire history
+                directly from the app.
               </Trans>
               <br />
-              <a
-                href="https://apps.apple.com/us/app/nouns-explore-create-play/id1592583925"
+              <Link
+                to="https://apps.apple.com/us/app/nouns-explore-create-play/id1592583925"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -69,13 +75,13 @@ const NounsIntroSection = () => {
                   className={classes.dlFromAppStoreImg}
                   alt="download nouns ios app from app store"
                 />
-              </a>
+              </Link>
             </p>
           </div>
         </Col>
       </Section>
     </>
-  );
-};
+  )
+}
 
-export default NounsIntroSection;
+export default NounsIntroSection

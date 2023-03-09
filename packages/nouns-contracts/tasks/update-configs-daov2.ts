@@ -57,6 +57,9 @@ task('update-configs-daov2', 'Write the deployed addresses to the SDK and subgra
           startBlock: contracts.NounsDAOProxyV2.instance.deployTransaction.blockNumber,
         },
       };
+      if (!subgraphConfig.nounsToken.startBlock) console.warn("nounsToken startBlock is null!");
+      if (!subgraphConfig.nounsAuctionHouse.startBlock) console.warn("nounsAuctionHouse startBlock is null!");
+      if (!subgraphConfig.nounsDAO.startBlock) console.warn("nounsDAO startBlock is null!");
       writeFileSync(subgraphConfigPath, JSON.stringify(subgraphConfig, null, 2));
       console.log('Subgraph config has been generated.');
     },

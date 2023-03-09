@@ -1,26 +1,40 @@
-import { ExternalLinkIcon } from '@heroicons/react/solid';
-import React from 'react';
-import { buildEtherscanTxLink } from '../../../../../utils/etherscan';
-import classes from './TransactionHashPill.module.css';
+import { ExternalLinkIcon } from '@heroicons/react/solid'
+import React from 'react'
+
+import { buildEtherscanTxLink } from '@/utils/etherscan'
+
+import classes from './TransactionHashPill.module.css'
 
 interface TransactionHashPillProps {
-  transactionHash: string;
+  transactionHash: string
 }
 
-const TransactionHashPill: React.FC<TransactionHashPillProps> = props => {
-  const { transactionHash } = props;
+const TransactionHashPill: React.FC<TransactionHashPillProps> = (props) => {
+  const { transactionHash } = props
 
   return (
     <div
-      onClick={() => window.open(buildEtherscanTxLink(transactionHash), '_blank')}
+      onClick={() =>
+        window.open(buildEtherscanTxLink(transactionHash), '_blank')
+      }
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          window.open(buildEtherscanTxLink(transactionHash), '_blank')
+        }
+      }}
+      role="button"
+      tabIndex={0}
       className={classes.transactionHashWrapper}
     >
       <ExternalLinkIcon className={classes.externalLinkIcon} />
       {transactionHash.substring(0, 4) +
         '...' +
-        transactionHash.substring(transactionHash.length - 4, transactionHash.length)}
+        transactionHash.substring(
+          transactionHash.length - 4,
+          transactionHash.length,
+        )}
     </div>
-  );
-};
+  )
+}
 
-export default TransactionHashPill;
+export default TransactionHashPill

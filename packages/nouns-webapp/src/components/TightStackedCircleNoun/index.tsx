@@ -1,25 +1,32 @@
-import { useNounSeed } from '../../wrappers/nounToken';
-import { BigNumber } from 'ethers';
-import { getNoun } from '../StandaloneNoun';
-import { LoadingNoun } from '../Noun';
+import { BigNumber } from 'ethers'
+import React, { useMemo } from 'react'
+
+import { LoadingNoun } from '@/components/Noun'
+import { getNoun } from '@/components/StandaloneNoun'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { useNounSeed } from '@/wrappers/nounToken'
 
 interface TightStackedCircleNounProps {
-  nounId: number;
-  index: number;
-  square: number;
-  shift: number;
+  nounId: number
+  index: number
+  square: number
+  shift: number
 }
 
-const TightStackedCircleNoun: React.FC<TightStackedCircleNounProps> = props => {
-  const { nounId, index, square, shift } = props;
-  const seed = useNounSeed(BigNumber.from(nounId));
+const TightStackedCircleNoun: React.FC<TightStackedCircleNounProps> = (
+  props,
+) => {
+  const { nounId, index, square, shift } = props
+  const { contractAddresses } = useContractAddresses()
+  const seedCall = useNounSeed(contractAddresses, BigNumber.from(nounId))
+  const seed = useMemo(() => seedCall, [seedCall])
 
   if (!seed) {
-    return <LoadingNoun />;
+    return <LoadingNoun />
   }
 
-  const nounData = getNoun(BigNumber.from(nounId), seed);
-  const image = nounData.image;
+  const nounData = getNoun(BigNumber.from(nounId), seed)
+  const image = nounData.image
 
   return (
     <g key={index}>
@@ -47,7 +54,7 @@ const TightStackedCircleNoun: React.FC<TightStackedCircleNounProps> = props => {
         href={image}
       ></image>
     </g>
-  );
-};
+  )
+}
 
-export default TightStackedCircleNoun;
+export default TightStackedCircleNoun

@@ -1,45 +1,55 @@
-import { StandaloneNounCircular } from '../../components/StandaloneNoun';
-import { BigNumber as EthersBN } from 'ethers';
-import classes from './NounImageVoteTable.module.css';
-import { GrayCircle } from '../GrayCircle';
-import { pseudoRandomPredictableShuffle } from '../../utils/pseudoRandomPredictableShuffle';
-import HoverCard from '../HoverCard';
-import NounHoverCard from '../NounHoverCard';
-import React, { useState } from 'react';
-import VoteCardPager from '../VoteCardPager';
+import { BigNumber as EthersBN } from 'ethers'
+import React, { useState } from 'react'
+
+import { GrayCircle } from '@/components/GrayCircle'
+import HoverCard from '@/components/HoverCard'
+import NounHoverCard from '@/components/NounHoverCard'
+import { StandaloneNounCircular } from '@/components/StandaloneNoun'
+import VoteCardPager from '@/components/VoteCardPager'
+import { pseudoRandomPredictableShuffle } from '@/utils/pseudoRandomPredictableShuffle'
+
+import classes from './NounImageVoteTable.module.css'
 
 interface NounImageVoteTableProps {
-  nounIds: string[];
-  propId: number;
+  nounIds: string[]
+  propId: number
 }
-const NOUNS_PER_VOTE_CARD_DESKTOP = 15;
+const NOUNS_PER_VOTE_CARD_DESKTOP = 15
 
-const isXLScreen = window.innerWidth > 1200;
+let isXLScreen: boolean
+if (typeof window !== 'undefined') {
+  isXLScreen = window.innerWidth > 1200
+}
 
-const NounImageVoteTable: React.FC<NounImageVoteTableProps> = props => {
-  const { nounIds, propId } = props;
+const NounImageVoteTable: React.FC<NounImageVoteTableProps> = (props) => {
+  const { nounIds, propId } = props
 
-  const shuffledNounIds = pseudoRandomPredictableShuffle(nounIds, propId);
-  const [page, setPage] = useState(0);
+  const shuffledNounIds = pseudoRandomPredictableShuffle(nounIds, propId)
+  const [page, setPage] = useState(0)
 
   const content = (page: number) => {
-    const rows = 3;
-    const rowLength = isXLScreen ? 5 : 4;
+    const rows = 3
+    const rowLength = isXLScreen ? 5 : 4
 
     const paddedNounIds = shuffledNounIds
-      .map((nounId: string) => {
+      .map((nounId: unknown) => {
+        const nounIdString = nounId as string
         return (
           <HoverCard
+            key={nounIdString}
             hoverCardContent={(tip: string) => <NounHoverCard nounId={tip} />}
-            tip={nounId.toString()}
+            tip={nounIdString.toString()}
             id="nounHoverCard"
           >
             <StandaloneNounCircular nounId={EthersBN.from(nounId)} />
           </HoverCard>
-        );
+        )
       })
-      .slice(page * NOUNS_PER_VOTE_CARD_DESKTOP, (page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP)
-      .concat(Array(NOUNS_PER_VOTE_CARD_DESKTOP).fill(<GrayCircle />));
+      .slice(
+        page * NOUNS_PER_VOTE_CARD_DESKTOP,
+        (page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP,
+      )
+      .concat(Array(NOUNS_PER_VOTE_CARD_DESKTOP).fill(<GrayCircle />))
 
     return Array(rows)
       .fill(0)
@@ -51,9 +61,8 @@ const NounImageVoteTable: React.FC<NounImageVoteTableProps> = props => {
               <td key={j}>{paddedNounIds[i * rowLength + j]}</td>
             ))}
         </tr>
-      ));
-  };
-
+      ))
+  }
   return (
     <>
       <table className={classes.wrapper}>
@@ -63,12 +72,14 @@ const NounImageVoteTable: React.FC<NounImageVoteTableProps> = props => {
         onLeftArrowClick={() => setPage(page - 1)}
         onRightArrowClick={() => setPage(page + 1)}
         isLeftArrowDisabled={page === 0}
-        isRightArrowDisabled={(page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP > nounIds.length}
+        isRightArrowDisabled={
+          (page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP > nounIds.length
+        }
         numPages={Math.floor(nounIds.length / NOUNS_PER_VOTE_CARD_DESKTOP) + 1}
         currentPage={page}
       />
     </>
-  );
-};
+  )
+}
 
-export default NounImageVoteTable;
+export default NounImageVoteTable

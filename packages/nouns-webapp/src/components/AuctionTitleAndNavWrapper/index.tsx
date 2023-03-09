@@ -1,11 +1,17 @@
-import { Col } from 'react-bootstrap';
-import classes from './AuctionTitleAndNavWrapper.module.css';
+import React from 'react'
+import { Col } from 'react-bootstrap'
 
-const AuctionTitleAndNavWrapper: React.FC<{}> = props => {
+import classes from './AuctionTitleAndNavWrapper.module.css'
+
+interface Props {
+  children: React.ReactNode
+}
+
+const AuctionTitleAndNavWrapper: React.FC<Props> = (props) => {
   return (
     <Col lg={12} className={classes.auctionTitleAndNavContainer}>
       {props.children}
     </Col>
-  );
-};
-export default AuctionTitleAndNavWrapper;
+  )
+}
+export default AuctionTitleAndNavWrapper

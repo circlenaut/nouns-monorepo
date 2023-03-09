@@ -32,7 +32,9 @@ export const getTokenMetadata = async (tokenId: string): Promise<undefined | Tok
   );
   const svg = Buffer.from(data.image.substring(26), 'base64');
   const png = await sharp(svg).png().toBuffer();
-  const imageCID = await storage.storeBlob(png);
+  const imageBlob = new Blob([png], { type: 'image/png' });
+  const imageCID = await storage.storeBlob(imageBlob);
+  
 
   const metadata = {
     name: data.name,

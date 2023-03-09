@@ -1,28 +1,31 @@
-import clsx from 'clsx';
-import { VoteCardVariant } from '../VoteCard';
-import classes from './VoteProgressBar.module.css';
+import clsx from 'clsx'
+import React from 'react'
+
+import { VoteCardVariant } from '@/components/VoteCard'
+
+import classes from './VoteProgressBar.module.css'
 
 const VoteProgressBar: React.FC<{
-  variant: VoteCardVariant;
-  percentage: number;
-}> = props => {
-  const { variant, percentage } = props;
+  variant: VoteCardVariant
+  percentage: number
+}> = (props) => {
+  const { variant, percentage } = props
 
-  let progressBarClass;
-  let wrapperClass;
+  let progressBarClass
+  let wrapperClass
   switch (variant) {
     case VoteCardVariant.FOR:
-      progressBarClass = classes.forProgressBar;
-      wrapperClass = classes.forWrapper;
-      break;
+      progressBarClass = classes.forProgressBar
+      wrapperClass = classes.forWrapper
+      break
     case VoteCardVariant.AGAINST:
-      progressBarClass = classes.againstProgressBar;
-      wrapperClass = classes.againstWrapper;
-      break;
+      progressBarClass = classes.againstProgressBar
+      wrapperClass = classes.againstWrapper
+      break
     default:
-      progressBarClass = classes.abstainProgressBar;
-      wrapperClass = classes.abstainWrapper;
-      break;
+      progressBarClass = classes.abstainProgressBar
+      wrapperClass = classes.abstainWrapper
+      break
   }
 
   return (
@@ -34,7 +37,7 @@ const VoteProgressBar: React.FC<{
         className={clsx(classes.progressBar, progressBarClass)}
       ></div>
     </div>
-  );
-};
+  )
+}
 
-export default VoteProgressBar;
+export default VoteProgressBar

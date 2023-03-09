@@ -1,19 +1,26 @@
-import { Popover, OverlayTrigger, Row, Col } from 'react-bootstrap';
-import { buildEtherscanAddressLink } from '../../utils/etherscan';
-import { ProposalTransaction } from '../../wrappers/nounsDao';
-import classes from './ProposalTransactions.module.css';
-import xIcon from '../../assets/x-icon.png';
-import { utils } from 'ethers';
+import { utils } from 'ethers'
+import React from 'react'
+import { Col, OverlayTrigger, Popover, Row } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
-const ProposalTransactions = ({
+import { buildEtherscanAddressLink } from '@/utils/etherscan'
+import { ProposalTransaction } from '@/wrappers/nounsDao'
+
+import classes from './ProposalTransactions.module.css'
+
+import xIcon from '@/assets/x-icon.png'
+
+interface ProposalTransactionsProps {
+  className?: string
+  proposalTransactions: ProposalTransaction[]
+  onRemoveProposalTransaction: (index: number) => void
+}
+
+const ProposalTransactions: React.FC<ProposalTransactionsProps> = ({
   className,
   proposalTransactions,
   onRemoveProposalTransaction,
-}: {
-  className?: string;
-  proposalTransactions: ProposalTransaction[];
-  onRemoveProposalTransaction: (index: number) => void;
-}) => {
+}: ProposalTransactionsProps) => {
   const getPopover = (tx: ProposalTransaction) => (
     <Popover className={classes.popover} id="transaction-details-popover">
       <Popover.Header as="h3">Transaction Details</Popover.Header>
@@ -23,16 +30,22 @@ const ProposalTransactions = ({
             <b>Address</b>
           </Col>
           <Col sm="9">
-            <a href={buildEtherscanAddressLink(tx.address)} target="_blank" rel="noreferrer">
+            <Link
+              to={buildEtherscanAddressLink(tx.address)}
+              target="_blank"
+              rel="noreferrer"
+            >
               {tx.address}
-            </a>
+            </Link>
           </Col>
         </Row>
         <Row>
           <Col sm="3">
             <b>Value</b>
           </Col>
-          <Col sm="9">{tx.value ? `${utils.formatEther(tx.value)} ETH` : 'None'}</Col>
+          <Col sm="9">
+            {tx.value ? `${utils.formatEther(tx.value)} ETH` : 'None'}
+          </Col>
         </Row>
         <Row>
           <Col sm="3">
@@ -45,12 +58,16 @@ const ProposalTransactions = ({
             <b>Calldata</b>
           </Col>
           <Col sm="9">
-            {tx.calldata === '0x' ? 'None' : tx.decodedCalldata ? tx.decodedCalldata : tx.calldata}
+            {tx.calldata === '0x'
+              ? 'None'
+              : tx.decodedCalldata
+              ? tx.decodedCalldata
+              : tx.calldata}
           </Col>
         </Row>
       </Popover.Body>
     </Popover>
-  );
+  )
 
   return (
     <div className={className}>
@@ -80,6 +97,6 @@ const ProposalTransactions = ({
         </OverlayTrigger>
       ))}
     </div>
-  );
-};
-export default ProposalTransactions;
+  )
+}
+export default ProposalTransactions

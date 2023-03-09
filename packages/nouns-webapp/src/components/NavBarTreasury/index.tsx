@@ -1,29 +1,33 @@
-import classes from './NavBarTreasury.module.css';
-import { NavBarButtonStyle } from '../NavBarButton';
-import clsx from 'clsx';
-import { Trans } from '@lingui/macro';
-import { i18n } from '@lingui/core';
+import { i18n } from '@lingui/core'
+import { Trans } from '@lingui/macro'
+import clsx from 'clsx'
+import { constants } from 'ethers'
+import React from 'react'
+
+import { NavBarButtonStyle } from '@/components/NavBarButton'
+
+import classes from './NavBarTreasury.module.css'
 
 interface NavBarTreasuryProps {
-  treasuryBalance: string;
-  treasuryStyle: NavBarButtonStyle;
+  treasuryBalance: string
+  treasuryStyle: NavBarButtonStyle
 }
 
-const NavBarTreasury: React.FC<NavBarTreasuryProps> = props => {
-  const { treasuryBalance, treasuryStyle } = props;
+const NavBarTreasury: React.FC<NavBarTreasuryProps> = (props) => {
+  const { treasuryBalance, treasuryStyle } = props
 
-  let treasuryStyleClass;
+  let treasuryStyleClass
   switch (treasuryStyle) {
     case NavBarButtonStyle.WARM_INFO:
-      treasuryStyleClass = classes.warmInfo;
-      break;
+      treasuryStyleClass = classes.warmInfo
+      break
     case NavBarButtonStyle.COOL_INFO:
-      treasuryStyleClass = classes.coolInfo;
-      break;
+      treasuryStyleClass = classes.coolInfo
+      break
     case NavBarButtonStyle.WHITE_INFO:
     default:
-      treasuryStyleClass = classes.whiteInfo;
-      break;
+      treasuryStyleClass = classes.whiteInfo
+      break
   }
 
   return (
@@ -38,16 +42,20 @@ const NavBarTreasury: React.FC<NavBarTreasuryProps> = props => {
           <div
             className={clsx(
               classes.treasuryHeader,
-              treasuryStyle === NavBarButtonStyle.WHITE_INFO ? classes.whiteTreasuryHeader : '',
+              treasuryStyle === NavBarButtonStyle.WHITE_INFO
+                ? classes.whiteTreasuryHeader
+                : '',
             )}
           >
             <Trans>Treasury</Trans>
           </div>
-          <div className={classes.treasuryBalance}>Ξ {i18n.number(Number(treasuryBalance))}</div>
+          <div className={classes.treasuryBalance}>
+            {constants.EtherSymbol} {i18n.number(Number(treasuryBalance))}
+          </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default NavBarTreasury;
+export default NavBarTreasury

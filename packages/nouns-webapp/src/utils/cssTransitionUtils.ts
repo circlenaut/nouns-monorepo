@@ -1,11 +1,11 @@
-import { TransitionStyles } from '../components/NounsTransition';
+import { TransitionStyles } from '@/components/NounsTransition'
 
 export const basicFadeInOut = {
   enteringStyle: { opacity: 1 },
   enteredStyle: { opacity: 1 },
   exitingStyle: { opacity: 0.5 },
   exitedStyle: { opacity: 0 },
-} as TransitionStyles;
+} as TransitionStyles
 
 export const mobileModalSlideInFromBottm = {
   enteringStyle: {
@@ -24,7 +24,7 @@ export const mobileModalSlideInFromBottm = {
     transition: 'opacity 100ms, transform 100ms',
   },
   exitedStyle: { opacity: 0 },
-};
+}
 
 export const desktopModalSlideInFromTopAndGrow = {
   enteringStyle: {
@@ -43,4 +43,4 @@ export const desktopModalSlideInFromTopAndGrow = {
     transition: 'opacity 100ms, transform 100ms',
   },
   exitedStyle: { opacity: 0 },
-};
+}

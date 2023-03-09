@@ -1,56 +1,76 @@
-import React, { useState } from 'react';
-import { pseudoRandomPredictableShuffle } from '../../utils/pseudoRandomPredictableShuffle';
-import DelegateHoverCard from '../DelegateHoverCard';
-import { GrayCircle } from '../GrayCircle';
-import HoverCard from '../HoverCard';
-import TightStackedCircleNouns from '../TightStackedCircleNouns';
-import classes from './DelegateGroupedNounImageVoteTable.module.css';
-import VoteCardPager from '../VoteCardPager';
+import React, { useState } from 'react'
 
-interface DelegateGruopedNounImageVoteTableProps {
-  filteredDelegateGroupedVoteData:
-    | { delegate: string; supportDetailed: 0 | 1 | 2; nounsRepresented: string[] }[]
-    | undefined;
-  propId: number;
-  proposalCreationBlock: number;
+import DelegateHoverCard from '@/components/DelegateHoverCard'
+import { GrayCircle } from '@/components/GrayCircle'
+import HoverCard from '@/components/HoverCard'
+import TightStackedCircleNouns from '@/components/TightStackedCircleNouns'
+import VoteCardPager from '@/components/VoteCardPager'
+import { Vote } from '@/utils/getNounsVotes'
+import { pseudoRandomPredictableShuffle } from '@/utils/pseudoRandomPredictableShuffle'
+
+import classes from './DelegateGroupedNounImageVoteTable.module.css'
+
+export interface DelegateVote extends Vote {
+  delegate: string
 }
 
-const NOUNS_PER_VOTE_CARD_DESKTOP = 12;
+interface DelegateGroupedNounImageVoteTableProps {
+  filteredDelegateGroupedVoteData: DelegateVote[] | undefined
+  propId: number
+  proposalCreationBlock: number
+}
 
-const DelegateGruopedNounImageVoteTable: React.FC<
-  DelegateGruopedNounImageVoteTableProps
-> = props => {
-  const { filteredDelegateGroupedVoteData, propId, proposalCreationBlock } = props;
+const NOUNS_PER_VOTE_CARD_DESKTOP = 12
+
+const DelegateGroupedNounImageVoteTable: React.FC<
+  DelegateGroupedNounImageVoteTableProps
+> = (props) => {
+  const { filteredDelegateGroupedVoteData, propId, proposalCreationBlock } =
+    props
 
   const shuffledDelegatedGroupedNouns = pseudoRandomPredictableShuffle(
     filteredDelegateGroupedVoteData,
     propId,
-  );
-  const [page, setPage] = useState<number>(0);
+  )
+  const [page, setPage] = useState<number>(0)
 
   const content = (page: number) => {
-    const rows = 3;
-    const rowLength = 4;
+    const rows = 3
+    const rowLength = 4
 
-    const paddedNounIds = shuffledDelegatedGroupedNouns
-      .map((data: { delegate: string; supportDetailed: 0 | 1 | 2; nounsRepresented: string[] }) => {
+    const paddedNounIds: JSX.Element[] = shuffledDelegatedGroupedNouns
+      .map((data: unknown) => {
+        const delegateData = data as DelegateVote
         return (
           <HoverCard
+            key={delegateData.delegate}
             hoverCardContent={(tip: string) => (
-              <DelegateHoverCard delegateId={tip} proposalCreationBlock={proposalCreationBlock} />
+              <DelegateHoverCard
+                delegateId={tip}
+                proposalCreationBlock={proposalCreationBlock}
+              />
             )}
             // We add this prefix to prevent collisions with the Noun info cards
-            tip={`delegate-${data.delegate}`}
-            id="delegateVoteHoverCard"
+            tip={`delegate-${delegateData.delegate}`}
+            id="delegateData"
           >
             <TightStackedCircleNouns
-              nounIds={data.nounsRepresented.map((nounId: string) => parseInt(nounId))}
+              nounIds={delegateData.nounsRepresented.map((nounId: string) =>
+                parseInt(nounId),
+              )}
             />
           </HoverCard>
-        );
+        )
       })
-      .slice(page * NOUNS_PER_VOTE_CARD_DESKTOP, (page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP)
-      .concat(Array(NOUNS_PER_VOTE_CARD_DESKTOP).fill(<GrayCircle isDelegateView={true} />));
+      .slice(
+        page * NOUNS_PER_VOTE_CARD_DESKTOP,
+        (page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP,
+      )
+      .concat(
+        Array(NOUNS_PER_VOTE_CARD_DESKTOP).fill(
+          <GrayCircle isDelegateView={true} />,
+        ),
+      )
 
     return Array(rows)
       .fill(0)
@@ -64,8 +84,8 @@ const DelegateGruopedNounImageVoteTable: React.FC<
               </td>
             ))}
         </tr>
-      ));
-  };
+      ))
+  }
 
   return (
     <>
@@ -77,15 +97,18 @@ const DelegateGruopedNounImageVoteTable: React.FC<
         onRightArrowClick={() => setPage(page + 1)}
         isLeftArrowDisabled={page === 0}
         isRightArrowDisabled={
-          (page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP > shuffledDelegatedGroupedNouns.length
+          (page + 1) * NOUNS_PER_VOTE_CARD_DESKTOP >
+          shuffledDelegatedGroupedNouns.length
         }
         numPages={
-          Math.floor(shuffledDelegatedGroupedNouns.length / NOUNS_PER_VOTE_CARD_DESKTOP) + 1
+          Math.floor(
+            shuffledDelegatedGroupedNouns.length / NOUNS_PER_VOTE_CARD_DESKTOP,
+          ) + 1
         }
         currentPage={page}
       />
     </>
-  );
-};
+  )
+}
 
-export default DelegateGruopedNounImageVoteTable;
+export default DelegateGroupedNounImageVoteTable

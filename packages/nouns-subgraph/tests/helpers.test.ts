@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { assert, clearStore, test } from 'matchstick-as/assembly/index';
 import { BigInt } from '@graphprotocol/graph-ts';
 import { BIGINT_10K, BIGINT_ONE } from '../src/utils/constants';

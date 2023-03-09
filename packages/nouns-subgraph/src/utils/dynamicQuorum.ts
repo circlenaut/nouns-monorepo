@@ -1,4 +1,5 @@
-import { BigInt } from '@graphprotocol/graph-ts';
+/* eslint-disable @typescript-eslint/ban-types */
+import { BigInt, } from '@graphprotocol/graph-ts';
 import { BIGINT_10K } from './constants';
 
 export function dynamicQuorumVotes(

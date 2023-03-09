@@ -156,7 +156,10 @@
       "name": "Is Noun Owner",
       "description": "",
       "method": "POST",
-      "body": { "mimeType": "text/plain", "text": "0x2536c09e5f5691498805884fa37811be3b2bddb4" },
+      "body": {
+        "mimeType": "text/plain",
+        "text": "0x2536c09e5f5691498805884fa37811be3b2bddb4"
+      },
       "parameters": [],
       "headers": [
         {
@@ -185,7 +188,10 @@
       "name": "Is Noun Delegate",
       "description": "",
       "method": "POST",
-      "body": { "mimeType": "text/plain", "text": "0x75ee6eb3d8dacf41ee2e5307090b197d3e1cca6e" },
+      "body": {
+        "mimeType": "text/plain",
+        "text": "0x75ee6eb3d8dacf41ee2e5307090b197d3e1cca6e"
+      },
       "parameters": [],
       "headers": [
         {
@@ -211,7 +217,9 @@
       "modified": 1632713433876,
       "created": 1632713355846,
       "name": "Base Environment",
-      "data": { "host": "https://deploy-preview-222--nouns-home.netlify.app/.netlify/functions" },
+      "data": {
+        "host": "https://deploy-preview-222--nouns-home.netlify.app/.netlify/functions"
+      },
       "dataPropertyOrder": { "&": ["host"] },
       "color": null,
       "isPrivate": false,

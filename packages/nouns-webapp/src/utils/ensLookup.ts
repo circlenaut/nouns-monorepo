@@ -1,58 +1,70 @@
-import { useEthers } from '@usedapp/core';
-import { useEffect, useState } from 'react';
-import { cache, cacheKey, CHAIN_ID } from '../config';
-import { lookupNNSOrENS } from './lookupNNSOrENS';
+import { useEthers } from '@usedapp/core'
+import { useEffect, useState } from 'react'
+
+import { cache, cacheKey, CHAIN_ID } from '@/configs'
+
+import { isValidNameFormat } from './addressAndChainNameDisplayUtils'
+import { lookupNNSOrENS } from './lookupNNSOrENS'
 
 export const ensCacheKey = (address: string) => {
-  return cacheKey(cache.ens, CHAIN_ID, address);
-};
+  if (!cache.ens) return
+  return cacheKey(cache.ens, CHAIN_ID, address)
+}
 
-export const useReverseENSLookUp = (address: string) => {
-  const { library } = useEthers();
-  const [ens, setEns] = useState<string>();
+export const useReverseENSLookUp = (address: string, skip?: boolean) => {
+  const { library: provider } = useEthers()
+
+  const [ens, setEns] = useState<string>()
 
   useEffect(() => {
-    let mounted = true;
-    if (address && library) {
+    if (skip) return
+
+    let mounted = true
+    if (address && provider) {
       // Look for resolved ENS in local storage (result of pre-fetching)
-      const maybeCachedENSResultRaw = localStorage.getItem(ensCacheKey(address));
+      const catchKey = ensCacheKey(address)
+      if (!catchKey) return
+
+      const maybeCachedENSResultRaw = localStorage.getItem(catchKey)
       if (maybeCachedENSResultRaw) {
-        const maybeCachedENSResult = JSON.parse(maybeCachedENSResultRaw);
+        const maybeCachedENSResult = JSON.parse(maybeCachedENSResultRaw)
         if (parseInt(maybeCachedENSResult.expires) > Date.now() / 1000) {
-          setEns(maybeCachedENSResult.name);
+          setEns(maybeCachedENSResult.name)
         } else {
-          localStorage.removeItem(ensCacheKey(address));
+          localStorage.removeItem(catchKey)
         }
       }
 
       // If address not in local storage, attempt to resolve via RPC call.
       // At this stage if the item is in local storage we know it isn't expired.
-      if (!localStorage.getItem(ensCacheKey(address))) {
-        lookupNNSOrENS(library, address)
-          .then(name => {
-            if (!name) return;
+      if (!localStorage.getItem(catchKey)) {
+        lookupNNSOrENS(provider, address)
+          .then((name) => {
+            if (!name) return
             if (mounted) {
               localStorage.setItem(
-                ensCacheKey(address),
+                catchKey,
                 JSON.stringify({
                   name,
                   expires: Date.now() / 1000 + 30 * 60,
                 }),
-              );
-              setEns(name);
+              )
+              setEns(name)
             }
           })
-          .catch(error => {
-            console.log(`error resolving reverse ens lookup: `, error);
-          });
+          .catch((error) => {
+            console.error(`error resolving reverse ens lookup: `, error)
+          })
       }
     }
 
     return () => {
-      setEns('');
-      mounted = false;
-    };
-  }, [address, library]);
+      setEns('')
+      mounted = false
+    }
+  }, [address, provider])
 
-  return ens;
-};
+  if (isValidNameFormat(address)) return address
+
+  return ens
+}

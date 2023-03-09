@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
-import { Trans } from '@lingui/macro';
+import { Trans } from '@lingui/macro'
+import React, { useState } from 'react'
+
+import BrandDropdown from '@/components/BrandDropdown'
+import ModalBottomButtonRow from '@/components/ModalBottomButtonRow'
+import ModalSubTitle from '@/components/ModalSubtitle'
+import ModalTitle from '@/components/ModalTitle'
+import { ProposalTransaction } from '@/wrappers/nounsDao'
 import {
   ProposalActionCreationStep,
   ProposalActionModalStepProps,
   ProposalActionType,
-} from '../..';
-import BrandDropdown from '../../../BrandDropdown';
-import ModalSubTitle from '../../../ModalSubtitle';
-import ModalBottomButtonRow from '../../../ModalBottomButtonRow';
-import ModalTitle from '../../../ModalTitle';
+} from '../..'
 
-const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = props => {
-  const { onPrevBtnClick, onNextBtnClick, state, setState } = props;
+const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = (
+  props,
+) => {
+  const { onPrevBtnClick, onNextBtnClick, state, setState } = props
   const [nextStep, setNextStep] = useState<ProposalActionCreationStep>(
     state.actionType === ProposalActionType.FUNCTION_CALL
       ? ProposalActionCreationStep.FUNCTION_CALL_SELECT_FUNCTION
       : ProposalActionCreationStep.LUMP_SUM_DETAILS,
-  );
+  )
 
   return (
     <div>
@@ -36,21 +40,25 @@ const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = props =
 
       <BrandDropdown
         value={
-          state.actionType === ProposalActionType.LUMP_SUM ? 'Transfer Funds' : 'Function Call'
+          state.actionType === ProposalActionType.LUMP_SUM
+            ? 'Transfer Funds'
+            : 'Function Call'
         }
-        onChange={e => {
-          setState(x => ({
+        onChange={(e) => {
+          setState((x) => ({
             ...x,
             actionType:
               e.target.value === 'Transfer Funds'
                 ? ProposalActionType.LUMP_SUM
                 : ProposalActionType.FUNCTION_CALL,
-          }));
+          }))
 
           if (e.target.value === 'Transfer Funds') {
-            setNextStep(ProposalActionCreationStep.LUMP_SUM_DETAILS);
+            setNextStep(ProposalActionCreationStep.LUMP_SUM_DETAILS)
           } else {
-            setNextStep(ProposalActionCreationStep.FUNCTION_CALL_SELECT_FUNCTION);
+            setNextStep(
+              ProposalActionCreationStep.FUNCTION_CALL_SELECT_FUNCTION,
+            )
           }
         }}
       >
@@ -63,11 +71,11 @@ const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = props =
         onPrevBtnClick={onPrevBtnClick}
         nextBtnText={<Trans>Add Action Details</Trans>}
         onNextBtnClick={() => {
-          onNextBtnClick(nextStep);
+          onNextBtnClick(nextStep as unknown as ProposalTransaction)
         }}
       />
     </div>
-  );
-};
+  )
+}
 
-export default SelectProposalActionStep;
+export default SelectProposalActionStep

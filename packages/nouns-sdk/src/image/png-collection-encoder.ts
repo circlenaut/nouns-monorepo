@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs } from 'fs-extra';
 import { EncodedImage, IEncoder, ImageData, PngImage } from './types';
 import { Image } from './image';
 
@@ -55,7 +55,8 @@ export class PNGCollectionEncoder implements IEncoder {
    * @param outputFile The output file path and name
    */
   public async writeToFile(outputFile = 'encoded-images.json'): Promise<void> {
-    await fs.writeFile(outputFile, JSON.stringify(this.data, null, 2));
+    // @TODO: doesn't jive with vite, throws => Uncaught TypeError: Cannot read properties of undefined (reading 'native')
+    // await fs.writeFile(outputFile, JSON.stringify(this.data, null, 2));
   }
 
   /**

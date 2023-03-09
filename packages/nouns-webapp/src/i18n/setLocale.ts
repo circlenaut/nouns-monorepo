@@ -1,4 +1,4 @@
-import { dynamicActivate } from './NounsI18nProvider';
+import { dynamicActivate } from './NounsI18nProvider'
 
 /**
  * Sets locale in local storage
@@ -9,7 +9,7 @@ import { dynamicActivate } from './NounsI18nProvider';
  */
 export const setLocale = (locale: string) => {
   if (localStorage.getItem('lang') !== locale) {
-    localStorage.setItem('lang', locale);
-    dynamicActivate(locale);
+    localStorage.setItem('lang', locale)
+    dynamicActivate(locale)
   }
-};
+}

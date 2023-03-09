@@ -1,3 +1,18 @@
+export type {
+  NounsAuctionHouse,
+  NounsToken,
+  NounsDescriptor,
+  NounsSeeder,
+  NounsArt,
+  NounsDescriptorV2
+} from '../typechain/contracts';
+export type {
+  NounsDAOExecutor,
+  NounsDAOLogicV1,
+  NounsDAOLogicV2,
+  NounsDAOProxy,
+  NounsDAOProxyV2,
+} from '../typechain/contracts/governance';
 export { default as NounsTokenABI } from '../abi/contracts/NounsToken.sol/NounsToken.json';
 export { default as NounsAuctionHouseABI } from '../abi/contracts/NounsAuctionHouse.sol/NounsAuctionHouse.json';
 export { default as NounsDescriptorABI } from '../abi/contracts/NounsDescriptor.sol/NounsDescriptor.json';

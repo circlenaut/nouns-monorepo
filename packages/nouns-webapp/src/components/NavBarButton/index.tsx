@@ -1,8 +1,11 @@
-import clsx from 'clsx';
-import classes from './NavBarButton.module.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
-import navDropdownClasses from '../NavWallet/NavBarDropdown.module.css';
+import { faSortDown, faSortUp } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import clsx from 'clsx'
+import React, { UIEvent } from 'react'
+
+// tslint:disable:ordered-imports
+import classes from './NavBarButton.module.css'
+import navDropdownClasses from '@/components/NavWallet/NavBarDropdown.module.css'
 
 export enum NavBarButtonStyle {
   COOL_INFO,
@@ -23,105 +26,141 @@ export enum NavBarButtonStyle {
 }
 
 interface NavBarButtonProps {
-  buttonText: React.ReactNode;
-  buttonIcon?: React.ReactNode;
-  buttonStyle?: NavBarButtonStyle;
-  onClick?: (e?: any) => void;
-  disabled?: boolean;
-  className?: string;
-  isDropdown?: boolean;
-  isButtonUp?: boolean;
+  buttonText: React.ReactNode
+  buttonIcon?: React.ReactNode | string
+  buttonStyle?: NavBarButtonStyle
+  onClick?: (e?: UIEvent) => void
+  disabled?: boolean
+  className?: string
+  isDropdown?: boolean
+  isButtonUp?: boolean
 }
 
 export const getNavBarButtonVariant = (buttonStyle?: NavBarButtonStyle) => {
   switch (buttonStyle) {
     case NavBarButtonStyle.COOL_INFO: {
-      return classes.coolInfo;
+      return classes.coolInfo
     }
     case NavBarButtonStyle.COOL_WALLET: {
-      return classes.coolWallet;
+      return classes.coolWallet
     }
     case NavBarButtonStyle.WARM_INFO: {
-      return classes.warmInfo;
+      return classes.warmInfo
     }
     case NavBarButtonStyle.WARM_WALLET: {
-      return classes.warmWallet;
+      return classes.warmWallet
     }
     case NavBarButtonStyle.WHITE_INFO: {
-      return classes.whiteInfo;
+      return classes.whiteInfo
     }
     case NavBarButtonStyle.WHITE_ACTIVE: {
-      return classes.whiteActive;
+      return classes.whiteActive
     }
     case NavBarButtonStyle.WHITE_ACTIVE_VOTE_SUBMIT: {
-      return classes.whiteActiveVoteSubmit;
+      return classes.whiteActiveVoteSubmit
     }
     case NavBarButtonStyle.WHITE_WALLET: {
-      return classes.whiteWallet;
+      return classes.whiteWallet
     }
     case NavBarButtonStyle.DELEGATE_BACK: {
-      return classes.delegateBack;
+      return classes.delegateBack
     }
     case NavBarButtonStyle.DELEGATE_PRIMARY: {
-      return classes.delegatePrimary;
+      return classes.delegatePrimary
     }
     case NavBarButtonStyle.DELEGATE_SECONDARY: {
-      return classes.delegateSecondary;
+      return classes.delegateSecondary
     }
     case NavBarButtonStyle.DELEGATE_DISABLED: {
-      return classes.delegateDisabled;
+      return classes.delegateDisabled
     }
     case NavBarButtonStyle.FOR_VOTE_SUBMIT: {
-      return classes.forVoteSubmit;
+      return classes.forVoteSubmit
     }
     case NavBarButtonStyle.AGAINST_VOTE_SUBMIT: {
-      return classes.againstVoteSubmit;
+      return classes.againstVoteSubmit
     }
     case NavBarButtonStyle.ABSTAIN_VOTE_SUBMIT: {
-      return classes.abstainVoteSubmit;
+      return classes.abstainVoteSubmit
     }
     default: {
-      return classes.info;
+      return classes.info
     }
   }
-};
+}
 
-const NavBarButton: React.FC<NavBarButtonProps> = props => {
-  const { buttonText, buttonIcon, buttonStyle, onClick, disabled, className = '' } = props;
+const NavBarButton: React.FC<NavBarButtonProps> = (props) => {
+  const {
+    buttonText,
+    buttonIcon,
+    buttonStyle,
+    onClick,
+    disabled,
+    className = '',
+  } = props
 
-  let isDisabled = disabled ?? false;
+  const isDisabled = disabled ?? false
 
   return (
     <>
       <div
         className={clsx(
-          `${classes.wrapper} ${getNavBarButtonVariant(buttonStyle)} ${className}`,
+          `${classes.wrapper} ${getNavBarButtonVariant(
+            buttonStyle,
+          )} ${className}`,
           props.isDropdown && classes.dropdown,
         )}
-        onClick={isDisabled ? () => {} : onClick}
+        onClick={isDisabled ? undefined : onClick}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            if (isDisabled) {
+              event.preventDefault()
+            } else {
+              onClick?.()
+            }
+          }
+        }}
+        role="button"
+        tabIndex={0}
       >
         <div
-          className={clsx(classes.button, isDisabled ? classes.btnDisabled : classes.btnEnabled)}
+          className={clsx(
+            classes.button,
+            isDisabled ? classes.btnDisabled : classes.btnEnabled,
+          )}
         >
           {buttonIcon && (
-            <div className={clsx(classes.icon, props.isDropdown && classes.dropdown)}>
-              {buttonIcon}
+            <div
+              className={clsx(
+                classes.icon,
+                props.isDropdown && classes.dropdown,
+              )}
+            >
+              {typeof buttonIcon === 'string' ? (
+                <img src={buttonIcon} alt="icon" />
+              ) : (
+                buttonIcon
+              )}
             </div>
           )}
           <div>{buttonText}</div>
           {props.isDropdown && (
             <div
               className={
-                props.isButtonUp ? navDropdownClasses.arrowUp : navDropdownClasses.arrowDown
+                props.isButtonUp
+                  ? navDropdownClasses.arrowUp
+                  : navDropdownClasses.arrowDown
               }
             >
-              <FontAwesomeIcon icon={props.isButtonUp ? faSortUp : faSortDown} />{' '}
+              <FontAwesomeIcon
+                icon={props.isButtonUp ? faSortUp : faSortDown}
+              />{' '}
             </div>
           )}
         </div>
       </div>
     </>
-  );
-};
+  )
+}
 
-export default NavBarButton;
+export default NavBarButton

@@ -13,6 +13,10 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: src/components/Winner/index.tsx
+msgid "${tip}"
+msgstr ""
+
 #: src/components/DynamicQuorumInfoModal/index.tsx
 msgid "% of Nouns Currently Against"
 msgstr ""
@@ -46,14 +50,25 @@ msgstr ""
 #~ msgstr ""
 
 #: src/components/profileEvent/event/DesktopNounWinEvent/index.tsx
-#: src/components/profileEvent/event/MobileNounWinEvent/index.tsx
 msgid "<0> Noun {0} </0> sent to <1><2/></1>"
 msgstr ""
 
 #: src/components/profileEvent/event/DesktopNounWinEvent/index.tsx
-#: src/components/profileEvent/event/MobileNounWinEvent/index.tsx
 msgid "<0> Noun {0} </0> won by <1><2/></1>"
 msgstr ""
+
+#: src/components/profileEvent/event/MobileNounWinEvent/index.tsx
+msgid "<0><1>Noun {0}</1>sent to <2><3/></2> </0>"
+msgstr ""
+
+#: src/components/profileEvent/event/MobileNounWinEvent/index.tsx
+msgid "<0><1>Noun {0}</1>won by <2><3/></2> </0>"
+msgstr ""
+
+#: src/components/profileEvent/event/MobileDelegationEvent/index.tsx
+#: src/components/profileEvent/event/MobileTransferEvent/index.tsx
+#~ msgid "<0>Delegate changed from<1><2/></1><3>to</3><4><5/></4></0>"
+#~ msgstr ""
 
 #: src/components/ByLineHoverCard/index.tsx
 msgid "<0>Delegated Noun: </0>"
@@ -237,8 +252,8 @@ msgid "Bid history"
 msgstr ""
 
 #: src/components/Bid/index.tsx
-msgid "Bid was placed successfully!"
-msgstr ""
+#~ msgid "Bid was placed successfully!"
+#~ msgstr ""
 
 #: src/components/NounInfoCard/index.tsx
 msgid "Bids"
@@ -288,17 +303,17 @@ msgstr ""
 #~ msgid "Cast {0} votes for Prop {1}"
 #~ msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Change"
 msgstr ""
 
 #: src/components/WalletConnectModal/index.tsx
-msgid "Clear WalletConnect Data"
-msgstr ""
+#~ msgid "Clear WalletConnect Data"
+#~ msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
-#: src/components/ChangeDelegatePannel/index.tsx
-#: src/components/CurrentDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
+#: src/components/CurrentDelegatePanel/index.tsx
 #: src/components/ProposalActionsModal/steps/SelectProposalActionStep/index.tsx
 msgid "Close"
 msgstr ""
@@ -336,7 +351,7 @@ msgstr ""
 msgid "Cryptopunks"
 msgstr ""
 
-#: src/components/CurrentDelegatePannel/index.tsx
+#: src/components/CurrentDelegatePanel/index.tsx
 msgid "Current Delegate"
 msgstr ""
 
@@ -374,27 +389,32 @@ msgstr ""
 msgid "Delegate"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Delegate Update Failed"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Delegate Updated!"
 msgstr ""
 
 #: src/components/profileEvent/event/MobileDelegationEvent/index.tsx
-msgid "Delegate changed from<0><1/></0> to <2><3/></2>"
+#~ msgid "Delegate changed from<0><1/></0> to <2><3/></2>"
+#~ msgstr ""
+
+#: src/components/profileEvent/event/MobileDelegationEvent/index.tsx
+#: src/components/profileEvent/event/MobileTransferEvent/index.tsx
+msgid "Delegate changed from<0><1/></0><2>to </2><3><4/></3>"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Delegate {availableVotes} Vote"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Delegate {availableVotes} Votes"
 msgstr ""
 
-#: src/components/CurrentDelegatePannel/index.tsx
+#: src/components/CurrentDelegatePanel/index.tsx
 msgid "Delegation"
 msgstr ""
 
@@ -458,20 +478,20 @@ msgstr ""
 msgid "Ends {0}"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Enter the Ethereum address or ENS name of the account you would like to delegate your votes to."
 msgstr ""
 
-#: src/components/Bid/index.tsx
-#: src/components/Bid/index.tsx
 #: src/components/VoteModal/index.tsx
-#: src/pages/CreateProposal/index.tsx
-#: src/pages/Vote/index.tsx
 msgid "Error"
 msgstr ""
 
 #: src/components/NounInfoRowBirthday/index.tsx
 msgid "Error fetching Noun birthday"
+msgstr ""
+
+#: src/components/WalletConnectModal/index.tsx
+msgid "Error: Failed To Connect!"
 msgstr ""
 
 #: src/components/Footer/index.tsx
@@ -483,9 +503,9 @@ msgstr ""
 msgid "Every new Noun pushed right to your pocket! View the current auction, remix your own Noun, and explore the entire history directly from the app."
 msgstr ""
 
-#: src/pages/Vote/index.tsx
-msgid "Execute"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "Execute"
+#~ msgstr ""
 
 #: src/components/NounProfileVoteRow/index.tsx
 #: src/components/ProposalStatus/index.tsx
@@ -596,16 +616,16 @@ msgid "Holder changed from <0><1/></0> to <2><3/></2>"
 msgstr ""
 
 #: src/components/profileEvent/event/MobileTransferEvent/index.tsx
-msgid "Holder changed from<0><1/></0> to <2><3/></2>"
-msgstr ""
+#~ msgid "Holder changed from<0><1/></0> to <2><3/></2>"
+#~ msgstr ""
 
 #: src/components/Documentation/index.tsx
 #~ msgid "In addition to the precautions taken by Compound Governance, Nounders have given themselves a special veto right to ensure that no malicious proposals can be passed while the Noun supply is low. This veto right will only be used if an obviously harmful governance proposal has been passed, and is intended as a last resort."
 #~ msgstr ""
 
 #: src/components/Bid/index.tsx
-msgid "Insufficient bid amount 🤏"
-msgstr ""
+#~ msgid "Insufficient bid amount 🤏"
+#~ msgstr ""
 
 #: src/components/ProposalActionsModal/steps/FunctionCallEnterArgsStep/index.tsx
 msgid "Invalid Arguments"
@@ -628,8 +648,12 @@ msgid "Loading..."
 msgstr ""
 
 #: src/components/Proposals/index.tsx
-msgid "Making a proposal requires {threshold} votes"
+msgid "Making a proposal requires {proposalThreshold} votes"
 msgstr ""
+
+#: src/components/Proposals/index.tsx
+#~ msgid "Making a proposal requires {threshold} votes"
+#~ msgstr ""
 
 #: src/components/DynamicQuorumInfoModal/index.tsx
 #~ msgid "More details on how dynamic quorum works can be found <0>here</0>."
@@ -677,7 +701,7 @@ msgstr ""
 msgid "Noun Traits"
 msgstr ""
 
-#: src/components/CurrentDelegatePannel/index.tsx
+#: src/components/CurrentDelegatePanel/index.tsx
 msgid "Noun votes are not transferable, but are <0>delegatable</0>, which means you can assign your vote to someone else as long as you own your Noun."
 msgstr ""
 
@@ -795,7 +819,6 @@ msgstr ""
 
 #: src/components/Bid/index.tsx
 #: src/components/Bid/index.tsx
-#: src/components/Bid/index.tsx
 msgid "Place bid"
 msgstr ""
 
@@ -806,19 +829,11 @@ msgid "Playground"
 msgstr ""
 
 #: src/components/Bid/index.tsx
-msgid "Please place a bid higher than or equal to the minimum bid amount of {0} ETH"
-msgstr ""
+#~ msgid "Please place a bid higher than or equal to the minimum bid amount of {0} ETH"
+#~ msgstr ""
 
-#: src/components/Bid/index.tsx
-#: src/components/Bid/index.tsx
-#: src/components/Bid/index.tsx
-#: src/components/Bid/index.tsx
 #: src/components/VoteModal/index.tsx
 #: src/components/VoteModal/index.tsx
-#: src/pages/CreateProposal/index.tsx
-#: src/pages/CreateProposal/index.tsx
-#: src/pages/Vote/index.tsx
-#: src/pages/Vote/index.tsx
 msgid "Please try again."
 msgstr ""
 
@@ -834,17 +849,17 @@ msgstr ""
 msgid "Proposal"
 msgstr ""
 
-#: src/pages/CreateProposal/index.tsx
-msgid "Proposal Created!"
-msgstr ""
+#: src/views/CreateProposal/index.tsx
+#~ msgid "Proposal Created!"
+#~ msgstr ""
 
-#: src/pages/Vote/index.tsx
-msgid "Proposal Executed!"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "Proposal Executed!"
+#~ msgstr ""
 
-#: src/pages/Vote/index.tsx
-msgid "Proposal Queued!"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "Proposal Queued!"
+#~ msgstr ""
 
 #: src/components/ProposalHeader/index.tsx
 msgid "Proposal {0}"
@@ -862,9 +877,9 @@ msgstr ""
 msgid "Proposed Transactions"
 msgstr ""
 
-#: src/pages/Vote/index.tsx
-msgid "Queue"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "Queue"
+#~ msgstr ""
 
 #: src/components/NounProfileVoteRow/index.tsx
 #: src/components/ProposalStatus/index.tsx
@@ -902,9 +917,11 @@ msgid "Select Language"
 msgstr ""
 
 #: src/components/Bid/index.tsx
-msgid "Settle"
-msgstr ""
+#: src/components/Bid/index.tsx
+#~ msgid "Settle"
+#~ msgstr ""
 
+#: src/components/Bid/index.tsx
 #: src/components/Bid/index.tsx
 #: src/components/Bid/index.tsx
 #: src/components/Bid/index.tsx
@@ -917,8 +934,8 @@ msgid "Settle manually"
 msgstr ""
 
 #: src/components/Bid/index.tsx
-msgid "Settled auction successfully!"
-msgstr ""
+#~ msgid "Settled auction successfully!"
+#~ msgstr ""
 
 #: src/components/Documentation/index.tsx
 msgid "Settlement of one auction kicks off the next."
@@ -963,16 +980,18 @@ msgstr ""
 
 #: src/components/NounProfileVoteRow/index.tsx
 #: src/components/ProposalStatus/index.tsx
-#: src/components/ProposalStatusCopy/index.tsx
 msgid "Succeeded"
+msgstr ""
+
+#: src/components/ProposalStatusCopy/index.tsx
+msgid "Succeeded2"
 msgstr ""
 
 #: src/components/Bid/index.tsx
 #: src/components/Bid/index.tsx
-#: src/pages/CreateProposal/index.tsx
-#: src/pages/Vote/index.tsx
-msgid "Success"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "Success"
+#~ msgstr ""
 
 #: src/components/Documentation/index.tsx
 msgid "Summary"
@@ -1107,17 +1126,13 @@ msgstr ""
 msgid "Trait generation is not truly random. Traits can be predicted when minting a Noun on the pending block."
 msgstr ""
 
-#: src/components/Bid/index.tsx
-#: src/components/Bid/index.tsx
 #: src/components/VoteModal/index.tsx
-#: src/pages/CreateProposal/index.tsx
-#: src/pages/Vote/index.tsx
 msgid "Transaction Failed"
 msgstr ""
 
-#: src/pages/Vote/index.tsx
-msgid "Transaction Successful!"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "Transaction Successful!"
+#~ msgstr ""
 
 #: src/components/NavBarTreasury/index.tsx
 #: src/pages/Governance/index.tsx
@@ -1134,12 +1149,12 @@ msgstr ""
 msgid "Undetermined"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
-#: src/components/CurrentDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
+#: src/components/CurrentDelegatePanel/index.tsx
 msgid "Update Delegate"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Updating..."
 msgstr ""
 
@@ -1173,30 +1188,30 @@ msgstr ""
 #~ msgid "View Dynamic Quorum Info"
 #~ msgstr ""
 
-#: src/pages/Vote/index.tsx
-msgid "View Threshold Info"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "View Threshold Info"
+#~ msgstr ""
 
 #: src/components/BidHistoryBtn/index.tsx
 msgid "View all bids"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
-#: src/components/Holder/index.tsx
-#: src/components/NounInfoRowHolder/index.tsx
-#: src/components/Winner/index.tsx
-#: src/components/profileEvent/event/DesktopDelegationEvent/index.tsx
-#: src/components/profileEvent/event/DesktopDelegationEvent/index.tsx
-#: src/components/profileEvent/event/DesktopNounWinEvent/index.tsx
-#: src/components/profileEvent/event/DesktopNounWinEvent/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 #: src/components/profileEvent/event/DesktopProposalVoteEvent/index.tsx
 #: src/components/profileEvent/event/DesktopTransferEvent/index.tsx
 #: src/components/profileEvent/event/DesktopTransferEvent/index.tsx
+#: src/components/profileEvent/eventData/ProposalVoteHeadline/index.tsx
 msgid "View on Etherscan"
 msgstr ""
 
 #: src/components/Bid/index.tsx
-msgid "Vote for the next Noun"
+#~ msgid "Vote for the next Noun"
+#~ msgstr ""
+
+#: src/components/Bid/index.tsx
+#: src/components/Bid/index.tsx
+#: src/components/Bid/index.tsx
+msgid "Vote for the next Noun ⌐◧-◧"
 msgstr ""
 
 #: src/components/ExploreGrid/ExploreNounDetail/index.tsx
@@ -1313,7 +1328,7 @@ msgstr ""
 msgid "You voted <0>For</0> this proposal"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "You've already delegated to this address"
 msgstr ""
 
@@ -1325,12 +1340,17 @@ msgstr ""
 msgid "You've successfully voted on on prop {0}"
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Your <0>{availableVotes}</0> votes are being delegated to a new account."
 msgstr ""
 
-#: src/components/ChangeDelegatePannel/index.tsx
+#: src/components/ChangeDelegatePanel/index.tsx
 msgid "Your <0>{availableVotes}</0> votes have been delegated to a new account."
+msgstr ""
+
+#: src/components/Holder/index.tsx
+#: src/components/NounInfoRowHolder/index.tsx
+msgid "`${tip}`"
 msgstr ""
 
 #: src/components/Documentation/index.tsx
@@ -1397,13 +1417,17 @@ msgstr ""
 msgid "{0} votes"
 msgstr ""
 
+#: src/i18n/utils.tsx
+#~ msgid "{children}"
+#~ msgstr ""
+
 #: src/pages/Vote/index.tsx
 msgid "{destructiveStateButtonAction} Proposal ⌐◧-◧"
 msgstr ""
 
-#: src/pages/Vote/index.tsx
-msgid "{moveStateButtonAction} Proposal ⌐◧-◧"
-msgstr ""
+#: src/views/Vote/index.tsx
+#~ msgid "{moveStateButtonAction} Proposal ⌐◧-◧"
+#~ msgstr ""
 
 #: src/components/DelegationCandidateVoteCountInfo/index.tsx
 msgid "{voteCount} Vote"

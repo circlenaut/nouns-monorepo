@@ -40,6 +40,13 @@ yarn test
 
 ### Install forge dependencies
 
+#### Install
+
+```sh
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+```
+
 ```sh
 forge install
 ```
@@ -48,6 +55,14 @@ forge install
 
 ```sh
 forge test -vvv
+```
+
+### Run full forge tests with external calls
+
+This will incure gas fees
+
+```sh
+forge test -vvv --ffi
 ```
 
 ### Environment Setup
@@ -69,7 +84,7 @@ yarn task:run-local
 # Deploy & Configure (Testnet/Mainnet)
 # This task deploys and verifies the contracts, populates the descriptor, and transfers contract ownership.
 # For parameter and flag information, run `yarn task:deploy-and-configure --help`.
-yarn task:deploy-and-configure --network [network] --update-configs
+yarn task:deploy-and-configure --network [network] --update-configs --start-auction --auto-deploy
 ```
 
 ### Automated Testnet Deployments

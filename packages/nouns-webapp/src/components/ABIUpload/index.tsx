@@ -1,16 +1,17 @@
-import classes from './ABIUpload.module.css';
-import React from 'react';
-import { Form } from 'react-bootstrap';
+import React from 'react'
+import { Form } from 'react-bootstrap'
+
+import classes from './ABIUpload.module.css'
 
 interface ABIUploadProps {
-  abiFileName?: string;
-  isValid: boolean | undefined;
-  isInvalid: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  abiFileName?: string
+  isValid: boolean | undefined
+  isInvalid: boolean
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-const ABIUpload: React.FC<ABIUploadProps> = props => {
-  const { abiFileName, isValid, isInvalid, onChange } = props;
+const ABIUpload: React.FC<ABIUploadProps> = (props) => {
+  const { abiFileName, isValid, isInvalid, onChange } = props
   return (
     <div className={classes.wrapper}>
       <span className={classes.label}>
@@ -27,7 +28,7 @@ const ABIUpload: React.FC<ABIUploadProps> = props => {
         onChange={onChange}
       />
     </div>
-  );
-};
+  )
+}
 
-export default ABIUpload;
+export default ABIUpload

@@ -1,12 +1,16 @@
-import { useAppSelector } from '../hooks';
+import { useAppSelector } from '@/hooks'
+import { Location } from 'react-router-dom'
 
-export const shouldUseStateBg = (history: any) => {
+export const shouldUseStateBg = (location: Location) => {
+  if (!location || !location.pathname) {
+    throw Error('Unable to fetch pathname from location')
+  }
   return (
-    history.location.pathname === '/' ||
-    history.location.pathname.includes('/noun') ||
-    history.location.pathname.includes('/auction')
-  );
-};
+    location.pathname === '/' ||
+    location.pathname?.includes('/noun') ||
+    location.pathname?.includes('/auction')
+  )
+}
 
 /**
  * Utility function that takes three items and returns whichever one corresponds to the current
@@ -17,15 +21,23 @@ export const shouldUseStateBg = (history: any) => {
  * @param history  History object from useHistory
  * @returns item corresponding to current state
  */
-export const usePickByState = (whiteState: any, coolState: any, warmState: any, history: any) => {
-  const useStateBg = shouldUseStateBg(history);
-  const isCoolState = useAppSelector(state => state.application.isCoolBackground);
 
-  if (!useStateBg) {
-    return whiteState;
-  }
-  if (isCoolState) {
-    return coolState;
-  }
-  return warmState;
-};
+export interface Color {
+  primary: string
+  secondary: string
+  tertiary: string
+  Location: Location
+}
+
+export const usePickByState = (
+  whiteState: string,
+  coolState: string,
+  warmState: string,
+  location: Location,
+) => {
+  const useStateBg = shouldUseStateBg(location)
+  const isCoolState = useAppSelector(
+    (state) => state.application.isCoolBackground,
+  )
+  return !useStateBg ? whiteState : isCoolState ? coolState : warmState
+}

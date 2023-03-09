@@ -1,24 +1,26 @@
-import { useEffect, useState } from 'react';
-import { useEthers } from '@usedapp/core';
+import { useEthers } from '@usedapp/core'
+import { useEffect, useState } from 'react'
 
 /**
  * A function that takes a block number from the chain and returns the timestamp of when the block occurred.
  * @param blockNumber target block number to retrieve the timestamp for
  * @returns unix timestamp of block number
  */
-export function useBlockTimestamp(blockNumber: number | undefined): number | undefined {
-  const { library } = useEthers();
-  const [blockTimestamp, setBlockTimestamp] = useState<number | undefined>();
+export const useBlockTimestamp = (
+  blockNumber: number | undefined,
+): number | undefined => {
+  const { library } = useEthers()
+  const [blockTimestamp, setBlockTimestamp] = useState<number | undefined>()
 
   useEffect(() => {
-    async function updateBlockTimestamp() {
-      if (!blockNumber) return;
-      const blockData = await library?.getBlock(blockNumber);
-      setBlockTimestamp(blockData?.timestamp || undefined);
+    const updateBlockTimestamp = async () => {
+      if (!blockNumber) return
+      const blockData = await library?.getBlock(blockNumber)
+      setBlockTimestamp(blockData?.timestamp || undefined)
     }
 
-    updateBlockTimestamp();
-  }, [blockNumber, library]);
+    updateBlockTimestamp()
+  }, [blockNumber, library])
 
-  return blockTimestamp;
+  return blockTimestamp
 }

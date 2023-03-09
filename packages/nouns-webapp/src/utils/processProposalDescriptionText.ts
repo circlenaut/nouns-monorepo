@@ -4,6 +4,9 @@
  * @param proposalTitle  The title of the corresponding proposal
  * @returns The proposal description with the first occurence of the title string removed
  */
-export const processProposalDescriptionText = (descriptionText: string, proposalTitle: string) => {
-  return descriptionText.replace(proposalTitle, '');
-};
+export const processProposalDescriptionText = (
+  descriptionText: string,
+  proposalTitle: string,
+) => {
+  return descriptionText.replace(proposalTitle, '')
+}

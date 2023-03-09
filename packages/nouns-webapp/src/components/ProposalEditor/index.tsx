@@ -1,28 +1,31 @@
-import classes from './ProposalEditor.module.css';
-import { InputGroup, FormControl, FormText } from 'react-bootstrap';
-import remarkBreaks from 'remark-breaks';
-import ReactMarkdown from 'react-markdown';
-import { useState } from 'react';
-import { Trans } from '@lingui/macro';
+import { Trans } from '@lingui/macro'
+import React, { useState } from 'react'
+import { FormControl, FormText, InputGroup } from 'react-bootstrap'
+import ReactMarkdown from 'react-markdown'
+import remarkBreaks from 'remark-breaks'
 
-const ProposalEditor = ({
+import classes from './ProposalEditor.module.css'
+
+interface ProposalEditorProps {
+  title: string
+  body: string
+  onTitleInput: (title: string) => void
+  onBodyInput: (body: string) => void
+}
+
+const ProposalEditor: React.FC<ProposalEditorProps> = ({
   title,
   body,
   onTitleInput,
   onBodyInput,
-}: {
-  title: string;
-  body: string;
-  onTitleInput: (title: string) => void;
-  onBodyInput: (body: string) => void;
-}) => {
-  const bodyPlaceholder = `## Summary\n\nInsert your summary here\n\n## Methodology\n\nInsert your methodology here\n\n## Conclusion\n\nInsert your conclusion here`;
-  const [proposalText, setProposalText] = useState('');
+}: ProposalEditorProps) => {
+  const bodyPlaceholder = `## Summary\n\nInsert your summary here\n\n## Methodology\n\nInsert your methodology here\n\n## Conclusion\n\nInsert your conclusion here`
+  const [proposalText, setProposalText] = useState('')
 
   const onBodyChange = (body: string) => {
-    setProposalText(body);
-    onBodyInput(body);
-  };
+    setProposalText(body)
+    onBodyInput(body)
+  }
 
   return (
     <div>
@@ -33,14 +36,14 @@ const ProposalEditor = ({
         <FormControl
           className={classes.titleInput}
           value={title}
-          onChange={e => onTitleInput(e.target.value)}
+          onChange={(e) => onTitleInput(e.target.value)}
           placeholder="Proposal Title"
         />
         <hr className={classes.divider} />
         <FormControl
           className={classes.bodyInput}
           value={body}
-          onChange={e => onBodyChange(e.target.value)}
+          onChange={(e) => onBodyChange(e.target.value)}
           as="textarea"
           placeholder={bodyPlaceholder}
         />
@@ -58,12 +61,13 @@ const ProposalEditor = ({
           )}
           <ReactMarkdown
             className={classes.markdown}
-            children={proposalText}
             remarkPlugins={[remarkBreaks]}
-          />
+          >
+            {proposalText}
+          </ReactMarkdown>
         </div>
       )}
     </div>
-  );
-};
-export default ProposalEditor;
+  )
+}
+export default ProposalEditor

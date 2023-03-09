@@ -1,14 +1,18 @@
-import { BigNumber } from 'ethers';
-import React from 'react';
-import { StandaloneNounCircular } from '../StandaloneNoun';
-import classes from './HorizontalStackedNouns.module.css';
+import { BigNumber } from 'ethers'
+import React from 'react'
+
+import { StandaloneNounCircular } from '@/components/StandaloneNoun'
+
+import classes from './HorizontalStackedNouns.module.css'
 
 interface HorizontalStackedNounsProps {
-  nounIds: string[];
+  nounIds: string[]
 }
 
-const HorizontalStackedNouns: React.FC<HorizontalStackedNounsProps> = props => {
-  const { nounIds } = props;
+const HorizontalStackedNouns: React.FC<HorizontalStackedNounsProps> = (
+  props,
+) => {
+  const { nounIds } = props
   return (
     <div className={classes.wrapper}>
       {nounIds
@@ -23,13 +27,16 @@ const HorizontalStackedNouns: React.FC<HorizontalStackedNounsProps> = props => {
               }}
               className={classes.nounWrapper}
             >
-              <StandaloneNounCircular nounId={BigNumber.from(nounId)} border={true} />
+              <StandaloneNounCircular
+                nounId={BigNumber.from(nounId)}
+                border={true}
+              />
             </div>
-          );
+          )
         })
         .reverse()}
     </div>
-  );
-};
+  )
+}
 
-export default HorizontalStackedNouns;
+export default HorizontalStackedNouns

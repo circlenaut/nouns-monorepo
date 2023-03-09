@@ -1,51 +1,62 @@
-import { BigNumber, BigNumberish } from 'ethers';
-import Section from '../../layout/Section';
-import classes from './HistoryCollection.module.css';
-import clsx from 'clsx';
-import StandaloneNoun from '../StandaloneNoun';
-import { LoadingNoun } from '../Noun';
-import config from '../../config';
-import { Container, Row } from 'react-bootstrap';
+import clsx from 'clsx'
+import { BigNumber, BigNumberish } from 'ethers'
+import React from 'react'
+import { Container, Row } from 'react-bootstrap'
+
+import { LoadingNoun } from '@/components/Noun'
+import StandaloneNoun from '@/components/StandaloneNoun'
+import { useConfig } from '@/hooks/useConfig'
+import Section from '@/layout/Section'
+
+import classes from '@/components/HistoryCollection.module.css'
 
 interface HistoryCollectionProps {
-  historyCount: number;
-  latestNounId: BigNumberish;
+  historyCount: number
+  latestNounId: BigNumberish
 }
 
-const HistoryCollection: React.FC<HistoryCollectionProps> = (props: HistoryCollectionProps) => {
-  const { historyCount, latestNounId } = props;
+const HistoryCollection: React.FC<HistoryCollectionProps> = (
+  props: HistoryCollectionProps,
+) => {
+  const { historyCount, latestNounId } = props
 
-  if (!latestNounId) return null;
+  const { app } = useConfig()
 
-  const startAtZero = BigNumber.from(latestNounId).sub(historyCount).lt(0);
+  if (!latestNounId) return null
 
-  let nounIds: Array<BigNumber | null> = new Array(historyCount);
+  const startAtZero = BigNumber.from(latestNounId).sub(historyCount).lt(0)
+
+  let nounIds: Array<BigNumber | null> = new Array(historyCount)
   nounIds = nounIds.fill(null).map((_, i) => {
     if (BigNumber.from(i).lt(latestNounId)) {
       const index = startAtZero
         ? BigNumber.from(0)
-        : BigNumber.from(Number(latestNounId) - historyCount);
-      return index.add(i);
+        : BigNumber.from(Number(latestNounId) - historyCount)
+      return index.add(i)
     } else {
-      return null;
+      return null
     }
-  });
+  })
 
   const nounsContent = nounIds.map((nounId, i) => {
-    return !nounId ? <LoadingNoun key={i} /> : <StandaloneNoun key={i} nounId={nounId} />;
-  });
+    return !nounId ? (
+      <LoadingNoun key={i} />
+    ) : (
+      <StandaloneNoun key={i} nounId={nounId} />
+    )
+  })
 
   return (
     <Section fullWidth={true}>
       <Container fluid>
         <Row className="justify-content-md-center">
           <div className={clsx(classes.historyCollection)}>
-            {config.app.enableHistory && nounsContent}
+            {app.enableHistory && nounsContent}
           </div>
         </Row>
       </Container>
     </Section>
-  );
-};
+  )
+}
 
-export default HistoryCollection;
+export default HistoryCollection

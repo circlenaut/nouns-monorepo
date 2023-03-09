@@ -1,37 +1,31 @@
-import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
+import { BigNumber } from '@ethersproject/bignumber'
 
-export interface BidEvent {
-  nounId: BigNumberish;
-  sender: string;
-  value: BigNumberish;
-  extended: boolean;
-  transactionHash: string;
-  timestamp: BigNumberish;
+import { Auction } from '@/wrappers/nounsAuction'
+
+export interface Bid {
+  nounId: BigNumber
+  sender: string
+  value: BigNumber
+  extended: boolean
+  transactionHash: string
+  timestamp: number
 }
 
-export interface AuctionCreateEvent {
-  nounId: BigNumberish;
-  startTime: BigNumberish;
-  endTime: BigNumberish;
-  settled: boolean;
+export type BidEvent = Bid
+
+export interface BidFilterEvent extends BidEvent {
+  event: unknown
+}
+
+export type AuctionCreateEvent = Auction
+
+export interface AuctionExtendedEvent {
+  nounId: BigNumber
+  endTime: BigNumber
 }
 
 export interface AuctionSettledEvent {
-  nounId: BigNumberish;
-  winner: string;
-  amount: BigNumberish;
-}
-
-export interface AuctionExtendedEvent {
-  nounId: BigNumberish;
-  endTime: BigNumberish;
-}
-
-export interface Bid {
-  nounId: BigNumber;
-  sender: string;
-  value: BigNumber;
-  extended: boolean;
-  transactionHash: string;
-  timestamp: BigNumber;
+  nounId: BigNumber
+  winner: string
+  amount: BigNumber
 }

@@ -1,47 +1,74 @@
-import classes from './Modal.module.css';
-import ReactDOM from 'react-dom';
-import xIcon from '../../assets/x-icon.png';
-import React from 'react';
+import React from 'react'
+import ReactDOM from 'react-dom'
 
-export const Backdrop: React.FC<{ onDismiss: () => void }> = props => {
-  return <div className={classes.backdrop} onClick={props.onDismiss} />;
-};
+import classes from './Modal.module.css'
+
+import xIcon from '@/assets/x-icon.png'
+
+export const Backdrop: React.FC<{ onDismiss: () => void }> = (props) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      props.onDismiss()
+    }
+  }
+
+  return (
+    <div
+      className={classes.backdrop}
+      role="button"
+      tabIndex={0}
+      onClick={props.onDismiss}
+      onKeyDown={handleKeyDown}
+    />
+  )
+}
 
 const ModalOverlay: React.FC<{
-  title?: React.ReactNode;
-  content?: React.ReactNode;
-  onDismiss: () => void;
-}> = props => {
-  const { title, content, onDismiss } = props;
+  title?: React.ReactNode
+  content?: React.ReactNode
+  onDismiss: () => void
+}> = (props) => {
+  const { title, content, onDismiss } = props
+
   return (
     <div className={classes.modal}>
       <button className={classes.closeButton} onClick={onDismiss}>
         <img src={xIcon} alt="Button to close modal" />
       </button>
       <h3>{title}</h3>
-      <div className={classes.content}>{content}</div>
+      <div className={classes.content}>
+        {content}
+        <div className={classes.walletContainer}></div>
+      </div>
     </div>
-  );
-};
+  )
+}
 
 const Modal: React.FC<{
-  title?: React.ReactNode;
-  content?: React.ReactNode;
-  onDismiss: () => void;
-}> = props => {
-  const { title, content, onDismiss } = props;
+  title?: React.ReactNode
+  content?: React.ReactNode
+  onDismiss: () => void
+}> = (props) => {
+  const { title, content, onDismiss } = props
+
+  const backdropRoot = document.getElementById('backdrop-root')
+  const overlayRoot = document?.getElementById('overlay-root')
+
   return (
     <>
-      {ReactDOM.createPortal(
-        <Backdrop onDismiss={onDismiss} />,
-        document.getElementById('backdrop-root')!,
-      )}
-      {ReactDOM.createPortal(
-        <ModalOverlay title={title} content={content} onDismiss={onDismiss} />,
-        document.getElementById('overlay-root')!,
-      )}
+      {backdropRoot &&
+        ReactDOM.createPortal(<Backdrop onDismiss={onDismiss} />, backdropRoot)}
+      {overlayRoot &&
+        ReactDOM.createPortal(
+          <ModalOverlay
+            title={title}
+            content={content}
+            onDismiss={onDismiss}
+          />,
+          overlayRoot,
+        )}
     </>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

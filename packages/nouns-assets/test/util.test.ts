@@ -9,6 +9,7 @@ import {
 import { images } from '../src/image-data.json';
 import { NounSeed } from '../src/types';
 
+
 const { bodies, accessories, heads, glasses } = images;
 
 describe('@noun/assets utils', () => {

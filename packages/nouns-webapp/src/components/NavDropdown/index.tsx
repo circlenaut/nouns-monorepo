@@ -1,65 +1,83 @@
-import React, { useState } from 'react';
-import NavBarButton, { NavBarButtonStyle } from '../NavBarButton';
-import classes from './NavDropdown.module.css';
-import { Dropdown } from 'react-bootstrap';
-import clsx from 'clsx';
-import { useHistory } from 'react-router-dom';
-import { usePickByState } from '../../utils/colorResponsiveUIUtils';
-import { Trans } from '@lingui/macro';
-import navDropdownClasses from '../NavWallet/NavBarDropdown.module.css';
-import responsiveUiUtilsClasses from '../../utils/ResponsiveUIUtils.module.css';
+import { Trans } from '@lingui/macro'
+import clsx from 'clsx'
+import React, { UIEvent, useState } from 'react'
+import { Dropdown } from 'react-bootstrap'
+import { useLocation } from 'react-router-dom'
+
+import NavBarButton, { NavBarButtonStyle } from '@/components/NavBarButton'
+import { usePickByState } from '@/utils/colorResponsiveUIUtils'
+
+// tslint:disable:ordered-imports
+import classes from './NavDropdown.module.css'
+import navDropdownClasses from '@/components/NavWallet/NavBarDropdown.module.css'
+import responsiveUiUtilsClasses from '@/utils/ResponsiveUIUtils.module.css'
 
 interface NavDropDownProps {
-  buttonStyle?: NavBarButtonStyle;
-  buttonIcon?: React.ReactNode;
+  buttonStyle?: NavBarButtonStyle
+  buttonIcon?: React.ReactNode
+  children?: React.ReactNode
 }
 
 type Props = {
-  onClick: (e: any) => void;
-  value: string;
-};
+  onClick: (e: UIEvent) => void
+  value: string
+}
 
-type RefType = number;
+type RefType = number
 
-const NavDropDown: React.FC<NavDropDownProps> = props => {
-  const { buttonStyle } = props;
+const NavDropDown: React.FC<NavDropDownProps> = (props) => {
+  const { buttonStyle } = props
 
-  const [buttonUp, setButtonUp] = useState(false);
-  const history = useHistory();
+  const [buttonUp, setButtonUp] = useState(false)
+  const location = useLocation()
 
   const statePrimaryButtonClass = usePickByState(
     navDropdownClasses.whiteInfo,
     navDropdownClasses.coolInfo,
     navDropdownClasses.warmInfo,
-    history,
-  );
+    location,
+  )
 
   const stateSelectedDropdownClass = usePickByState(
     navDropdownClasses.whiteInfoSelected,
     navDropdownClasses.dropdownActive,
     navDropdownClasses.dropdownActive,
-    history,
-  );
+    location,
+  )
 
-  const customDropdownToggle = React.forwardRef<RefType, Props>(({ onClick, value }, ref) => (
-    <>
-      <div
-        className={clsx(classes.wrapper)}
-        onClick={e => {
-          e.preventDefault();
-          onClick(e);
-        }}
-      >
-        <NavBarButton
-          buttonText={<Trans>Explore</Trans>}
-          buttonIcon={props.buttonIcon}
-          buttonStyle={buttonStyle}
-          isDropdown={true}
-          isButtonUp={buttonUp}
-        />
-      </div>
-    </>
-  ));
+  const customDropdownToggle: React.FC<Props> = React.forwardRef<
+    RefType,
+    Props
+  >(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ({ onClick, value }, ref) => (
+      <>
+        <div
+          className={clsx(classes.wrapper)}
+          onClick={(e) => {
+            e.preventDefault()
+            onClick(e)
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onClick(e)
+            }
+          }}
+          role="button"
+          tabIndex={0}
+        >
+          <NavBarButton
+            buttonText={<Trans>Explore</Trans>}
+            buttonIcon={props.buttonIcon}
+            buttonStyle={buttonStyle}
+            isDropdown={true}
+            isButtonUp={buttonUp}
+          />
+        </div>
+      </>
+    ),
+  )
+  customDropdownToggle.displayName = 'customDropdownToggle'
 
   return (
     <>
@@ -84,7 +102,7 @@ const NavDropDown: React.FC<NavDropDownProps> = props => {
         </Dropdown.Menu>
       </Dropdown>
     </>
-  );
-};
+  )
+}
 
-export default NavDropDown;
+export default NavDropDown

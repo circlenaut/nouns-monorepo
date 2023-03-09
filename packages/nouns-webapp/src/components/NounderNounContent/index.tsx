@@ -1,30 +1,32 @@
-import { Col, Row } from 'react-bootstrap';
-import { BigNumber } from 'ethers';
-import AuctionActivityWrapper from '../AuctionActivityWrapper';
-import AuctionNavigation from '../AuctionNavigation';
-import AuctionActivityNounTitle from '../AuctionActivityNounTitle';
-import AuctionActivityDateHeadline from '../AuctionActivityDateHeadline';
-import AuctionTitleAndNavWrapper from '../AuctionTitleAndNavWrapper';
-import { Link } from 'react-router-dom';
-import nounContentClasses from './NounderNounContent.module.css';
-import auctionBidClasses from '../AuctionActivity/BidHistory.module.css';
-import bidBtnClasses from '../BidHistoryBtn/BidHistoryBtn.module.css';
-import auctionActivityClasses from '../AuctionActivity/AuctionActivity.module.css';
-import CurrentBid, { BID_N_A } from '../CurrentBid';
-import Winner from '../Winner';
-import { Trans } from '@lingui/macro';
+import { Trans } from '@lingui/macro'
+import { BigNumber } from 'ethers'
+import React, { useCallback, useEffect } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
 
-import { useAppSelector } from '../../hooks';
-import { useCallback, useEffect } from 'react';
+import AuctionActivityDateHeadline from '@/components/AuctionActivityDateHeadline'
+import AuctionActivityNounTitle from '@/components/AuctionActivityNounTitle'
+import AuctionActivityWrapper from '@/components/AuctionActivityWrapper'
+import AuctionNavigation from '@/components/AuctionNavigation'
+import AuctionTitleAndNavWrapper from '@/components/AuctionTitleAndNavWrapper'
+import CurrentBid, { BID_N_A } from '@/components/CurrentBid'
+import Winner from '@/components/Winner'
+import { useAppSelector } from '@/hooks'
+
+// tslint:disable:ordered-imports
+import nounContentClasses from './NounderNounContent.module.css'
+import auctionBidClasses from '../AuctionActivity/BidHistory.module.css'
+import bidBtnClasses from '../BidHistoryBtn/BidHistoryBtn.module.css'
+import auctionActivityClasses from '../AuctionActivity/AuctionActivity.module.css'
 
 const NounderNounContent: React.FC<{
-  mintTimestamp: BigNumber;
-  nounId: BigNumber;
-  isFirstAuction: boolean;
-  isLastAuction: boolean;
-  onPrevAuctionClick: () => void;
-  onNextAuctionClick: () => void;
-}> = props => {
+  mintTimestamp: BigNumber
+  nounId: BigNumber
+  isFirstAuction: boolean
+  isLastAuction: boolean
+  onPrevAuctionClick: () => void
+  onNextAuctionClick: () => void
+}> = (props) => {
   const {
     mintTimestamp,
     nounId,
@@ -32,33 +34,37 @@ const NounderNounContent: React.FC<{
     isLastAuction,
     onPrevAuctionClick,
     onNextAuctionClick,
-  } = props;
+  } = props
 
-  const isCool = useAppSelector(state => state.application.isCoolBackground);
+  const isCool = useAppSelector((state) => state.application.isCoolBackground)
 
   // Page through Nouns via keyboard
   // handle what happens on key press
   const handleKeyPress = useCallback(
-    event => {
+    (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
-        onPrevAuctionClick();
+        onPrevAuctionClick()
       }
       if (event.key === 'ArrowRight') {
-        onNextAuctionClick();
+        onNextAuctionClick()
       }
     },
     [onNextAuctionClick, onPrevAuctionClick],
-  );
+  )
 
   useEffect(() => {
     // attach the event listener
-    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener(
+      'keydown',
+      handleKeyPress,
+      // { passive: false }
+    )
 
     // remove the event listener
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [handleKeyPress]);
+      document.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [handleKeyPress])
 
   return (
     <AuctionActivityWrapper>
@@ -96,7 +102,9 @@ const NounderNounContent: React.FC<{
           <ul className={auctionBidClasses.bidCollection}>
             <li
               className={
-                (isCool ? `${auctionBidClasses.bidRowCool}` : `${auctionBidClasses.bidRowWarm}`) +
+                (isCool
+                  ? `${auctionBidClasses.bidRowCool}`
+                  : `${auctionBidClasses.bidRowWarm}`) +
                 ` ${nounContentClasses.bidRow}`
               }
             >
@@ -106,21 +114,28 @@ const NounderNounContent: React.FC<{
               </Link>
               .{' '}
               <Trans>
-                For this reason, we, the project's founders (‘Nounders’) have chosen to compensate
-                ourselves with Nouns. Every 10th Noun for the first 5 years of the project will be
-                sent to our multisig (5/10), where it will be vested and distributed to individual
-                Nounders.
+                For this reason, we, the project&apos;s founders (‘Nounders’)
+                have chosen to compensate ourselves with Nouns. Every 10th Noun
+                for the first 5 years of the project will be sent to our
+                multisig (5/10), where it will be vested and distributed to
+                individual Nounders.
               </Trans>
             </li>
           </ul>
           <div
             className={
-              isCool ? bidBtnClasses.bidHistoryWrapperCool : bidBtnClasses.bidHistoryWrapperWarm
+              isCool
+                ? bidBtnClasses.bidHistoryWrapperCool
+                : bidBtnClasses.bidHistoryWrapperWarm
             }
           >
             <Link
               to="/nounders"
-              className={isCool ? bidBtnClasses.bidHistoryCool : bidBtnClasses.bidHistoryWarm}
+              className={
+                isCool
+                  ? bidBtnClasses.bidHistoryCool
+                  : bidBtnClasses.bidHistoryWarm
+              }
             >
               <Trans>Learn more</Trans> →
             </Link>
@@ -128,6 +143,6 @@ const NounderNounContent: React.FC<{
         </Col>
       </Row>
     </AuctionActivityWrapper>
-  );
-};
-export default NounderNounContent;
+  )
+}
+export default NounderNounContent

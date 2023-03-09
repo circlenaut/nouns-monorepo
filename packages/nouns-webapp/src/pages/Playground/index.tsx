@@ -1,35 +1,45 @@
+import { i18n } from '@lingui/core'
+import { Trans } from '@lingui/macro'
+import { PNG } from 'pngjs'
+import React, {
+  ChangeEvent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import {
-  Container,
-  Col,
   Button,
-  Image,
-  Row,
+  Col,
+  Container,
   FloatingLabel,
   Form,
+  Image,
   OverlayTrigger,
   Popover,
-} from 'react-bootstrap';
-import classes from './Playground.module.css';
-import React, { ChangeEvent, ReactNode, useEffect, useRef, useState } from 'react';
-import Link from '../../components/Link';
-import { ImageData, getNounData, getRandomNounSeed } from '@nouns/assets';
-import { buildSVG, EncodedImage, PNGCollectionEncoder } from '@nouns/sdk';
-import InfoIcon from '../../assets/icons/Info.svg';
-import Noun from '../../components/Noun';
-import NounModal from './NounModal';
-import { PNG } from 'pngjs';
-import { Trans } from '@lingui/macro';
-import { i18n } from '@lingui/core';
+  Row,
+} from 'react-bootstrap'
+
+import { getNounData, getRandomNounSeed, ImageData } from '@nouns/assets'
+import { buildSVG, PNGCollectionEncoder, type EncodedImage } from '@nouns/sdk'
+
+import Link from '@/components/Link'
+import Noun from '@/components/Noun'
+import NounModal from './NounModal'
+
+import classes from './Playground.module.css'
+
+import InfoIcon from '@/assets/icons/Info.svg'
 
 interface Trait {
-  title: string;
-  traitNames: string[];
+  title: string
+  traitNames: string[]
 }
 
 interface PendingCustomTrait {
-  type: string;
-  data: string;
-  filename: string;
+  type: string
+  data: string
+  filename: string
 }
 
 const nounsProtocolLink = (
@@ -38,7 +48,7 @@ const nounsProtocolLink = (
     url="https://www.notion.so/Noun-Protocol-32e4f0bf74fe433e927e2ea35e52a507"
     leavesPage={true}
   />
-);
+)
 
 const nounsAssetsLink = (
   <Link
@@ -46,7 +56,7 @@ const nounsAssetsLink = (
     url="https://github.com/nounsDAO/nouns-monorepo/tree/master/packages/nouns-assets"
     leavesPage={true}
   />
-);
+)
 
 const nounsSDKLink = (
   <Link
@@ -54,208 +64,231 @@ const nounsSDKLink = (
     url="https://github.com/nounsDAO/nouns-monorepo/tree/master/packages/nouns-sdk"
     leavesPage={true}
   />
-);
+)
 
-const DEFAULT_TRAIT_TYPE = 'heads';
+const DEFAULT_TRAIT_TYPE = 'heads'
 
-const encoder = new PNGCollectionEncoder(ImageData.palette);
+const encoder = ImageData && new PNGCollectionEncoder(ImageData.palette)
 
 const traitKeyToTitle: Record<string, string> = {
   heads: 'head',
   glasses: 'glasses',
   bodies: 'body',
   accessories: 'accessory',
-};
+}
 
 const parseTraitName = (partName: string): string =>
-  capitalizeFirstLetter(partName.substring(partName.indexOf('-') + 1));
+  capitalizeFirstLetter(partName.substring(partName.indexOf('-') + 1))
 
-const capitalizeFirstLetter = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+const capitalizeFirstLetter = (s: string): string =>
+  s.charAt(0).toUpperCase() + s.slice(1)
 
-const traitKeyToLocalizedTraitKeyFirstLetterCapitalized = (s: string): ReactNode => {
+const traitKeyToLocalizedTraitKeyFirstLetterCapitalized = (
+  s: string,
+): ReactNode => {
   const traitMap = new Map([
-    ['background', <Trans>Background</Trans>],
-    ['body', <Trans>Body</Trans>],
-    ['accessory', <Trans>Accessory</Trans>],
-    ['head', <Trans>Head</Trans>],
-    ['glasses', <Trans>Glasses</Trans>],
-  ]);
+    ['background', <Trans key={s}>Background</Trans>],
+    ['body', <Trans key={s}>Body</Trans>],
+    ['accessory', <Trans key={s}>Accessory</Trans>],
+    ['head', <Trans key={s}>Head</Trans>],
+    ['glasses', <Trans key={s}>Glasses</Trans>],
+  ])
 
-  return traitMap.get(s);
-};
+  return traitMap.get(s)
+}
 
-const Playground: React.FC = () => {
-  const [nounSvgs, setNounSvgs] = useState<string[]>();
-  const [traits, setTraits] = useState<Trait[]>();
-  const [modSeed, setModSeed] = useState<{ [key: string]: number }>();
-  const [initLoad, setInitLoad] = useState<boolean>(true);
-  const [displayNoun, setDisplayNoun] = useState<boolean>(false);
-  const [indexOfNounToDisplay, setIndexOfNounToDisplay] = useState<number>();
-  const [selectIndexes, setSelectIndexes] = useState<Record<string, number>>({});
-  const [pendingTrait, setPendingTrait] = useState<PendingCustomTrait>();
-  const [isPendingTraitValid, setPendingTraitValid] = useState<boolean>();
+const PlaygroundPage: React.FC = () => {
+  const [nounSvgs, setNounSvgs] = useState<string[]>()
+  const [traits, setTraits] = useState<Trait[]>()
+  const [modSeed, setModSeed] = useState<{ [key: string]: number }>()
+  const [initLoad, setInitLoad] = useState<boolean>(true)
+  const [displayNoun, setDisplayNoun] = useState<boolean>(false)
+  const [indexOfNounToDisplay, setIndexOfNounToDisplay] = useState<number>()
+  const [selectIndexes, setSelectIndexes] = useState<Record<string, number>>({})
+  const [pendingTrait, setPendingTrait] = useState<PendingCustomTrait>()
+  const [isPendingTraitValid, setPendingTraitValid] = useState<boolean>()
 
-  const customTraitFileRef = useRef<HTMLInputElement>(null);
+  const customTraitFileRef = useRef<HTMLInputElement>(null)
 
   const generateNounSvg = React.useCallback(
-    (amount: number = 1) => {
+    (amount = 1) => {
       for (let i = 0; i < amount; i++) {
-        const seed = { ...getRandomNounSeed(), ...modSeed };
-        const { parts, background } = getNounData(seed);
-        const svg = buildSVG(parts, encoder.data.palette, background);
-        setNounSvgs(prev => {
-          return prev ? [svg, ...prev] : [svg];
-        });
+        const seed = { ...getRandomNounSeed(), ...modSeed }
+        const { parts, background } = getNounData(seed)
+        const svg = buildSVG(parts, encoder.data.palette, background)
+        setNounSvgs((prev) => {
+          return prev ? [svg, ...prev] : [svg]
+        })
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [pendingTrait, modSeed],
-  );
+  )
 
   useEffect(() => {
-    const traitTitles = ['background', 'body', 'accessory', 'head', 'glasses'];
+    const traitTitles = ['background', 'body', 'accessory', 'head', 'glasses']
     const traitNames = [
       ['cool', 'warm'],
-      ...Object.values(ImageData.images).map(i => {
-        return i.map(imageData => imageData.filename);
+      ...Object.values(ImageData.images).map((i: EncodedImage[]) => {
+        return i.map((imageData: EncodedImage) => imageData.filename)
       }),
-    ];
+    ]
     setTraits(
       traitTitles.map((value, index) => {
         return {
           title: value,
           traitNames: traitNames[index],
-        };
+        }
       }),
-    );
+    )
 
     if (initLoad) {
-      generateNounSvg(8);
-      setInitLoad(false);
+      generateNounSvg(8)
+      setInitLoad(false)
     }
-  }, [generateNounSvg, initLoad]);
+  }, [generateNounSvg, initLoad])
 
   const traitOptions = (trait: Trait) => {
     return Array.from(Array(trait.traitNames.length + 1)).map((_, index) => {
-      const traitName = trait.traitNames[index - 1];
-      const parsedTitle = index === 0 ? `Random` : parseTraitName(traitName);
+      const traitName = trait.traitNames[index - 1]
+      if (!traitName) return null
+      const parsedTitle = index === 0 ? `Random` : parseTraitName(traitName)
       return (
         <option key={index} value={traitName}>
           {parsedTitle}
         </option>
-      );
-    });
-  };
+      )
+    })
+  }
 
   const traitButtonHandler = (trait: Trait, traitIndex: number) => {
-    setModSeed(prev => {
+    setModSeed((prev) => {
       // -1 traitIndex = random
       if (traitIndex < 0) {
-        let state = { ...prev };
-        delete state[trait.title];
-        return state;
+        const state = { ...prev }
+        delete state[trait.title]
+        return state
       }
       return {
         ...prev,
         [trait.title]: traitIndex,
-      };
-    });
-  };
+      }
+    })
+  }
 
   const resetTraitFileUpload = () => {
     if (customTraitFileRef.current) {
-      customTraitFileRef.current.value = '';
+      customTraitFileRef.current.value = ''
     }
-  };
+  }
 
-  let pendingTraitErrorTimeout: NodeJS.Timeout;
+  let pendingTraitErrorTimeout: NodeJS.Timeout
   const setPendingTraitInvalid = () => {
-    setPendingTraitValid(false);
-    resetTraitFileUpload();
+    setPendingTraitValid(false)
+    resetTraitFileUpload()
     pendingTraitErrorTimeout = setTimeout(() => {
-      setPendingTraitValid(undefined);
-    }, 5_000);
-  };
+      setPendingTraitValid(undefined)
+    }, 5_000)
+  }
 
   const validateAndSetCustomTrait = (file: File | undefined) => {
     if (pendingTraitErrorTimeout) {
-      clearTimeout(pendingTraitErrorTimeout);
+      clearTimeout(pendingTraitErrorTimeout)
     }
     if (!file) {
-      return;
+      return
     }
 
-    const reader = new FileReader();
-    reader.onload = e => {
+    const reader = new FileReader()
+
+    const stringToArrayBuffer = (data: string | ArrayBuffer): ArrayBuffer => {
+      if (typeof data === 'string') {
+        const encoder = new TextEncoder()
+        return encoder.encode(data).buffer
+      }
+      return data
+    }
+
+    reader.onload = (e) => {
       try {
-        const buffer = Buffer.from(e?.target?.result!);
-        const png = PNG.sync.read(buffer);
+        const decoder = new TextDecoder()
+        if (!e?.target?.result) return
+
+        const buffer = Buffer.from(
+          decoder.decode(stringToArrayBuffer(e.target.result)),
+        )
+
+        const png = PNG.sync.read(buffer)
         if (png.width !== 32 || png.height !== 32) {
-          throw new Error('Image must be 32x32');
+          throw new Error('Image must be 32x32')
         }
-        const filename = file.name?.replace('.png', '') || 'custom';
+        const filename = file.name?.replace('.png', '') || 'custom'
         const data = encoder.encodeImage(filename, {
           width: png.width,
           height: png.height,
           rgbaAt: (x: number, y: number) => {
-            const idx = (png.width * y + x) << 2;
+            const idx = (png.width * y + x) << 2
             const [r, g, b, a] = [
               png.data[idx],
               png.data[idx + 1],
               png.data[idx + 2],
               png.data[idx + 3],
-            ];
+            ]
             return {
-              r,
-              g,
-              b,
-              a,
-            };
+              r: r ?? 0,
+              g: g ?? 0,
+              b: b ?? 0,
+              a: a ?? 0,
+            }
           },
-        });
+        })
         setPendingTrait({
           data,
           filename,
           type: DEFAULT_TRAIT_TYPE,
-        });
-        setPendingTraitValid(true);
+        })
+        setPendingTraitValid(true)
       } catch (error) {
-        setPendingTraitInvalid();
+        setPendingTraitInvalid()
       }
-    };
-    reader.readAsArrayBuffer(file);
-  };
+    }
+    reader.readAsArrayBuffer(file)
+  }
 
   const uploadCustomTrait = () => {
-    const { type, data, filename } = pendingTrait || {};
+    const { type, data, filename } = pendingTrait || {}
     if (type && data && filename) {
-      const images = ImageData.images as Record<string, EncodedImage[]>;
-      images[type].unshift({
-        filename,
-        data,
-      });
-      const title = traitKeyToTitle[type];
-      const trait = traits?.find(t => t.title === title);
+      const images = ImageData.images as Record<string, EncodedImage[]>
+      const imagesType = images[type]
+      imagesType &&
+        imagesType.unshift({
+          filename,
+          data,
+        })
+      const title = traitKeyToTitle[type]
+      const trait = traits?.find((t) => t.title === title)
 
-      resetTraitFileUpload();
-      setPendingTrait(undefined);
-      setPendingTraitValid(undefined);
-      traitButtonHandler(trait!, 0);
-      setSelectIndexes({
-        ...selectIndexes,
-        [title]: 0,
-      });
+      resetTraitFileUpload()
+      setPendingTrait(undefined)
+      setPendingTraitValid(undefined)
+      trait && traitButtonHandler(trait, 0)
+      title &&
+        setSelectIndexes({
+          ...selectIndexes,
+          [title]: 0,
+        })
     }
-  };
+  }
 
+  const nounSvg =
+    indexOfNounToDisplay && nounSvgs && nounSvgs[indexOfNounToDisplay]
   return (
     <>
-      {displayNoun && indexOfNounToDisplay !== undefined && nounSvgs && (
+      {displayNoun && nounSvg && (
         <NounModal
           onDismiss={() => {
-            setDisplayNoun(false);
+            setDisplayNoun(false)
           }}
-          svg={nounSvgs[indexOfNounToDisplay]}
+          svg={nounSvg}
         />
       )}
 
@@ -270,9 +303,10 @@ const Playground: React.FC = () => {
             </h1>
             <p>
               <Trans>
-                The playground was built using the {nounsProtocolLink}. Noun's traits are determined
-                by the Noun Seed. The seed was generated using {nounsAssetsLink} and rendered using
-                the {nounsSDKLink}.
+                The playground was built using the {nounsProtocolLink}.
+                Noun&apos;s traits are determined by the Noun Seed. The seed was
+                generated using {nounsAssetsLink} and rendered using the{' '}
+                {nounsSDKLink}.
               </Trans>
             </p>
           </Col>
@@ -282,7 +316,7 @@ const Playground: React.FC = () => {
             <Col lg={12}>
               <Button
                 onClick={() => {
-                  generateNounSvg();
+                  generateNounSvg()
                 }}
                 className={classes.primaryBtn}
               >
@@ -292,26 +326,29 @@ const Playground: React.FC = () => {
             <Row>
               {traits &&
                 traits.map((trait, index) => {
+                  const traitIdx = selectIndexes?.[trait.title]
                   return (
-                    <Col lg={12} xs={6}>
+                    <Col key={index} lg={12} xs={6}>
                       <Form className={classes.traitForm}>
                         <FloatingLabel
                           controlId="floatingSelect"
-                          label={traitKeyToLocalizedTraitKeyFirstLetterCapitalized(trait.title)}
+                          label={traitKeyToLocalizedTraitKeyFirstLetterCapitalized(
+                            trait.title,
+                          )}
                           key={index}
                           className={classes.floatingLabel}
                         >
                           <Form.Select
                             aria-label="Floating label select example"
                             className={classes.traitFormBtn}
-                            value={trait.traitNames[selectIndexes?.[trait.title]] ?? -1}
-                            onChange={e => {
-                              let index = e.currentTarget.selectedIndex;
-                              traitButtonHandler(trait, index - 1); // - 1 to account for 'random'
+                            value={traitIdx ? trait.traitNames[traitIdx] : -1}
+                            onChange={(e) => {
+                              const index = e.currentTarget.selectedIndex
+                              traitButtonHandler(trait, index - 1) // - 1 to account for 'random'
                               setSelectIndexes({
                                 ...selectIndexes,
                                 [trait.title]: index - 1,
-                              });
+                              })
                             }}
                           >
                             {traitOptions(trait)}
@@ -319,13 +356,16 @@ const Playground: React.FC = () => {
                         </FloatingLabel>
                       </Form>
                     </Col>
-                  );
+                  )
                 })}
             </Row>
-            <label style={{ margin: '1rem 0 .25rem 0' }} htmlFor="custom-trait-upload">
+            <label
+              style={{ margin: '1rem 0 .25rem 0' }}
+              htmlFor="custom-trait-upload"
+            >
               <Trans>Upload Custom Trait</Trans>
               <OverlayTrigger
-                trigger="hover"
+                trigger={['hover', 'focus']}
                 placement="top"
                 overlay={
                   <Popover>
@@ -356,27 +396,39 @@ const Playground: React.FC = () => {
             />
             {pendingTrait && (
               <>
-                <FloatingLabel label="Custom Trait Type" className={classes.floatingLabel}>
+                <FloatingLabel
+                  label="Custom Trait Type"
+                  className={classes.floatingLabel}
+                >
                   <Form.Select
                     aria-label="Custom Trait Type"
                     className={classes.traitFormBtn}
-                    onChange={e => setPendingTrait({ ...pendingTrait, type: e.target.value })}
+                    onChange={(e) =>
+                      setPendingTrait({ ...pendingTrait, type: e.target.value })
+                    }
                   >
                     {Object.entries(traitKeyToTitle).map(([key, title]) => (
-                      <option value={key}>{capitalizeFirstLetter(title)}</option>
+                      <option key={key} value={key}>
+                        {capitalizeFirstLetter(title)}
+                      </option>
                     ))}
                   </Form.Select>
                 </FloatingLabel>
-                <Button onClick={() => uploadCustomTrait()} className={classes.primaryBtn}>
+                <Button
+                  onClick={() => uploadCustomTrait()}
+                  className={classes.primaryBtn}
+                >
                   <Trans>Upload</Trans>
                 </Button>
               </>
             )}
             <p className={classes.nounYearsFooter}>
               <Trans>
-                You've generated{' '}
-                {i18n.number(parseInt(nounSvgs ? (nounSvgs.length / 365).toFixed(2) : '0'))} years
-                worth of Nouns
+                You&apos;ve generated{' '}
+                {i18n.number(
+                  parseInt(nounSvgs ? (nounSvgs.length / 365).toFixed(2) : '0'),
+                )}{' '}
+                years worth of Nouns
               </Trans>
             </p>
           </Col>
@@ -388,9 +440,17 @@ const Playground: React.FC = () => {
                     <Col xs={4} lg={3} key={i}>
                       <div
                         onClick={() => {
-                          setIndexOfNounToDisplay(i);
-                          setDisplayNoun(true);
+                          setIndexOfNounToDisplay(i)
+                          setDisplayNoun(true)
                         }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            setIndexOfNounToDisplay(i)
+                            setDisplayNoun(true)
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
                       >
                         <Noun
                           imgPath={`data:image/svg+xml;base64,${btoa(svg)}`}
@@ -400,13 +460,13 @@ const Playground: React.FC = () => {
                         />
                       </div>
                     </Col>
-                  );
+                  )
                 })}
             </Row>
           </Col>
         </Row>
       </Container>
     </>
-  );
-};
-export default Playground;
+  )
+}
+export default PlaygroundPage

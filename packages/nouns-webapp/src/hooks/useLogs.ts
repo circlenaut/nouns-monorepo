@@ -1,8 +1,9 @@
-import { useBlockNumber } from '@usedapp/core';
-import { useEffect, useMemo } from 'react';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { addListener, removeListener } from '../state/slices/logs';
-import { EventFilter, filterToKey, Log } from '../utils/logParsing';
+import { useBlockNumber } from '@usedapp/core'
+import { useEffect, useMemo } from 'react'
+
+import { useAppDispatch, useAppSelector } from '@/hooks'
+import { addListener, removeListener } from '@/state/slices/logs'
+import { EventFilter, filterToKey, Log } from '@/utils/logParsing'
 
 enum LogsState {
   // The filter is invalid
@@ -18,57 +19,71 @@ enum LogsState {
 }
 
 export interface UseLogsResult {
-  logs: Log[] | undefined;
-  state: LogsState;
+  logs: Log[] | undefined
+  state: LogsState
 }
 
 /**
  * Returns the logs for the given filter as of the latest block, re-fetching from the library every block.
  * @param filter The logs filter, without `blockHash`, `fromBlock` or `toBlock` defined.
  */
-export function useLogs(filter: EventFilter | undefined): UseLogsResult {
-  const blockNumber = useBlockNumber();
+export const useLogs = (filter: EventFilter | undefined): UseLogsResult => {
+  const blockNumber = useBlockNumber()
 
-  const logs = useAppSelector(state => state.logs);
-  const dispatch = useAppDispatch();
+  const logs = useAppSelector((state) => state.logs)
+  const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    if (!filter) return;
-
-    dispatch(addListener({ filter }));
-    return () => {
-      dispatch(removeListener({ filter }));
-    };
-  }, [dispatch, filter]);
-
-  const filterKey = useMemo(() => (filter ? filterToKey(filter) : undefined), [filter]);
-
-  return useMemo(() => {
-    if (!filterKey || !blockNumber)
+  const synced = useMemo(() => {
+    if (!filter || !blockNumber) {
       return {
         logs: undefined,
         state: LogsState.INVALID,
-      };
+      }
+    }
 
-    const state = logs[filterKey];
-    const result = state?.results;
+    const filterKey = filterToKey(filter)
+    const state = logs[filterKey]
+    const result = state?.results
     if (!result) {
       return {
         state: LogsState.LOADING,
         logs: undefined,
-      };
+      }
     }
 
     if (result.error) {
       return {
         state: LogsState.ERROR,
         logs: undefined,
-      };
+      }
     }
 
     return {
-      state: result.blockNumber >= blockNumber ? LogsState.SYNCED : LogsState.SYNCING,
+      state:
+        result.blockNumber >= blockNumber
+          ? LogsState.SYNCED
+          : LogsState.SYNCING,
       logs: result.logs,
-    };
-  }, [blockNumber, filterKey, logs]);
+    }
+  }, [
+    blockNumber,
+    filter,
+    logs,
+    LogsState.ERROR,
+    LogsState.INVALID,
+    LogsState.LOADING,
+    LogsState.SYNCED,
+    LogsState.SYNCING,
+  ])
+
+  useEffect(() => {
+    if (!filter) return
+
+    dispatch(addListener({ filter }))
+    return () => {
+      dispatch(removeListener({ filter }))
+    }
+  }, [dispatch, filter])
+
+  return synced
 }

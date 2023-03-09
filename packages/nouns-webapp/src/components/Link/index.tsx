@@ -1,17 +1,21 @@
-import { ReactNode } from 'react';
-import classes from './Link.module.css';
+import React, { ReactNode } from 'react'
+import { Link as ReactLink } from 'react-router-dom'
 
-const Link: React.FC<{ text: ReactNode; url: string; leavesPage: boolean }> = props => {
-  const { text, url, leavesPage } = props;
+import classes from './Link.module.css'
+
+const Link: React.FC<{ text: ReactNode; url: string; leavesPage: boolean }> = (
+  props,
+) => {
+  const { text, url, leavesPage } = props
   return (
-    <a
+    <ReactLink
       className={classes.link}
-      href={url}
+      to={url}
       target={leavesPage ? '_blank' : '_self'}
-      rel="noreferrer"
+      rel={leavesPage ? 'noreferrer' : ''}
     >
       {text}
-    </a>
-  );
-};
-export default Link;
+    </ReactLink>
+  )
+}
+export default Link

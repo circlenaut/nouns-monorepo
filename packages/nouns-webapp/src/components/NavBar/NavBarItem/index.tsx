@@ -1,11 +1,24 @@
-import classes from './NavBarItem.module.css';
+import React from 'react'
 
-const NavBarItem: React.FC<{ onClick?: () => void; className?: string }> = props => {
-  const { onClick, children, className } = props;
+import classes from './NavBarItem.module.css'
+
+interface NavBarItemProps {
+  onClick?: () => void
+  className?: string
+  children?: React.ReactNode
+}
+
+const NavBarItem: React.FC<NavBarItemProps> = (props) => {
+  const { onClick, children, className } = props
   return (
-    <div className={` ${classes.navBarItem} ${className}`} onClick={onClick}>
+    <button
+      type="button"
+      className={` ${classes.navBarItem} ${className}`}
+      onClick={onClick}
+    >
       {children}
-    </div>
-  );
-};
-export default NavBarItem;
+    </button>
+  )
+}
+
+export default NavBarItem

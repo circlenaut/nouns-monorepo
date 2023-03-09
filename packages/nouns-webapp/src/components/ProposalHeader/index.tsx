@@ -1,29 +1,37 @@
-import React from 'react';
-import { Alert, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import ProposalStatus from '../ProposalStatus';
-import classes from './ProposalHeader.module.css';
-import navBarButtonClasses from '../NavBarButton/NavBarButton.module.css';
-import { Proposal, useHasVotedOnProposal, useProposalVote } from '../../wrappers/nounsDao';
-import clsx from 'clsx';
-import { isMobileScreen } from '../../utils/isMobile';
-import { useUserVotesAsOfBlock } from '../../wrappers/nounToken';
-import { useBlockTimestamp } from '../../hooks/useBlockTimestamp';
-import { Trans } from '@lingui/macro';
-import { i18n } from '@lingui/core';
-import { buildEtherscanAddressLink } from '../../utils/etherscan';
-import { transactionLink } from '../ProposalContent';
-import ShortAddress from '../ShortAddress';
-import { useActiveLocale } from '../../hooks/useActivateLocale';
-import { Locales } from '../../i18n/locales';
-import HoverCard from '../HoverCard';
-import ByLineHoverCard from '../ByLineHoverCard';
+import { Trans } from '@lingui/macro'
+import { i18n } from '@lingui/core'
+import clsx from 'clsx'
+import React, { useMemo } from 'react'
+import { Alert, Button } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+
+import ByLineHoverCard from '@/components/ByLineHoverCard'
+import HoverCard from '@/components/HoverCard'
+import { transactionLink } from '@/components/ProposalContent'
+import ProposalStatus from '@/components/ProposalStatus'
+import ShortAddress from '@/components/ShortAddress'
+import { useActiveLocale } from '@/hooks/useActivateLocale'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { useBlockTimestamp } from '@/hooks/useBlockTimestamp'
+import { Locales } from '@/i18n/locales'
+import { buildEtherscanAddressLink } from '@/utils/etherscan'
+import { isMobileScreen } from '@/utils/isMobile'
+import {
+  Proposal,
+  useHasVotedOnProposal,
+  useProposalVote,
+} from '@/wrappers/nounsDao'
+import { useUserVotesAsOfBlock } from '@/wrappers/nounToken'
+
+// tslint:disable:ordered-imports
+import classes from './ProposalHeader.module.css'
+import navBarButtonClasses from '@/components/NavBarButton/NavBarButton.module.css'
 
 interface ProposalHeaderProps {
-  proposal: Proposal;
-  isActiveForVoting?: boolean;
-  isWalletConnected: boolean;
-  submitButtonClickHandler: () => void;
+  proposal: Proposal
+  isActiveForVoting?: boolean
+  isWalletConnected: boolean
+  submitButtonClickHandler: () => void
 }
 
 const getTranslatedVoteCopyFromString = (proposalVote: string) => {
@@ -32,32 +40,47 @@ const getTranslatedVoteCopyFromString = (proposalVote: string) => {
       <Trans>
         You voted <strong>For</strong> this proposal
       </Trans>
-    );
+    )
   }
   if (proposalVote === 'Against') {
     return (
       <Trans>
         You voted <strong>Against</strong> this proposal
       </Trans>
-    );
+    )
   }
   return (
     <Trans>
       You <strong>Abstained</strong> from this proposal
     </Trans>
-  );
-};
+  )
+}
 
-const ProposalHeader: React.FC<ProposalHeaderProps> = props => {
-  const { proposal, isActiveForVoting, isWalletConnected, submitButtonClickHandler } = props;
+const ProposalHeader: React.FC<ProposalHeaderProps> = (props) => {
+  const {
+    proposal,
+    isActiveForVoting,
+    isWalletConnected,
+    submitButtonClickHandler,
+  } = props
+  const { contractAddresses } = useContractAddresses()
 
-  const isMobile = isMobileScreen();
-  const availableVotes = useUserVotesAsOfBlock(proposal?.createdBlock) ?? 0;
-  const hasVoted = useHasVotedOnProposal(proposal?.id);
-  const proposalVote = useProposalVote(proposal?.id);
-  const proposalCreationTimestamp = useBlockTimestamp(proposal?.createdBlock);
-  const disableVoteButton = !isWalletConnected || !availableVotes || hasVoted;
-  const activeLocale = useActiveLocale();
+  const isMobile = isMobileScreen()
+  const availableVotesCall = useUserVotesAsOfBlock(
+    contractAddresses,
+    proposal?.createdBlock,
+  )
+  const availableVotes = useMemo(() => availableVotesCall, [availableVotesCall])
+  const hasVotedCall = useHasVotedOnProposal(contractAddresses, proposal?.id)
+  const hasVoted = useMemo(() => hasVotedCall, [hasVotedCall])
+
+  const proposalVoteCall = useProposalVote(contractAddresses, proposal?.id)
+  const proposalVote = useMemo(() => proposalVoteCall, [proposalVoteCall])
+
+  const proposalCreationTimestamp = useBlockTimestamp(proposal?.createdBlock)
+
+  const disableVoteButton = !isWalletConnected || !availableVotes || hasVoted
+  const activeLocale = useActiveLocale()
 
   const voteButton = (
     <>
@@ -75,25 +98,27 @@ const ProposalHeader: React.FC<ProposalHeaderProps> = props => {
         </div>
       )}
       <Button
-        className={disableVoteButton ? classes.submitBtnDisabled : classes.submitBtn}
+        className={
+          disableVoteButton ? classes.submitBtnDisabled : classes.submitBtn
+        }
         disabled={disableVoteButton}
         onClick={submitButtonClickHandler}
       >
         <Trans>Submit vote</Trans>
       </Button>
     </>
-  );
+  )
 
   const proposer = (
-    <a
-      href={buildEtherscanAddressLink(proposal.proposer || '')}
+    <Link
+      to={buildEtherscanAddressLink(proposal.proposer || '')}
       target="_blank"
       rel="noreferrer"
       className={classes.proposerLinkJp}
     >
       <ShortAddress address={proposal.proposer || ''} avatar={false} />
-    </a>
-  );
+    </Link>
+  )
 
   const proposedAtTransactionHash = (
     <Trans>
@@ -102,23 +127,35 @@ const ProposalHeader: React.FC<ProposalHeaderProps> = props => {
         {transactionLink(proposal.transactionHash)}
       </span>
     </Trans>
-  );
+  )
 
   return (
     <>
       <div className="d-flex justify-content-between align-items-center">
         <div className="d-flex justify-content-start align-items-start">
           <Link to={'/vote'}>
-            <button className={clsx(classes.backButton, navBarButtonClasses.whiteInfo)}>←</button>
+            <button
+              className={clsx(
+                classes.backButton,
+                navBarButtonClasses.whiteInfo,
+              )}
+            >
+              ←
+            </button>
           </Link>
           <div className={classes.headerRow}>
             <span>
               <div className="d-flex">
                 <div>
-                  <Trans>Proposal {i18n.number(parseInt(proposal.id || '0'))}</Trans>
+                  <Trans>
+                    Proposal {i18n.number(parseInt(proposal.id || '0'))}
+                  </Trans>
                 </div>
                 <div>
-                  <ProposalStatus status={proposal?.status} className={classes.proposalStatus} />
+                  <ProposalStatus
+                    status={proposal?.status}
+                    className={classes.proposalStatus}
+                  />
                 </div>
               </div>
             </span>
@@ -139,7 +176,9 @@ const ProposalHeader: React.FC<ProposalHeaderProps> = props => {
       <div className={classes.byLineWrapper}>
         {activeLocale === Locales.ja_JP ? (
           <HoverCard
-            hoverCardContent={(tip: string) => <ByLineHoverCard proposerAddress={tip} />}
+            hoverCardContent={(tip: string) => (
+              <ByLineHoverCard proposerAddress={tip} />
+            )}
             tip={proposal && proposal.proposer ? proposal.proposer : ''}
             id="byLineHoverCard"
           >
@@ -159,7 +198,9 @@ const ProposalHeader: React.FC<ProposalHeaderProps> = props => {
 
             <div className={classes.byLineContentWrapper}>
               <HoverCard
-                hoverCardContent={(tip: string) => <ByLineHoverCard proposerAddress={tip} />}
+                hoverCardContent={(tip: string) => (
+                  <ByLineHoverCard proposerAddress={tip} />
+                )}
                 tip={proposal && proposal.proposer ? proposal.proposer : ''}
                 id="byLineHoverCard"
               >
@@ -176,29 +217,35 @@ const ProposalHeader: React.FC<ProposalHeaderProps> = props => {
       </div>
 
       {isMobile && (
-        <div className={classes.mobileSubmitProposalButton}>{isActiveForVoting && voteButton}</div>
+        <div className={classes.mobileSubmitProposalButton}>
+          {isActiveForVoting && voteButton}
+        </div>
       )}
 
-      {proposal && isActiveForVoting && hasVoted && (
+      {proposal && isActiveForVoting && hasVoted && proposalVote && (
         <Alert variant="success" className={classes.voterIneligibleAlert}>
           {getTranslatedVoteCopyFromString(proposalVote)}
         </Alert>
       )}
 
-      {proposal && isActiveForVoting && proposalCreationTimestamp && !!availableVotes && !hasVoted && (
-        <Alert variant="success" className={classes.voterIneligibleAlert}>
-          <Trans>
-            Only Nouns you owned or were delegated to you before{' '}
-            {i18n.date(new Date(proposalCreationTimestamp * 1000), {
-              dateStyle: 'long',
-              timeStyle: 'long',
-            })}{' '}
-            are eligible to vote.
-          </Trans>
-        </Alert>
-      )}
+      {proposal &&
+        isActiveForVoting &&
+        proposalCreationTimestamp &&
+        !!availableVotes &&
+        !hasVoted && (
+          <Alert variant="success" className={classes.voterIneligibleAlert}>
+            <Trans>
+              Only Nouns you owned or were delegated to you before{' '}
+              {i18n.date(new Date(proposalCreationTimestamp * 1000), {
+                dateStyle: 'long',
+                timeStyle: 'long',
+              })}{' '}
+              are eligible to vote.
+            </Trans>
+          </Alert>
+        )}
     </>
-  );
-};
+  )
+}
 
-export default ProposalHeader;
+export default ProposalHeader

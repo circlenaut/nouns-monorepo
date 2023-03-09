@@ -1,52 +1,81 @@
-import { useMemo, useEffect, useState } from 'react';
-import { Contract } from '@ethersproject/contracts';
-import { useEthers } from '@usedapp/core';
-import { utils, BigNumber } from 'ethers';
-import ERC20 from '../libs/abi/ERC20.json';
-import config from '../config';
+import { Contract } from '@ethersproject/contracts'
+import { useEthers } from '@usedapp/core'
+import { BigNumber, utils } from 'ethers'
+import { useEffect, useMemo, useState } from 'react'
 
-const { addresses } = config;
+import { CHAIN_ID } from '@/configs'
+import { useContractAddresses } from '@/hooks/useAddresses'
 
-const erc20Interface = new utils.Interface(ERC20);
-const chainlinkInterface = ['function latestAnswer() external view returns (int256)'];
+import ERC20 from '@/libs/abi/ERC20.json'
 
-function useTokenBuyerBalance(): BigNumber | undefined {
-  const { library } = useEthers();
+const erc20Interface = new utils.Interface(ERC20)
+const chainlinkInterface = [
+  'function latestAnswer() external view returns (int256)',
+]
 
-  const [ethBalance, setETHBalance] = useState<BigNumber | undefined>();
-  const [usdcBalance, setUSDCBalance] = useState<BigNumber | undefined>();
-  const [ethUsdcPrice, setETHUSDCPrice] = useState<BigNumber | undefined>();
+const useTokenBuyerBalance = (): BigNumber | undefined => {
+  const { chainId, library } = useEthers()
+  const { contractAddresses } = useContractAddresses()
 
-  const usdcContract = useMemo((): Contract | undefined => {
-    if (!library || !addresses.usdcToken) return;
-    return new Contract(addresses.usdcToken, erc20Interface, library);
-  }, [library]);
-  const chainlinkEthUsdcContract = useMemo((): Contract | undefined => {
-    if (!library || !addresses.chainlinkEthUsdc) return;
-    return new Contract(addresses.chainlinkEthUsdc, chainlinkInterface, library);
-  }, [library]);
+  const [ethBalance, setETHBalance] = useState<BigNumber | undefined>()
+  const [usdcBalance, setUSDCBalance] = useState<BigNumber | undefined>()
+  const [ethUsdcPrice, setETHUSDCPrice] = useState<BigNumber | undefined>()
+
+  const usdcContract = useMemo(
+    (): Contract | undefined =>
+      !library || !contractAddresses?.usdcToken
+        ? undefined
+        : new Contract(contractAddresses.usdcToken, erc20Interface, library),
+    [library, contractAddresses.usdcToken],
+  )
+
+  const chainlinkEthUsdcContract = useMemo(
+    (): Contract | undefined =>
+      !library || !contractAddresses?.chainlinkEthUsdc
+        ? undefined
+        : new Contract(
+            contractAddresses.chainlinkEthUsdc,
+            chainlinkInterface,
+            library,
+          ),
+    [library, contractAddresses.chainlinkEthUsdc],
+  )
 
   useEffect(() => {
-    if (!library || !addresses.tokenBuyer) return;
-    library.getBalance(addresses.tokenBuyer).then(setETHBalance);
-  }, [library]);
+    ;(async () => {
+      if (!library || !contractAddresses?.tokenBuyer) return
+      await library.getBalance(contractAddresses.tokenBuyer).then(setETHBalance)
+    })()
+  }, [library, contractAddresses.tokenBuyer])
 
   useEffect(() => {
-    if (!usdcContract || !addresses.payerContract) return;
-    usdcContract.balanceOf(addresses.payerContract).then(setUSDCBalance);
-  }, [usdcContract]);
+    ;(async () => {
+      if (
+        !usdcContract ||
+        !contractAddresses?.payerContract ||
+        Number(CHAIN_ID) !== chainId
+      )
+        return
+      await usdcContract
+        .balanceOf(contractAddresses.payerContract)
+        .then(setUSDCBalance)
+    })()
+  }, [usdcContract, chainId, contractAddresses.payerContract])
 
   useEffect(() => {
-    if (!chainlinkEthUsdcContract) return;
-    chainlinkEthUsdcContract.latestAnswer().then(setETHUSDCPrice);
-  }, [chainlinkEthUsdcContract]);
+    ;(async () => {
+      if (!chainlinkEthUsdcContract) return
+      await chainlinkEthUsdcContract.latestAnswer().then(setETHUSDCPrice)
+    })()
+  }, [chainlinkEthUsdcContract])
 
   if (!ethUsdcPrice) {
-    return ethBalance;
+    return ethBalance
   }
   return ethBalance?.add(
-    usdcBalance?.mul(BigNumber.from(10).pow(20)).div(ethUsdcPrice) ?? BigNumber.from(0),
-  );
+    usdcBalance?.mul(BigNumber.from(10).pow(20)).div(ethUsdcPrice) ??
+      BigNumber.from(0),
+  )
 }
 
-export default useTokenBuyerBalance;
+export default useTokenBuyerBalance

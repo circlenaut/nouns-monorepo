@@ -1,23 +1,26 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-interface AccountState {
-  activeAccount?: string;
+export interface ContractState {
+  activeNountoken?: string
 }
 
-const initialState: AccountState = {
-  activeAccount: undefined,
-};
+const initialState: ContractState = {
+  activeNountoken: undefined,
+}
 
-export const accountSlice = createSlice({
-  name: 'account',
+export const contractSlice = createSlice({
+  name: 'contract',
   initialState,
   reducers: {
-    setActiveAccount: (state, action: PayloadAction<string | undefined | null>) => {
-      state.activeAccount = action.payload === null ? undefined : action.payload;
-    },
+    setActiveNounToken: (
+      state,
+      action: PayloadAction<string | undefined | null>,
+    ) =>
+      void (state.activeNountoken =
+        action.payload === null ? undefined : action.payload),
   },
-});
+})
 
-export const { setActiveAccount } = accountSlice.actions;
+export const { setActiveNounToken } = contractSlice.actions
 
-export default accountSlice.reducer;
+export const contractReducer = contractSlice.reducer

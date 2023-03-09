@@ -1,22 +1,27 @@
-import React from 'react';
-import { buildEtherscanAddressLink, buildEtherscanTxLink } from '../../../../utils/etherscan';
-import { NounWinEvent } from '../../../../wrappers/nounActivity';
-import classes from './DesktopNounWinEvent.module.css';
-import DesktopNounActivityRow from '../../activityRow/DesktopNounActivityRow';
-import { CakeIcon } from '@heroicons/react/solid';
-import ReactTooltip from 'react-tooltip';
-import ShortAddress from '../../../ShortAddress';
-import TransactionHashPill from '../../eventData/infoPills/TransactionHashPill';
-import { Trans } from '@lingui/macro';
+import { CakeIcon } from '@heroicons/react/solid'
+import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
+
+import ShortAddress from '@/components/ShortAddress'
+import {
+  buildEtherscanAddressLink,
+  buildEtherscanTxLink,
+} from '@/utils/etherscan'
+import { NounWinEvent } from '@/wrappers/nounActivity'
+import DesktopNounActivityRow from '../../activityRow/DesktopNounActivityRow'
+import TransactionHashPill from '../../eventData/infoPills/TransactionHashPill'
+
+import classes from './DesktopNounWinEvent.module.css'
 
 interface DesktopNounWinEventProps {
-  event: NounWinEvent;
+  event: NounWinEvent
 }
 
-const DesktopNounWinEvent: React.FC<DesktopNounWinEventProps> = props => {
-  const { event } = props;
+const DesktopNounWinEvent: React.FC<DesktopNounWinEventProps> = (props) => {
+  const { event } = props
 
-  const isNounderNoun = parseInt(event.nounId as string) % 10 === 0;
+  const isNounderNoun = parseInt(event.nounId as string) % 10 === 0
   return (
     <DesktopNounActivityRow
       icon={
@@ -28,18 +33,29 @@ const DesktopNounWinEvent: React.FC<DesktopNounWinEventProps> = props => {
         <>
           <ReactTooltip
             id={'view-on-etherscan-tooltip'}
-            effect={'solid'}
             className={classes.delegateHover}
-            getContent={dataTip => {
-              return <Trans>View on Etherscan</Trans>;
-            }}
+            content={'View on Etherscan'}
+            place={'top'}
           />
           {isNounderNoun ? (
             <Trans>
-              <span className={classes.bold}> Noun {event.nounId} </span> sent to{' '}
+              <span className={classes.bold}> Noun {event.nounId} </span> sent
+              to{' '}
               <span
                 data-tip={`View on Etherscan`}
-                onClick={() => window.open(buildEtherscanAddressLink(event.winner), '_blank')}
+                onClick={() =>
+                  window.open(buildEtherscanAddressLink(event.winner), '_blank')
+                }
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    window.open(
+                      buildEtherscanAddressLink(event.winner),
+                      '_blank',
+                    )
+                  }
+                }}
+                role="button"
+                tabIndex={0}
                 data-for="view-on-etherscan-tooltip"
                 className={classes.address}
               >
@@ -52,7 +68,19 @@ const DesktopNounWinEvent: React.FC<DesktopNounWinEventProps> = props => {
               <span className={classes.bold}> Noun {event.nounId} </span> won by{' '}
               <span
                 data-tip={`View on Etherscan`}
-                onClick={() => window.open(buildEtherscanAddressLink(event.winner), '_blank')}
+                onClick={() =>
+                  window.open(buildEtherscanAddressLink(event.winner), '_blank')
+                }
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    window.open(
+                      buildEtherscanAddressLink(event.winner),
+                      '_blank',
+                    )
+                  }
+                }}
+                role="button"
+                tabIndex={0}
                 data-for="view-on-etherscan-tooltip"
                 className={classes.address}
               >
@@ -67,14 +95,24 @@ const DesktopNounWinEvent: React.FC<DesktopNounWinEventProps> = props => {
         <>
           <ReactTooltip
             id={'view-on-etherscan-txn-tooltip'}
-            effect={'solid'}
             className={classes.delegateHover}
-            getContent={dataTip => {
-              return <Trans>View on Etherscan</Trans>;
-            }}
+            content={'View on Etherscan'}
+            place={'top'}
           />
           <div
-            onClick={() => window.open(buildEtherscanTxLink(event.transactionHash), '_blank')}
+            onClick={() =>
+              window.open(buildEtherscanTxLink(event.transactionHash), '_blank')
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                window.open(
+                  buildEtherscanTxLink(event.transactionHash),
+                  '_blank',
+                )
+              }
+            }}
+            role="button"
+            tabIndex={0}
             data-tip={`View on Etherscan`}
             data-for="view-on-etherscan-txn-tooltip"
           >
@@ -83,7 +121,7 @@ const DesktopNounWinEvent: React.FC<DesktopNounWinEventProps> = props => {
         </>
       }
     />
-  );
-};
+  )
+}
 
-export default DesktopNounWinEvent;
+export default DesktopNounWinEvent

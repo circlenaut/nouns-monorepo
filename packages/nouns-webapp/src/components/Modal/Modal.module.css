@@ -13,23 +13,39 @@
   font-family: 'PT Root UI', sans-serif;
   font-weight: bold;
   position: fixed;
-  top: 30vh;
-  left: 10%;
   z-index: 100;
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
-  padding: 3rem 2rem;
   text-align: center;
   border-radius: 15px;
-  left: calc(50% - 17.5rem);
+  left: 50%;
+  top: 50%;
+  padding-top: 10px;
+  transform: translate(-50%, -50%);
   width: 35rem;
+  max-height: 90vh;
+  box-sizing: border-box;
+  overflow-y: scroll;
+  padding-right: 0;
+  padding-left: 25px; /* adjust this value as needed */
+}
+
+.modal .content {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
 }
 
 .modal button {
   border-radius: 10px;
   min-height: 44px;
   padding-top: 7px;
+  color: darkgray;
   background-color: rgba(255, 255, 255, 0.7);
+}
+
+.modal .walletContainer > *:last-child {
+  margin-bottom: 10rem;
 }
 
 .modal button:hover {
@@ -44,14 +60,13 @@
 
 .content {
   padding: 1rem;
-  max-height: 50vh;
-  overflow-y: auto;
+  max-height: 80vh;
 }
 
 .modal .closeButton {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  top: 0.5rem;
+  right: calc(10% - 25px); /* 50% - half the width of the button */
   border: 0 none;
   background-color: transparent;
   width: 40px;
@@ -63,8 +78,8 @@
   height: 1rem;
   width: 1rem;
   opacity: 0.5;
-  transition: all 0.125s ease-in-out;
-  margin-top: -4px;
+  transition: opacity 0.125s ease-in-out;
+  margin-top: -5px;
 }
 
 .modal .closeButton img:hover {
@@ -77,14 +92,43 @@
   height: auto;
 }
 
+.modal::-webkit-scrollbar {
+  width: 25px;
+  background-color: transparent;
+  scrollbar-width: thin;
+  border-radius: 15px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 20px;
+  width: 8px;
+  height: 20px;
+}
+
+.modal::-webkit-scrollbar-thumb:hover {
+  background-color: lightgray;
+}
+
 @media (max-width: 992px) {
   .modal {
-    top: auto;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    max-height: 100%;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
+    font-family: 'PT Root UI', sans-serif;
+    font-weight: bold;
+    position: fixed;
+    z-index: 100;
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    text-align: center;
+    border-radius: 15px;
+    left: 50%;
+    top: 50%;
+    padding-top: 10px;
+    transform: translate(-50%, -50%);
+    width: 35rem;
+    max-height: 90vh;
+    box-sizing: border-box;
+    overflow-y: scroll;
+    padding-right: 0;
+    padding-left: 25px; /* adjust this value as needed */
   }
 }

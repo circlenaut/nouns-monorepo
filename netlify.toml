@@ -15,7 +15,7 @@
   REACT_APP_ENABLE_HISTORY = "true"
 
 [functions]
-  directory = "packages/nouns-webapp/functions"
+  directory = "packages/nouns-webapp/wrappers/subgraph/functions"
 
 [build]
   command = "git submodule update --init --recursive --depth=1 && yarn workspace @nouns/webapp build"

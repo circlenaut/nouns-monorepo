@@ -9,42 +9,42 @@ export const svg2png = (
   newWidth = 320,
   newHeight = 320,
 ): Promise<string | null> => {
-  return new Promise(resolve => {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(svgString, 'image/svg+xml');
-    const modSvg = doc.documentElement;
-    const width = Number(modSvg.getAttribute('width'));
-    const height = Number(modSvg.getAttribute('height'));
+  return new Promise((resolve) => {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(svgString, 'image/svg+xml')
+    const modSvg = doc.documentElement
+    const width = Number(modSvg.getAttribute('width'))
+    const height = Number(modSvg.getAttribute('height'))
 
     if (!canScale(width, newWidth) || !canScale(height, newHeight)) {
-      throw new Error(`Unable to scale canvas without unwanted pixel gap`);
+      throw new Error(`Unable to scale canvas without unwanted pixel gap`)
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.width = newWidth;
-    canvas.height = newHeight;
+    const canvas = document.createElement('canvas')
+    canvas.width = newWidth
+    canvas.height = newHeight
 
-    const ctx = canvas.getContext('2d');
-    const DOMURL = window.URL || window.webkitURL || window;
-    const img = new Image();
-    const svg = new Blob([modSvg.outerHTML], { type: 'image/svg+xml' });
-    const url = DOMURL.createObjectURL(svg);
+    const ctx = canvas.getContext('2d')
+    const DOMURL = window.URL || window.webkitURL || window
+    const img = new Image()
+    const svg = new Blob([modSvg.outerHTML], { type: 'image/svg+xml' })
+    const url = DOMURL.createObjectURL(svg)
     img.onload = () => {
-      if (!ctx) return;
-      ctx.scale(newWidth / width, newHeight / height);
-      ctx.drawImage(img, 0, 0);
-      const png = canvas.toDataURL('image/png');
-      DOMURL.revokeObjectURL(png);
+      if (!ctx) return
+      ctx.scale(newWidth / width, newHeight / height)
+      ctx.drawImage(img, 0, 0)
+      const png = canvas.toDataURL('image/png')
+      DOMURL.revokeObjectURL(png)
       try {
-        resolve(png);
+        resolve(png)
       } catch (e) {
-        console.log('Error converting SVG to PNG:', e);
-        resolve(null);
+        console.error('Error converting SVG to PNG:', e)
+        resolve(null)
       }
-    };
-    img.src = url;
-  });
-};
+    }
+    img.src = url
+  })
+}
 
 /**
  * Determine if the image can be scaled without creating a pixel gap.
@@ -54,7 +54,7 @@ export const svg2png = (
  * @param desired The desired pixel length
  */
 const canScale = (current: number, desired: number) => {
-  const result = desired / current;
-  const decimals = result.toString().split('.')?.[1]?.length ?? 0;
-  return decimals <= 1;
-};
+  const result = desired / current
+  const decimals = result.toString().split('.')?.[1]?.length ?? 0
+  return decimals <= 1
+}

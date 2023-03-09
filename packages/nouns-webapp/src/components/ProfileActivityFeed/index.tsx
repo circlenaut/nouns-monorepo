@@ -1,39 +1,41 @@
-import React, { useState } from 'react';
-import { Col, Spinner } from 'react-bootstrap';
-import Section from '../../layout/Section';
-import classes from './ProfileActivityFeed.module.css';
+import { Trans } from '@lingui/macro'
+import React, { useState } from 'react'
+import { Col, Spinner } from 'react-bootstrap'
 
-import { Trans } from '@lingui/macro';
-import { useNounActivity } from '../../wrappers/nounActivity';
-import responsiveUiUtilsClasses from '../../utils/ResponsiveUIUtils.module.css';
-import ProfileActivityFeedToggle from '../ProfileActivityFeedToggle';
-import DesktopProfileActivityFeed from '../DesktopProfileActivityFeed';
-import MobileProfileActivityFeed from '../MobileProfileActivityFeed';
+import DesktopProfileActivityFeed from '@/components/DesktopProfileActivityFeed'
+import MobileProfileActivityFeed from '@/components/MobileProfileActivityFeed'
+import ProfileActivityFeedToggle from '@/components/ProfileActivityFeedToggle'
+import Section from '@/layout/Section'
+import { useNounActivity } from '@/wrappers/nounActivity'
+
+// tslint:disable:ordered-imports
+import classes from './ProfileActivityFeed.module.css'
+import responsiveUiUtilsClasses from '@/utils/ResponsiveUIUtils.module.css'
 
 interface ProfileActivityFeedProps {
-  nounId: number;
+  nounId: number
 }
 
 interface ProposalInfo {
-  id: number;
+  id: number
 }
 
 export interface NounVoteHistory {
-  blockNumber: number | string;
-  proposal: ProposalInfo;
-  support: boolean;
-  supportDetailed: number;
-  voter: { id: string };
+  blockNumber: number | string
+  proposal: ProposalInfo
+  support: boolean
+  supportDetailed: number
+  voter: { id: string }
 }
 
-const ProfileActivityFeed: React.FC<ProfileActivityFeedProps> = props => {
-  const { nounId } = props;
+const ProfileActivityFeed: React.FC<ProfileActivityFeedProps> = (props) => {
+  const { nounId } = props
 
-  const MAX_EVENTS_SHOW_ABOVE_FOLD = 5;
+  const MAX_EVENTS_SHOW_ABOVE_FOLD = 5
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  const { loading, error, data } = useNounActivity(nounId);
+  const { loading, error, data } = useNounActivity(nounId)
 
   if (loading || !data || data === undefined) {
     return (
@@ -49,7 +51,7 @@ const ProfileActivityFeed: React.FC<ProfileActivityFeedProps> = props => {
           </div>
         </Col>
       </Section>
-    );
+    )
   }
 
   if (error) {
@@ -57,7 +59,7 @@ const ProfileActivityFeed: React.FC<ProfileActivityFeedProps> = props => {
       <div>
         <Trans>Failed to fetch Noun activity history</Trans>
       </div>
-    );
+    )
   }
 
   return (
@@ -70,7 +72,10 @@ const ProfileActivityFeed: React.FC<ProfileActivityFeedProps> = props => {
         </div>
         {data && data.length === 0 ? (
           <div className={classes.nullStateCopy}>
-            <Trans>This Noun has no activity, since it was just created. Check back soon!</Trans>
+            <Trans>
+              This Noun has no activity, since it was just created. Check back
+              soon!
+            </Trans>
           </div>
         ) : (
           <>
@@ -100,7 +105,7 @@ const ProfileActivityFeed: React.FC<ProfileActivityFeedProps> = props => {
         )}
       </Col>
     </Section>
-  );
-};
+  )
+}
 
-export default ProfileActivityFeed;
+export default ProfileActivityFeed

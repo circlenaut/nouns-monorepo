@@ -8,18 +8,18 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "clean": "rimraf dist tsconfig.build.tsbuildinfo",
-    "build": "tsc -p tsconfig.build.json",
+    "clean": "rimraf dist node_modules tsconfig.build.tsbuildinfo",
+    "clean:modules": "rimraf dist node_modules tsconfig.build.tsbuildinfo",
+    "build": "yarn clean && tsc -p tsconfig.build.json",
     "prepare": "yarn build",
-    "test": "mocha -r ts-node/register \"test/**/*.test.ts\""
+    "test": "ts-mocha -r ts-node/register --loader=ts-node/esm --es-module-specifier-resolution=node -p tsconfig.json \"test/**/*.test.ts\""
   },
   "dependencies": {
     "@nouns/contracts": "^0.3.0",
-    "ethers": "^5.6.8"
+    "fs-extra": "^11.1.0"
   },
   "devDependencies": {
-    "@types/pngjs": "^6.0.1",
-    "pngjs": "^6.0.0"
+    "@types/fs-extra": "^11.0.1"
   },
   "peerDependencies": {
     "ethers": ">=5.0.0"

@@ -1,66 +1,74 @@
-import dayjs from 'dayjs';
-import duration from 'dayjs/plugin/duration';
-import { Auction } from '../../wrappers/nounsAuction';
-import classes from './AuctionTimer.module.css';
-import { useState, useEffect, useRef } from 'react';
-import { Row, Col } from 'react-bootstrap';
-import { useAppSelector } from '../../hooks';
-import clsx from 'clsx';
-import { Trans } from '@lingui/macro';
-import { i18n } from '@lingui/core';
+import { i18n } from '@lingui/core'
+import { Trans } from '@lingui/macro'
+import clsx from 'clsx'
+import dayjs from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { Col, Row } from 'react-bootstrap'
 
-dayjs.extend(duration);
+import { useAppSelector } from '@/hooks'
+import { Auction } from '@/wrappers/nounsAuction'
+
+import classes from './AuctionTimer.module.css'
+
+dayjs.extend(duration)
 
 const AuctionTimer: React.FC<{
-  auction: Auction;
-  auctionEnded: boolean;
-}> = props => {
-  const { auction, auctionEnded } = props;
+  auction: Auction
+  auctionEnded: boolean
+}> = (props) => {
+  const { auction, auctionEnded } = props
 
-  const [auctionTimer, setAuctionTimer] = useState(0);
-  const [timerToggle, setTimerToggle] = useState(true);
+  const [auctionTimer, setAuctionTimer] = useState(0)
+  const [timerToggle, setTimerToggle] = useState(true)
 
-  const auctionTimerRef = useRef(auctionTimer); // to access within setTimeout
-  auctionTimerRef.current = auctionTimer;
+  const auctionTimerRef = useRef(auctionTimer) // to access within setTimeout
+  auctionTimerRef.current = auctionTimer
 
-  const timerDuration = dayjs.duration(auctionTimerRef.current, 's');
-  const endTimeUnix = Math.floor(Date.now() / 1000) + auctionTimerRef.current;
+  const timerDuration = dayjs.duration(auctionTimerRef.current, 's')
+  const endTimeUnix = Math.floor(Date.now() / 1000) + auctionTimerRef.current
 
   // timer logic
   useEffect(() => {
-    const timeLeft = (auction && Number(auction.endTime)) - dayjs().unix();
+    const timeLeft = (auction && Number(auction.endTime)) - dayjs().unix()
 
-    setAuctionTimer(auction && timeLeft);
+    setAuctionTimer(auction && timeLeft)
 
     if (auction && timeLeft <= 0) {
-      setAuctionTimer(0);
+      setAuctionTimer(0)
+      return
     } else {
       const timer = setTimeout(() => {
-        setAuctionTimer(auctionTimerRef.current - 1);
-      }, 1000);
+        setAuctionTimer(auctionTimerRef.current - 1)
+      }, 1000)
 
       return () => {
-        clearTimeout(timer);
-      };
+        clearTimeout(timer)
+      }
     }
-  }, [auction, auctionTimer]);
+  }, [auction, auctionTimer])
 
-  const auctionContentLong = auctionEnded ? (
-    <Trans>Auction ended</Trans>
-  ) : (
-    <Trans>Auction ends in</Trans>
-  );
-  const auctionContentShort = auctionEnded ? (
-    <Trans>Auction ended</Trans>
-  ) : (
-    <Trans>Time left</Trans>
-  );
+  const auctionContentLong = useMemo(
+    () =>
+      auctionEnded ? (
+        <Trans>Auction ended</Trans>
+      ) : (
+        <Trans>Auction ends in</Trans>
+      ),
+    [auctionEnded],
+  )
 
-  const flooredMinutes = Math.floor(timerDuration.minutes());
-  const flooredSeconds = Math.floor(timerDuration.seconds());
-  const isCool = useAppSelector(state => state.application.isCoolBackground);
+  const auctionContentShort = useMemo(
+    () =>
+      auctionEnded ? <Trans>Auction ended</Trans> : <Trans>Time left</Trans>,
+    [auctionEnded],
+  )
 
-  if (!auction) return null;
+  const flooredMinutes = Math.floor(timerDuration.minutes())
+  const flooredSeconds = Math.floor(timerDuration.seconds())
+  const isCool = useAppSelector((state) => state.application.isCoolBackground)
+
+  if (!auction) return null
 
   return (
     <Row
@@ -70,7 +78,9 @@ const AuctionTimer: React.FC<{
       <Col xs={timerToggle ? 4 : 6} lg={12} className={classes.leftCol}>
         <h4
           style={{
-            color: isCool ? 'var(--brand-cool-light-text)' : 'var(--brand-warm-light-text)',
+            color: isCool
+              ? 'var(--brand-cool-light-text)'
+              : 'var(--brand-warm-light-text)',
           }}
         >
           {timerToggle ? (
@@ -81,8 +91,10 @@ const AuctionTimer: React.FC<{
             )
           ) : (
             <>
-              <Trans>Ends on</Trans> {i18n.date(new Date(endTimeUnix * 1000), { month: 'short' })}{' '}
-              {i18n.date(new Date(endTimeUnix * 1000), { day: 'numeric' })} <Trans>at</Trans>
+              <Trans>Ends on</Trans>{' '}
+              {i18n.date(new Date(endTimeUnix * 1000), { month: 'short' })}{' '}
+              {i18n.date(new Date(endTimeUnix * 1000), { day: 'numeric' })}{' '}
+              <Trans>at</Trans>
             </>
           )}
         </h4>
@@ -90,9 +102,11 @@ const AuctionTimer: React.FC<{
       <Col xs="auto" lg={12}>
         {timerToggle ? (
           <h2
-            className={clsx(classes.timerWrapper, classes.timeLeft)}
+            className={clsx(classes.timerWrapper, classes.timeLeft, 'small')}
             style={{
-              color: isCool ? 'var(--brand-cool-dark-text)' : 'var(--brand-warm-dark-text)',
+              color: isCool
+                ? 'var(--brand-cool-dark-text)'
+                : 'var(--brand-warm-dark-text)',
             }}
           >
             <div className={classes.timerSection}>
@@ -122,19 +136,25 @@ const AuctionTimer: React.FC<{
           </h2>
         ) : (
           <h2
-            className={classes.timerWrapper}
+            className={clsx(classes.timerWrapper, 'small')}
             style={{
-              color: isCool ? 'var(--brand-cool-dark-text)' : 'var(--brand-warm-dark-text)',
+              color: isCool
+                ? 'var(--brand-cool-dark-text)'
+                : 'var(--brand-warm-dark-text)',
             }}
           >
             <div className={clsx(classes.timerSection, classes.clockSection)}>
-              <span>{i18n.date(new Date(endTimeUnix * 1000), { timeStyle: 'medium' })}</span>
+              <span>
+                {i18n.date(new Date(endTimeUnix * 1000), {
+                  timeStyle: 'medium',
+                })}
+              </span>
             </div>
           </h2>
         )}
       </Col>
     </Row>
-  );
-};
+  )
+}
 
-export default AuctionTimer;
+export default AuctionTimer

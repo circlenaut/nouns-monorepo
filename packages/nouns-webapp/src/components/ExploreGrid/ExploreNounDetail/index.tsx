@@ -1,77 +1,140 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { useNounSeed } from '../../../wrappers/nounToken';
-import { BigNumber } from 'ethers';
-import { StandalonePart } from '../../StandalonePart';
-import classes from './ExploreNounDetail.module.css';
-import { ImageData } from '@nouns/assets';
-import { Trans } from '@lingui/macro';
-import { AnimatePresence, motion } from 'framer-motion/dist/framer-motion';
-import { XIcon } from '@heroicons/react/solid';
-import NounInfoRowBirthday from '../../NounInfoRowBirthday';
-import loadingNoun from '../../../assets/loading-skull-noun.gif';
-import Placeholder from 'react-bootstrap/Placeholder';
-import Image from 'react-bootstrap/Image';
-import cx from 'classnames';
-import { useSwipeable } from 'react-swipeable';
+import { XIcon } from '@heroicons/react/solid'
+import { Trans } from '@lingui/macro'
+import cx from 'classnames'
+import { BigNumber } from 'ethers'
+import { AnimatePresence, motion } from 'framer-motion'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Image, Placeholder } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import { useSwipeable } from 'react-swipeable'
+
+import { ImageData } from '@nouns/assets'
+import type { EncodedImage } from '@nouns/sdk'
+
+import NounInfoRowBirthday from '@/components/NounInfoRowBirthday'
+import { getNoun } from '@/components/StandaloneNoun'
+import { StandalonePart } from '@/components/StandalonePart'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { useConfig } from '@/hooks/useConfig'
+import { useNounSeed } from '@/wrappers/nounToken'
+
+import classes from './ExploreNounDetail.module.css'
+
+import loadingNoun from '@/assets/loading-skull-noun.gif'
 
 type Noun = {
-  id: number | null;
-  imgSrc: string | undefined;
-};
-interface ExploreNounDetailProps {
-  nounId: number;
-  noun: Noun;
-  nounCount: number;
-  handleCloseDetail: Function;
-  handleNounNavigation: Function;
-  handleFocusNoun: Function;
-  handleScrollTo: Function;
-  selectedNoun?: number;
-  isVisible: boolean;
-  setIsNounHoverDisabled: Function;
-  disablePrev: boolean;
-  disableNext: boolean;
+  id: number | null
+  imgSrc: string | undefined
 }
 
-const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
-  const [width, setWidth] = useState<number>(window.innerWidth);
-  const seedId =
-    props.noun?.id != null && props.noun?.id >= 0
-      ? BigNumber.from(props.noun.id)
-      : BigNumber.from(0);
-  const seed = useNounSeed(seedId);
-  const bgcolors = ['#d5d7e1', '#e1d7d5'];
-  const backgroundColor = seed ? bgcolors[seed.background] : bgcolors[0];
-  const nounId = props.noun && props.noun.id != null && props.noun.id >= 0 ? props.noun.id : null;
+interface ExploreNounDetailProps {
+  activeNounId: number
+  noun: Noun
+  nounCount: number
+  handleCloseDetail: () => void
+  handleNounNavigation: (toLocation: string) => void
+  handleFocusNoun: (nounId: number) => void
+  handleScrollTo: (nounId?: number) => void
+  selectedNoun?: number
+  isVisible: boolean
+  setIsNounHoverDisabled: (isHoverDisabled: boolean) => void
+  disablePrev: boolean
+  disableNext: boolean
+}
 
-  const isMobile: boolean = width <= 991;
+const ExploreNounDetail: React.FC<ExploreNounDetailProps> = (props) => {
+  const { settings } = useConfig()
+  const { contractAddresses } = useContractAddresses()
+
+  const [nounImage, setNounUrl] = useState<string | null | undefined>()
+
+  const activeNounId = useMemo(
+    () =>
+      props.noun && props.noun.id != null && props.noun.id >= 0
+        ? props.noun.id
+        : null,
+    [props.noun],
+  )
+
+  const seedId = useMemo(
+    () => (activeNounId ? BigNumber.from(activeNounId) : BigNumber.from(0)),
+    [activeNounId],
+  )
+
+  const seedCall = useNounSeed(contractAddresses, seedId)
+  const seed = useMemo(() => seedCall, [seedCall])
+
+  const activeNounImage = useMemo(
+    () => (props.noun && props.noun.imgSrc != null ? props.noun.imgSrc : null),
+    [props.noun],
+  )
+
+  const bgcolors = ['#d5d7e1', '#e1d7d5']
+  const backgroundColor = seed ? bgcolors[seed.background] : bgcolors[0]
+  const [width, setWidth] = useState<number>(window.innerWidth)
+  const isMobile: boolean = width <= 991
   const handleWindowSizeChange = () => {
-    setWidth(window.innerWidth);
-  };
+    setWidth(window.innerWidth)
+  }
 
   useEffect(() => {
-    window.addEventListener('resize', handleWindowSizeChange);
+    ;(async () => {
+      setNounUrl(loadingNoun)
+      if (activeNounId === null) return
+
+      let url: URL | null
+      try {
+        url = activeNounImage
+          ? new URL(activeNounImage)
+          : new URL(`${activeNounId}.svg`, settings.nounsPicsUrl)
+        if (!(await fetch(url.href)).ok) return setNounUrl(null)
+        return setNounUrl(url.href)
+      } catch (error) {
+        return setNounUrl(null)
+      }
+    })()
+  }, [activeNounImage, activeNounId, settings.nounsPicsUrl])
+
+  const getNounImage = useMemo(
+    () =>
+      nounImage === null && seedId && seed
+        ? getNoun(seedId, seed).image
+        : loadingNoun,
+    [seedId, seed, nounImage],
+  )
+
+  useEffect(() => {
+    window.addEventListener(
+      'resize',
+      handleWindowSizeChange,
+      // { passive: false }
+    )
 
     return () => {
-      window.removeEventListener('resize', handleWindowSizeChange);
-    };
-  }, []);
+      window.removeEventListener('resize', handleWindowSizeChange)
+    }
+  }, [])
 
   // Modified from playground function to remove dashes in filenames
   const parseTraitName = (partName: string): string =>
-    capitalizeFirstLetter(partName.substring(partName.indexOf('-') + 1).replace(/-/g, ' '));
-  const capitalizeFirstLetter = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+    capitalizeFirstLetter(
+      partName.substring(partName.indexOf('-') + 1).replace(/-/g, ' '),
+    )
+  const capitalizeFirstLetter = (s: string): string =>
+    s.charAt(0).toUpperCase() + s.slice(1)
 
-  const traitKeyToLocalizedTraitKeyFirstLetterCapitalized = (s: string): ReactNode => {
+  const traitKeyToLocalizedTraitKeyFirstLetterCapitalized = (
+    s: string,
+  ): JSX.Element => {
     const traitMap = new Map([
-      ['background', <Trans>Background</Trans>],
-      ['body', <Trans>Body</Trans>],
-      ['accessory', <Trans>Accessory</Trans>],
-      ['head', <Trans>Head</Trans>],
-      ['glasses', <Trans>Glasses</Trans>],
-    ]);
-    return traitMap.get(s);
-  };
+      ['background', <Trans key={s}>Background</Trans>],
+      ['body', <Trans key={s}>Body</Trans>],
+      ['accessory', <Trans key={s}>Accessory</Trans>],
+      ['head', <Trans key={s}>Head</Trans>],
+      ['glasses', <Trans key={s}>Glasses</Trans>],
+    ])
+    return traitMap.get(s) ?? <></>
+  }
 
   const traitTypeKeys = (s: string) => {
     const traitMap = new Map([
@@ -80,30 +143,30 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
       ['accessory', 'accessories'],
       ['head', 'heads'],
       ['glasses', 'glasses'],
-    ]);
-    const result = traitMap.get(s);
+    ])
+    const result = traitMap.get(s)
     if (result) {
-      return result;
+      return result
     } else {
-      throw new Error(`Trait key for ${s} not found`);
+      throw new Error(`Trait key for ${s} not found`)
     }
-  };
+  }
 
   const traitNames = [
     ['cool', 'warm'],
-    ...Object.values(ImageData.images).map(i => {
-      return i.map(imageData => imageData.filename);
+    ...Object.values(ImageData.images).map((i: EncodedImage[]) => {
+      return i.map((imageData: EncodedImage) => imageData.filename)
     }),
-  ];
+  ]
 
   const getOrderedTraits = (seed: {
-    head: number;
-    glasses: number;
-    accessory: number;
-    body: number;
-    background: number;
+    head: number
+    glasses: number
+    accessory: number
+    body: number
+    background: number
   }) => {
-    let nounTraitsOrdered;
+    let nounTraitsOrdered
     const loadingNounTraits = [
       {
         partType: 'head',
@@ -130,60 +193,68 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
         partName: 'cool',
         partIndex: -1,
       },
-    ];
+    ]
+
+    const verifyTrait = (index?: string) => {
+      return index && parseTraitName(index)
+    }
 
     if (seed) {
       nounTraitsOrdered = [
         {
           partType: 'head',
-          partName: parseTraitName(traitNames[3][seed.head]),
+          partName: verifyTrait(traitNames[3]?.[seed.head]),
           partIndex: seed.head,
         },
         {
           partType: 'glasses',
-          partName: parseTraitName(traitNames[4][seed.glasses]),
+          partName: verifyTrait(traitNames[4]?.[seed.glasses]),
           partIndex: seed.glasses,
         },
         {
           partType: 'accessory',
-          partName: parseTraitName(traitNames[2][seed.accessory]),
+          partName: verifyTrait(traitNames[2]?.[seed.accessory]),
           partIndex: seed.accessory,
         },
         {
           partType: 'body',
-          partName: parseTraitName(traitNames[1][seed.body]),
+          partName: verifyTrait(traitNames[1]?.[seed.body]),
           partIndex: seed.body,
         },
         {
           partType: 'background',
-          partName: parseTraitName(traitNames[0][seed.background]),
+          partName: verifyTrait(traitNames[0]?.[seed.background]),
           partIndex: seed.background,
         },
-      ];
+      ]
     }
 
     if (nounTraitsOrdered) {
-      return nounTraitsOrdered;
+      return nounTraitsOrdered
     } else {
-      return loadingNounTraits;
+      return loadingNounTraits
     }
-  };
+  }
 
   const handlers = useSwipeable({
-    onSwipedLeft: () => !props.disableNext && props.handleNounNavigation('next'),
-    onSwipedRight: () => !props.disablePrev && props.handleNounNavigation('prev'),
+    onSwipedLeft: () =>
+      !props.disableNext && props.handleNounNavigation('next'),
+    onSwipedRight: () =>
+      !props.disablePrev && props.handleNounNavigation('prev'),
     swipeDuration: 500,
     preventScrollOnSwipe: true,
     trackMouse: true,
-  });
+  })
 
-  const nounTraitsOrdered = getOrderedTraits(seed);
+  const nounTraitsOrdered = seed && getOrderedTraits(seed)
   const handleAnimationStart = () => {
-    props.setIsNounHoverDisabled(true);
-  };
+    props.setIsNounHoverDisabled(true)
+  }
+
   const handleAnimationComplete = () => {
-    props.handleScrollTo(props.selectedNoun);
-  };
+    props.handleScrollTo(props.selectedNoun)
+  }
+
   const motionVariants = {
     initial: {
       width: isMobile ? '100%' : '0%',
@@ -200,7 +271,7 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
         duration: isMobile ? 0.05 : 0.025,
       },
     },
-  };
+  }
 
   return (
     <>
@@ -223,18 +294,18 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
         animate="animate"
         exit="exit"
         onAnimationStart={() => handleAnimationStart()}
-        onAnimationComplete={definition => {
-          !isMobile && definition === 'animate' && handleAnimationComplete();
+        onAnimationComplete={(definition) => {
+          !isMobile && definition === 'animate' && handleAnimationComplete()
           !isMobile &&
             definition === 'exit' &&
-            window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
         }}
         {...handlers}
       >
         <motion.div
           className={classes.detail}
           style={{
-            background: backgroundColor,
+            background: `${backgroundColor} !important`,
           }}
           exit={{
             opacity: !isMobile ? 0 : 1,
@@ -243,22 +314,26 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
             },
           }}
         >
-          <button className={classes.close} onClick={() => props.handleCloseDetail()}>
+          <button
+            className={classes.close}
+            onClick={() => props.handleCloseDetail()}
+          >
             <XIcon className={classes.icon} />
           </button>
-          <div
+          <button
             className={classes.detailNounImage}
             onClick={() => props.handleScrollTo(props.selectedNoun)}
+            role="link"
           >
-            {nounId !== null && seed ? (
+            {activeNounId !== null ? (
               <Image
-                src={props.noun.imgSrc || `https://noun.pics/${nounId}.svg`}
-                alt={`Noun ${nounId}`}
+                src={nounImage ?? getNounImage}
+                alt={`Noun ${activeNounId}`}
               />
             ) : (
               <Image src={loadingNoun} alt="Loading noun" />
             )}
-          </div>
+          </button>
 
           <div className={classes.nounDetails}>
             <div className={classes.infoWrap}>
@@ -266,17 +341,19 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
                 onClick={() => props.handleNounNavigation('prev')}
                 className={cx(
                   classes.arrow,
-                  backgroundColor === bgcolors[0] ? classes.arrowCool : classes.arrowWarm,
+                  backgroundColor === bgcolors[0]
+                    ? classes.arrowCool
+                    : classes.arrowWarm,
                 )}
                 disabled={props.disablePrev}
               >
                 ←
               </button>
               <div className={classes.nounBirthday}>
-                {nounId !== null && seed ? (
+                {activeNounId !== null && seed ? (
                   <>
-                    <h2>Noun {nounId}</h2>
-                    <NounInfoRowBirthday nounId={nounId} />
+                    <h2>Noun {activeNounId}</h2>
+                    <NounInfoRowBirthday nounId={activeNounId} />
                   </>
                 ) : (
                   <h2>Loading</h2>
@@ -286,7 +363,9 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
                 onClick={() => props.handleNounNavigation('next')}
                 className={cx(
                   classes.arrow,
-                  backgroundColor === bgcolors[0] ? classes.arrowCool : classes.arrowWarm,
+                  backgroundColor === bgcolors[0]
+                    ? classes.arrowCool
+                    : classes.arrowWarm,
                 )}
                 disabled={props.disableNext}
               >
@@ -297,18 +376,26 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
             <ul className={classes.traitsList}>
               {nounTraitsOrdered &&
                 Object.values(nounTraitsOrdered).map((part, index) => {
-                  const partType = traitTypeKeys(nounTraitsOrdered[index].partType);
+                  const nounsTraitsOrderedIndex = nounTraitsOrdered[index]
+                  const partType =
+                    nounsTraitsOrderedIndex &&
+                    traitTypeKeys(nounsTraitsOrderedIndex.partType)
                   return (
                     <li key={partType} id={partType}>
                       <div
                         className={classes.thumbnail}
                         style={{
-                          backgroundColor: backgroundColor ? backgroundColor : 'transparent',
+                          backgroundColor: backgroundColor
+                            ? backgroundColor
+                            : 'transparent',
                         }}
                       >
                         <AnimatePresence>
-                          {nounId !== null && seed && (
-                            <StandalonePart partType={partType} partIndex={part.partIndex} />
+                          {activeNounId !== null && seed && partType && (
+                            <StandalonePart
+                              partType={partType}
+                              partIndex={part.partIndex}
+                            />
                           )}
                         </AnimatePresence>
                       </div>
@@ -316,11 +403,12 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
                       <div className={classes.description}>
                         <p className="small">
                           <AnimatePresence>
-                            {nounId !== null && seed ? (
+                            {activeNounId !== null && seed ? (
                               <motion.span>
-                                {traitKeyToLocalizedTraitKeyFirstLetterCapitalized(
-                                  nounTraitsOrdered[index].partType,
-                                )}
+                                {nounsTraitsOrderedIndex &&
+                                  traitKeyToLocalizedTraitKeyFirstLetterCapitalized(
+                                    nounsTraitsOrderedIndex.partType,
+                                  )}
                               </motion.span>
                             ) : (
                               <motion.span>
@@ -334,8 +422,10 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
                         <p>
                           <strong>
                             <AnimatePresence>
-                              {nounId !== null && seed ? (
-                                <>{nounTraitsOrdered[index].partName}</>
+                              {activeNounId !== null &&
+                              seed &&
+                              nounsTraitsOrderedIndex ? (
+                                <>{nounsTraitsOrderedIndex.partName}</>
                               ) : (
                                 <Placeholder xs={12} animation="glow" />
                               )}
@@ -344,21 +434,21 @@ const ExploreNounDetail: React.FC<ExploreNounDetailProps> = props => {
                         </p>
                       </div>
                     </li>
-                  );
+                  )
                 })}
             </ul>
-            {nounId !== null && seed && (
+            {activeNounId !== null && seed && (
               <p className={classes.activityLink}>
-                <a href={`/noun/${nounId}`}>
+                <Link to={`/noun/${activeNounId}`}>
                   <Trans>Vote history</Trans>
-                </a>
+                </Link>
               </p>
             )}
           </div>
         </motion.div>
       </motion.div>
     </>
-  );
-};
+  )
+}
 
-export default ExploreNounDetail;
+export default ExploreNounDetail

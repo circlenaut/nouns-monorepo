@@ -1,21 +1,25 @@
-import React from 'react';
-import { Nav } from 'react-bootstrap';
-import NavBarButton, { NavBarButtonStyle } from '../../NavBarButton';
-import { Trans } from '@lingui/macro';
+import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Nav } from 'react-bootstrap'
+
+import NavBarButton, { NavBarButtonStyle } from '@/components/NavBarButton'
 
 interface WalletConnectButtonProps {
-  className: string;
-  onClickHandler: () => void;
-  buttonStyle: NavBarButtonStyle;
+  className: string
+  onClickHandler: () => void
+  buttonStyle: NavBarButtonStyle
 }
 
-const WalletConnectButton: React.FC<WalletConnectButtonProps> = props => {
-  const { className, onClickHandler, buttonStyle } = props;
+const WalletConnectButton: React.FC<WalletConnectButtonProps> = (props) => {
+  const { className, onClickHandler, buttonStyle } = props
   return (
     <Nav.Link className={className} onClick={onClickHandler}>
-      <NavBarButton buttonStyle={buttonStyle} buttonText={<Trans>Connect</Trans>} />
+      <NavBarButton
+        buttonStyle={buttonStyle}
+        buttonText={<Trans>Connect</Trans>}
+      />
     </Nav.Link>
-  );
-};
+  )
+}
 
-export default WalletConnectButton;
+export default WalletConnectButton

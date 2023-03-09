@@ -1,39 +1,59 @@
-import { Trans } from '@lingui/macro';
-import { utils } from 'ethers/lib/ethers';
-import React from 'react';
-import { Col, Row } from 'react-bootstrap';
-import { FinalProposalActionStepProps, ProposalActionModalState } from '../..';
-import { buildEtherscanAddressLink } from '../../../../utils/etherscan';
-import ModalBottomButtonRow from '../../../ModalBottomButtonRow';
-import ModalTitle from '../../../ModalTitle';
-import ShortAddress from '../../../ShortAddress';
-import classes from './FunctionCallReviewStep.module.css';
+import { Trans } from '@lingui/macro'
+import { utils } from 'ethers/lib/ethers'
+import React, { useCallback } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+
+import ModalBottomButtonRow from '@/components/ModalBottomButtonRow'
+import ModalTitle from '@/components/ModalTitle'
+import ShortAddress from '@/components/ShortAddress'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { buildEtherscanAddressLink } from '@/utils/etherscan'
+import { ProposalTransaction } from '@/wrappers/nounsDao'
+import { FinalProposalActionStepProps, ProposalActionModalState } from '../..'
+
+import classes from './FunctionCallReviewStep.module.css'
 
 export enum SupportedCurrencies {
   ETH = 'ETH',
   USDC = 'USDC',
 }
 
-const handleActionAdd = (state: ProposalActionModalState, onActionAdd: (e?: any) => void) => {
+const handleActionAdd = (
+  state: ProposalActionModalState,
+  onActionAdd: (e?: ProposalTransaction) => void,
+) => {
   onActionAdd({
     address: state.address,
-    value: state.amount ? utils.parseEther(state.amount.toString()).toString() : '0',
-    signature: state.function,
+    value: state.amount
+      ? utils.parseEther(state.amount.toString()).toString()
+      : '0',
+    signature: state.function ?? '',
     decodedCalldata: JSON.stringify(state.args ?? []),
-    calldata: state.abi?._encodeParams(
-      state.abi?.functions[state.function ?? '']?.inputs ?? [],
-      state.args ?? [],
-    ),
-  });
-};
+    calldata:
+      state.abi?._encodeParams(
+        state.abi?.functions[state.function ?? '']?.inputs ?? [],
+        state.args ?? [],
+      ) ?? '',
+  })
+}
 
-const FunctionCallReviewStep: React.FC<FinalProposalActionStepProps> = props => {
-  const { onNextBtnClick, onPrevBtnClick, state, onDismiss } = props;
+const FunctionCallReviewStep: React.FC<FinalProposalActionStepProps> = (
+  props,
+) => {
+  const { onNextBtnClick, onPrevBtnClick, state, onDismiss } = props
+  const { contractAddresses } = useContractAddresses()
 
-  const address = state.address;
-  const value = state.amount;
-  const func = state.function;
-  const args = state.args ?? [];
+  const address = state.address
+  const value = state.amount
+  const func = state.function
+  const args = state.args ?? []
+
+  const handleNextClick = useCallback(() => {
+    if (!contractAddresses) return
+    handleActionAdd(state, onNextBtnClick)
+    onDismiss()
+  }, [contractAddresses, onDismiss, onNextBtnClick, state])
 
   return (
     <div>
@@ -47,9 +67,13 @@ const FunctionCallReviewStep: React.FC<FinalProposalActionStepProps> = props => 
             <Trans>Address</Trans>
           </span>
           <div className={classes.value}>
-            <a href={buildEtherscanAddressLink(address)} target="_blank" rel="noreferrer">
+            <Link
+              to={buildEtherscanAddressLink(address)}
+              target="_blank"
+              rel="noreferrer"
+            >
               <ShortAddress address={address} />
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -60,7 +84,9 @@ const FunctionCallReviewStep: React.FC<FinalProposalActionStepProps> = props => 
             <span className={classes.label}>
               <Trans>Value</Trans>
             </span>
-            <div className={classes.value}>{value ? `${value} ETH` : <Trans>None</Trans>}</div>
+            <div className={classes.value}>
+              {value ? `${value} ETH` : <Trans>None</Trans>}
+            </div>
           </div>
         </div>
       ) : (
@@ -88,7 +114,11 @@ const FunctionCallReviewStep: React.FC<FinalProposalActionStepProps> = props => 
           <hr />
         </Col>
         <Col sm="9">
-          {state.abi?.functions[state.function ?? '']?.inputs?.length ? '' : <Trans>None</Trans>}
+          {state.abi?.functions[state.function ?? '']?.inputs?.length ? (
+            ''
+          ) : (
+            <Trans>None</Trans>
+          )}
         </Col>
       </Row>
       {state.abi?.functions[state.function ?? '']?.inputs.map((input, i) => (
@@ -104,13 +134,10 @@ const FunctionCallReviewStep: React.FC<FinalProposalActionStepProps> = props => 
         prevBtnText={<Trans>Back</Trans>}
         onPrevBtnClick={onPrevBtnClick}
         nextBtnText={<Trans>Add Action</Trans>}
-        onNextBtnClick={() => {
-          handleActionAdd(state, onNextBtnClick);
-          onDismiss();
-        }}
+        onNextBtnClick={handleNextClick}
       />
     </div>
-  );
-};
+  )
+}
 
-export default FunctionCallReviewStep;
+export default FunctionCallReviewStep

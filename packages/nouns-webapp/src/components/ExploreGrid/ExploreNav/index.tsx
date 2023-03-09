@@ -1,18 +1,19 @@
-import React, { useEffect } from 'react';
-import classes from './ExploreNav.module.css';
-import { Trans } from '@lingui/macro';
-import { motion } from 'framer-motion/dist/framer-motion';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSortDown } from '@fortawesome/free-solid-svg-icons';
+import { faSortDown } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { Trans } from '@lingui/macro'
+import { motion } from 'framer-motion'
+import React, { useEffect } from 'react'
+
+import classes from './ExploreNav.module.css'
 
 interface ExploreNavProps {
-  nounCount: number;
-  sortOrder: string;
-  setSortOrder: Function;
-  handleSortOrderChange: Function;
+  nounCount: number
+  sortOrder: string
+  setSortOrder: (value: string) => void
+  handleSortOrderChange: (value: string) => void
 }
 
-const ExploreNav: React.FC<ExploreNavProps> = props => {
+const ExploreNav: React.FC<ExploreNavProps> = (props) => {
   const sortOptions = [
     {
       label: 'Latest Nouns',
@@ -22,12 +23,11 @@ const ExploreNav: React.FC<ExploreNavProps> = props => {
       label: 'Oldest Nouns',
       value: 'date-ascending',
     },
-  ];
+  ]
 
   useEffect(() => {
-    props.setSortOrder(sortOptions[0].value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    props.setSortOrder(sortOptions[0]?.value)
+  }, [])
 
   return (
     <div className={classes.nav}>
@@ -46,9 +46,11 @@ const ExploreNav: React.FC<ExploreNavProps> = props => {
           <div className={classes.selectWrap}>
             <select
               value={props.sortOrder}
-              onChange={event => props.handleSortOrderChange(event.target.value)}
+              onChange={(event) =>
+                props.handleSortOrderChange(event.target.value)
+              }
             >
-              {sortOptions.map(option => (
+              {sortOptions.map((option) => (
                 <option key={option.label} value={option.value}>
                   {option.label}
                 </option>
@@ -61,7 +63,7 @@ const ExploreNav: React.FC<ExploreNavProps> = props => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ExploreNav;
+export default ExploreNav

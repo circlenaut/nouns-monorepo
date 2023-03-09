@@ -11,8 +11,8 @@ import { ZERO_ADDRESS, BIGINT_ZERO, BIGINT_ONE } from './constants';
 
 export function getOrCreateAccount(
   id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true,
+  createIfNotFound = true,
+  save = true,
 ): Account {
   let tokenHolder = Account.load(id);
 
@@ -40,8 +40,8 @@ export function getOrCreateDelegate(id: string): Delegate {
 
 export function getOrCreateDelegateWithNullOption(
   id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = true,
+  createIfNotFound = true,
+  save = true,
 ): Delegate | null {
   let delegate = Delegate.load(id);
   if (delegate == null && createIfNotFound) {
@@ -51,7 +51,7 @@ export function getOrCreateDelegateWithNullOption(
     delegate.tokenHoldersRepresentedAmount = 0;
     delegate.nounsRepresented = [];
     if (id != ZERO_ADDRESS) {
-      let governance = getGovernanceEntity();
+      const governance = getGovernanceEntity();
       governance.totalDelegates = governance.totalDelegates.plus(BIGINT_ONE);
       governance.save();
     }
@@ -64,8 +64,8 @@ export function getOrCreateDelegateWithNullOption(
 
 export function getOrCreateVote(
   id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = false,
+  createIfNotFound = true,
+  save = false,
 ): Vote {
   let vote = Vote.load(id);
 
@@ -82,15 +82,15 @@ export function getOrCreateVote(
 
 export function getOrCreateProposal(
   id: string,
-  createIfNotFound: boolean = true,
-  save: boolean = false,
+  createIfNotFound = true,
+  save = false,
 ): Proposal {
   let proposal = Proposal.load(id);
 
   if (proposal == null && createIfNotFound) {
     proposal = new Proposal(id);
 
-    let governance = getGovernanceEntity();
+    const governance = getGovernanceEntity();
 
     governance.proposals = governance.proposals.plus(BIGINT_ONE);
     governance.save();
@@ -121,6 +121,7 @@ export function getGovernanceEntity(): Governance {
   return governance as Governance;
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export function getOrCreateDynamicQuorumParams(block: BigInt | null = null): DynamicQuorumParams {
   let params = DynamicQuorumParams.load('LATEST');
 

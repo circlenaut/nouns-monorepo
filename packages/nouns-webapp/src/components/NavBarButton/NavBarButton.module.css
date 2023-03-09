@@ -161,7 +161,7 @@
 
 .delegatePrimary {
   background-color: var(--brand-cool-dark-text);
-  color: white;
+  color: var(--brand-cool-dark-text);
   width: 315px;
 }
 

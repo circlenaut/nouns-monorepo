@@ -1,187 +1,295 @@
-import { Row, Col, Button, Card, Spinner } from 'react-bootstrap';
-import Section from '../../layout/Section';
+import { SearchIcon } from '@heroicons/react/solid'
+import { i18n } from '@lingui/core'
+import { t, Trans } from '@lingui/macro'
+import { useQueryClient } from '@tanstack/react-query'
+import { TransactionStatus, useBlockNumber } from '@usedapp/core'
+import clsx from 'clsx'
+import dayjs from 'dayjs'
+import advanced from 'dayjs/plugin/advancedFormat'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
+import { print } from 'graphql/language/printer'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Button, Card, Col, Row, Spinner } from 'react-bootstrap'
+import { ReactNode } from 'react-markdown/lib/react-markdown'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
+
+import { DelegateVote } from '@/components/DelegateGroupedNounImageVoteTable'
+import DynamicQuorumInfoModal from '@/components/DynamicQuorumInfoModal'
+import ProposalContent from '@/components/ProposalContent'
+import ProposalHeader from '@/components/ProposalHeader'
+import VoteCard, { VoteCardVariant } from '@/components/VoteCard'
+import VoteModal from '@/components/VoteModal'
+import { AVERAGE_BLOCK_TIME_IN_SECS } from '@/configs'
+import { useAppDispatch, useAppSelector } from '@/hooks'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import { useConfig } from '@/hooks/useConfig'
+import Section from '@/layout/Section'
+import { AlertModal, setAlertModal } from '@/state/slices/application'
+import { getNounVotes } from '@/utils/getNounsVotes'
 import {
   ProposalState,
   useCancelProposal,
   useCurrentQuorum,
   useExecuteProposal,
   useProposal,
+  useProposalCount,
   useQueueProposal,
-} from '../../wrappers/nounsDao';
-import { useUserVotesAsOfBlock } from '../../wrappers/nounToken';
-import classes from './Vote.module.css';
-import { RouteComponentProps } from 'react-router-dom';
-import { TransactionStatus, useBlockNumber, useEthers } from '@usedapp/core';
-import { AlertModal, setAlertModal } from '../../state/slices/application';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import advanced from 'dayjs/plugin/advancedFormat';
-import VoteModal from '../../components/VoteModal';
-import React, { useCallback, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import clsx from 'clsx';
-import ProposalHeader from '../../components/ProposalHeader';
-import ProposalContent from '../../components/ProposalContent';
-import VoteCard, { VoteCardVariant } from '../../components/VoteCard';
-import { useQuery } from '@apollo/client';
+} from '@/wrappers/nounsDao'
+import { useUserVotesAsOfBlock } from '@/wrappers/nounToken'
 import {
-  proposalVotesQuery,
   delegateNounsAtBlockQuery,
-  ProposalVotes,
   Delegates,
+  ProposalVotes,
+  proposalVotesQuery,
   propUsingDynamicQuorum,
-} from '../../wrappers/subgraph';
-import { getNounVotes } from '../../utils/getNounsVotes';
-import { Trans } from '@lingui/macro';
-import { i18n } from '@lingui/core';
-import { ReactNode } from 'react-markdown/lib/react-markdown';
-import { AVERAGE_BLOCK_TIME_IN_SECS } from '../../utils/constants';
-import { SearchIcon } from '@heroicons/react/solid';
-import ReactTooltip from 'react-tooltip';
-import DynamicQuorumInfoModal from '../../components/DynamicQuorumInfoModal';
-import config from '../../config';
+  useQuery,
+} from '@/wrappers/subgraph'
 
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(advanced);
+import classes from './Vote.module.css'
 
-const VotePage = ({
-  match: {
-    params: { id },
-  },
-}: RouteComponentProps<{ id: string }>) => {
-  const proposal = useProposal(id);
-  const { account } = useEthers();
+dayjs.extend(utc)
+dayjs.extend(timezone)
+dayjs.extend(advanced)
 
-  const [showVoteModal, setShowVoteModal] = useState<boolean>(false);
-  const [showDynamicQuorumInfoModal, setShowDynamicQuorumInfoModal] = useState<boolean>(false);
+const VotePage: React.FC = () => {
+  const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
+
+  const propId = id ? parseInt(id) : null
+
+  const { app } = useConfig()
+
+  const queryClient = useQueryClient()
+
+  const { contractAddresses } = useContractAddresses()
+  const proposalCountCall = useProposalCount(contractAddresses)
+  const proposalCount = useMemo(() => proposalCountCall, [proposalCountCall])
+
+  const [forceFetch, setForceFetch] = useState(false)
+  const proposal = useProposal(propId ?? 0, forceFetch)
+
+  const activeAccount = useAppSelector((state) => state.account.activeAccount)
+
+  const [showVoteModal, setShowVoteModal] = useState<boolean>(false)
+  const [showDynamicQuorumInfoModal, setShowDynamicQuorumInfoModal] =
+    useState<boolean>(false)
   // Toggle between Noun centric view and delegate view
-  const [isDelegateView, setIsDelegateView] = useState(false);
+  const [isDelegateView, setIsDelegateView] = useState(false)
 
-  const [isQueuePending, setQueuePending] = useState<boolean>(false);
-  const [isExecutePending, setExecutePending] = useState<boolean>(false);
-  const [isCancelPending, setCancelPending] = useState<boolean>(false);
+  const [isQueuePending, setQueuePending] = useState<boolean>(false)
+  const [isExecutePending, setExecutePending] = useState<boolean>(false)
+  const [isCancelPending, setCancelPending] = useState<boolean>(false)
 
-  const dispatch = useAppDispatch();
-  const setModal = useCallback((modal: AlertModal) => dispatch(setAlertModal(modal)), [dispatch]);
+  const [redirectToPage, setRedirectToPage] = useState<string | null>(null)
+
+  const dispatch = useAppDispatch()
+  const setModal = useCallback(
+    (modal: AlertModal) => dispatch(setAlertModal(modal)),
+    [dispatch],
+  )
+
+  const fetchPropUsingDynamicQuorum = useCallback(async () => {
+    if (!id) return
+
+    const query = print(propUsingDynamicQuorum(id.toString()))
+    const response = await fetch(app.subgraphApiUri, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    })
+    const { data } = await response.json()
+    return data
+  }, [id])
+
+  useEffect(
+    () =>
+      void (typeof id === 'string'
+        ? queryClient.prefetchQuery({
+            queryKey: [propUsingDynamicQuorum(id)],
+            queryFn: fetchPropUsingDynamicQuorum,
+          })
+        : undefined),
+    [id, queryClient],
+  )
+
   const {
     data: dqInfo,
     loading: loadingDQInfo,
     error: dqError,
-  } = useQuery(propUsingDynamicQuorum(id ?? '0'));
+  } = useQuery({
+    queryKey: [propUsingDynamicQuorum(id ?? '0')],
+    queryFn: fetchPropUsingDynamicQuorum,
+  })
 
-  const { queueProposal, queueProposalState } = useQueueProposal();
-  const { executeProposal, executeProposalState } = useExecuteProposal();
-  const { cancelProposal, cancelProposalState } = useCancelProposal();
+  const handleQueueProposal = useCallback(useQueueProposal, [contractAddresses])
+  const { queueProposal, queueProposalState } =
+    handleQueueProposal(contractAddresses)
+
+  const handleExecuteProposal = useCallback(useExecuteProposal, [
+    contractAddresses,
+  ])
+  const { executeProposal, executeProposalState } =
+    handleExecuteProposal(contractAddresses)
+
+  const handleCancelProposal = useCallback(useCancelProposal, [
+    contractAddresses,
+  ])
+  const { cancelProposal, cancelProposalState } =
+    handleCancelProposal(contractAddresses)
 
   // Get and format date from data
-  const timestamp = Date.now();
-  const currentBlock = useBlockNumber();
-  const startDate =
-    proposal && timestamp && currentBlock
-      ? dayjs(timestamp).add(
-          AVERAGE_BLOCK_TIME_IN_SECS * (proposal.startBlock - currentBlock),
-          'seconds',
-        )
-      : undefined;
+  const timestamp = Date.now()
+  const currentBlock = useBlockNumber()
+  const startDate = useMemo(
+    () =>
+      proposal && timestamp && currentBlock
+        ? dayjs(timestamp).add(
+            AVERAGE_BLOCK_TIME_IN_SECS * (proposal.startBlock - currentBlock),
+            'seconds',
+          )
+        : undefined,
+    [proposal, timestamp, currentBlock],
+  )
 
-  const endDate =
-    proposal && timestamp && currentBlock
-      ? dayjs(timestamp).add(
-          AVERAGE_BLOCK_TIME_IN_SECS * (proposal.endBlock - currentBlock),
-          'seconds',
-        )
-      : undefined;
-  const now = dayjs();
+  const endDate = useMemo(
+    () =>
+      proposal && timestamp && currentBlock
+        ? dayjs(timestamp).add(
+            AVERAGE_BLOCK_TIME_IN_SECS * (proposal.endBlock - currentBlock),
+            'seconds',
+          )
+        : undefined,
+    [proposal, timestamp, currentBlock],
+  )
+
+  const now = dayjs()
 
   // Get total votes and format percentages for UI
-  const totalVotes = proposal
-    ? proposal.forCount + proposal.againstCount + proposal.abstainCount
-    : undefined;
-  const forPercentage = proposal && totalVotes ? (proposal.forCount * 100) / totalVotes : 0;
-  const againstPercentage = proposal && totalVotes ? (proposal.againstCount * 100) / totalVotes : 0;
-  const abstainPercentage = proposal && totalVotes ? (proposal.abstainCount * 100) / totalVotes : 0;
+  const totalVotes = useMemo(
+    () =>
+      proposal
+        ? proposal.forCount + proposal.againstCount + proposal.abstainCount
+        : undefined,
+    [proposal],
+  )
+
+  const forPercentage = useMemo(
+    () => (proposal && totalVotes ? (proposal.forCount * 100) / totalVotes : 0),
+    [proposal, totalVotes],
+  )
+
+  const againstPercentage = useMemo(
+    () =>
+      proposal && totalVotes ? (proposal.againstCount * 100) / totalVotes : 0,
+    [proposal, totalVotes],
+  )
+
+  const abstainPercentage = useMemo(
+    () =>
+      proposal && totalVotes ? (proposal.abstainCount * 100) / totalVotes : 0,
+    [proposal, totalVotes],
+  )
 
   // Only count available votes as of the proposal created block
-  const availableVotes = useUserVotesAsOfBlock(proposal?.createdBlock ?? undefined);
+  const availableVotesCall = useUserVotesAsOfBlock(
+    contractAddresses,
+    proposal?.createdBlock ?? undefined,
+  )
+  const availableVotes = useMemo(() => availableVotesCall, [availableVotesCall])
 
-  const currentQuorum = useCurrentQuorum(
-    config.addresses.nounsDAOProxy,
+  const currentQuorumCall = useCurrentQuorum(
+    contractAddresses.nounsDAOProxy,
     proposal && proposal.id ? parseInt(proposal.id) : 0,
-    dqInfo && dqInfo.proposal ? dqInfo.proposal.quorumCoefficient === '0' : true,
-  );
+    dqInfo && dqInfo.proposal
+      ? dqInfo.proposal.quorumCoefficient === '0'
+      : true,
+  )
+  const currentQuorum = useMemo(() => currentQuorumCall, [currentQuorumCall])
 
-  const hasSucceeded = proposal?.status === ProposalState.SUCCEEDED;
-  const isInNonFinalState = [
-    ProposalState.PENDING,
-    ProposalState.ACTIVE,
-    ProposalState.SUCCEEDED,
-    ProposalState.QUEUED,
-  ].includes(proposal?.status!);
-  const isCancellable =
-    isInNonFinalState && proposal?.proposer?.toLowerCase() === account?.toLowerCase();
+  const hasSucceeded = useMemo(
+    () => proposal?.status === ProposalState.SUCCEEDED,
+    [proposal],
+  )
 
-  const isAwaitingStateChange = () => {
-    if (hasSucceeded) {
-      return true;
-    }
-    if (proposal?.status === ProposalState.QUEUED) {
-      return new Date() >= (proposal?.eta ?? Number.MAX_SAFE_INTEGER);
-    }
-    return false;
-  };
+  const isInNonFinalState = useMemo(
+    () =>
+      proposal?.status &&
+      [
+        ProposalState.PENDING,
+        ProposalState.ACTIVE,
+        ProposalState.SUCCEEDED,
+        ProposalState.QUEUED,
+      ].includes(proposal.status),
+    [proposal],
+  )
 
-  const isAwaitingDestructiveStateChange = () => {
-    if (isCancellable) {
-      return true;
-    }
-    return false;
-  };
+  const isCancellable = useMemo(
+    () =>
+      isInNonFinalState &&
+      proposal?.proposer?.toLowerCase() === activeAccount?.toLowerCase(),
+    [isInNonFinalState, proposal, activeAccount],
+  )
 
-  const startOrEndTimeCopy = () => {
-    if (startDate?.isBefore(now) && endDate?.isAfter(now)) {
-      return <Trans>Ends</Trans>;
-    }
-    if (endDate?.isBefore(now)) {
-      return <Trans>Ended</Trans>;
-    }
-    return <Trans>Starts</Trans>;
-  };
+  const isAwaitingStateChange = useMemo(
+    () =>
+      hasSucceeded ||
+      (proposal?.status === ProposalState.QUEUED &&
+        new Date() >= (proposal?.eta ?? Number.MAX_SAFE_INTEGER)),
+    [hasSucceeded, proposal],
+  )
 
-  const startOrEndTimeTime = () => {
-    if (!startDate?.isBefore(now)) {
-      return startDate;
-    }
-    return endDate;
-  };
+  const isAwaitingDestructiveStateChange = useMemo(
+    () => (isCancellable ? true : false),
+    [isCancellable],
+  )
 
-  const moveStateButtonAction = hasSucceeded ? <Trans>Queue</Trans> : <Trans>Execute</Trans>;
-  const moveStateAction = (() => {
-    if (hasSucceeded) {
-      return () => {
-        if (proposal?.id) {
-          return queueProposal(proposal.id);
-        }
-      };
-    }
-    return () => {
-      if (proposal?.id) {
-        return executeProposal(proposal.id);
-      }
-    };
-  })();
+  const isWalletConnected = useMemo(
+    () => !(activeAccount === undefined),
+    [activeAccount],
+  )
+  const isActiveForVoting = useMemo(
+    () => startDate?.isBefore(now) && endDate?.isAfter(now),
+    [startDate, now, endDate],
+  )
 
-  const destructiveStateButtonAction = isCancellable ? <Trans>Cancel</Trans> : '';
-  const destructiveStateAction = (() => {
-    if (isCancellable) {
-      return () => {
-        if (proposal?.id) {
-          return cancelProposal(proposal.id);
-        }
-      };
+  const startOrEndTimeCopy = () =>
+    startDate?.isBefore(now) && endDate?.isAfter(now) ? (
+      <Trans>Ends</Trans>
+    ) : endDate?.isBefore(now) ? (
+      <Trans>Ended</Trans>
+    ) : (
+      <Trans>Starts</Trans>
+    )
+
+  const startOrEndTimeTime = useCallback(
+    () => (!startDate?.isBefore(now) ? startDate : endDate),
+    [startDate, now, endDate],
+  )
+
+  const moveStateButtonAction = useMemo(
+    () => (hasSucceeded ? 'Queue' : 'Execute'),
+    [hasSucceeded],
+  )
+  const moveStateAction = useCallback(
+    hasSucceeded
+      ? () => proposal?.id && queueProposal(proposal.id)
+      : () => proposal?.id && executeProposal(proposal.id),
+    [hasSucceeded, proposal, queueProposal, executeProposal],
+  )
+
+  const destructiveStateButtonAction = isCancellable ? (
+    <Trans>Cancel</Trans>
+  ) : (
+    ''
+  )
+
+  const destructiveStateAction = useCallback(() => {
+    if (isCancellable && proposal?.id) {
+      cancelProposal(proposal.id)
     }
-  })();
+  }, [isCancellable, proposal])
 
   const onTransactionStateChange = useCallback(
     (
@@ -193,125 +301,225 @@ const VotePage = ({
     ) => {
       switch (tx.status) {
         case 'None':
-          setPending?.(false);
-          break;
+          setPending?.(false)
+          break
         case 'Mining':
-          setPending?.(true);
-          break;
+          setPending?.(true)
+          break
         case 'Success':
           setModal({
-            title: <Trans>Success</Trans>,
-            message: successMessage || <Trans>Transaction Successful!</Trans>,
+            title: t`Success`,
+            message: successMessage || t`Transaction Successful!`,
             show: true,
-          });
-          setPending?.(false);
-          onFinalState?.();
-          break;
+          })
+          setPending?.(false)
+          onFinalState?.()
+          break
         case 'Fail':
           setModal({
-            title: <Trans>Transaction Failed</Trans>,
-            message: tx?.errorMessage || <Trans>Please try again.</Trans>,
+            title: t`Transaction Failed`,
+            message: tx?.errorMessage || t`Please try again.`,
             show: true,
-          });
-          setPending?.(false);
-          onFinalState?.();
-          break;
+          })
+          setPending?.(false)
+          onFinalState?.()
+          break
         case 'Exception':
           setModal({
-            title: <Trans>Error</Trans>,
-            message: getErrorMessage?.(tx?.errorMessage) || <Trans>Please try again.</Trans>,
+            title: t`Error`,
+            message:
+              getErrorMessage?.(tx?.errorMessage) || t`Please try again.`,
             show: true,
-          });
-          setPending?.(false);
-          onFinalState?.();
-          break;
+          })
+          setPending?.(false)
+          onFinalState?.()
+          break
       }
+      setForceFetch(true)
     },
     [setModal],
-  );
+  )
 
   useEffect(
     () =>
       onTransactionStateChange(
         queueProposalState,
-        <Trans>Proposal Queued!</Trans>,
+        t`Proposal Queued!`,
         setQueuePending,
       ),
     [queueProposalState, onTransactionStateChange, setModal],
-  );
+  )
 
   useEffect(
     () =>
       onTransactionStateChange(
         executeProposalState,
-        <Trans>Proposal Executed!</Trans>,
+        t`Proposal Executed!`,
         setExecutePending,
       ),
     [executeProposalState, onTransactionStateChange, setModal],
-  );
+  )
 
   useEffect(
-    () => onTransactionStateChange(cancelProposalState, 'Proposal Canceled!', setCancelPending),
+    () =>
+      onTransactionStateChange(
+        cancelProposalState,
+        t`Proposal Canceled!`,
+        setCancelPending,
+      ),
     [cancelProposalState, onTransactionStateChange, setModal],
-  );
+  )
 
-  const activeAccount = useAppSelector(state => state.account.activeAccount);
+  const fetchProposalVotes = useCallback(async () => {
+    if (!proposal?.id) return
+
+    const query = print(proposalVotesQuery(proposal?.id))
+    const response = await fetch(app.subgraphApiUri, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    })
+    const { data } = await response.json()
+    return data
+  }, [proposal])
+
+  useEffect(
+    () =>
+      void (typeof proposal?.id === 'string'
+        ? queryClient.prefetchQuery({
+            queryKey: [proposalVotesQuery(proposal.id)],
+            queryFn: fetchProposalVotes,
+          })
+        : undefined),
+    [proposal, queryClient],
+  )
+
   const {
     loading,
     error,
     data: voters,
-  } = useQuery<ProposalVotes>(proposalVotesQuery(proposal?.id ?? '0'), {
+  } = useQuery<ProposalVotes>({
+    queryKey: [proposalVotesQuery(proposal?.id ?? '0')],
+    queryFn: fetchProposalVotes,
     skip: !proposal,
-  });
+  })
 
-  const voterIds = voters?.votes?.map(v => v.voter.id);
-  const { data: delegateSnapshot } = useQuery<Delegates>(
-    delegateNounsAtBlockQuery(voterIds ?? [], proposal?.createdBlock ?? 0),
-    {
-      skip: !voters?.votes?.length,
-    },
-  );
+  const voterIds = useMemo(
+    () => voters?.votes?.map((v) => v.voter.id),
+    [voters],
+  )
 
-  const { delegates } = delegateSnapshot || {};
-  const delegateToNounIds = delegates?.reduce<Record<string, string[]>>((acc, curr) => {
-    acc[curr.id] = curr?.nounsRepresented?.map(nr => nr.id) ?? [];
-    return acc;
-  }, {});
+  const fetchDelegates = useCallback(async () => {
+    if (!voterIds || !proposal) return
 
-  const data = voters?.votes?.map(v => ({
-    delegate: v.voter.id,
-    supportDetailed: v.supportDetailed,
-    nounsRepresented: delegateToNounIds?.[v.voter.id] ?? [],
-  }));
+    const query = print(
+      delegateNounsAtBlockQuery(voterIds, proposal.createdBlock),
+    )
+    const response = await fetch(app.subgraphApiUri, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    })
+    const { data } = await response.json()
+    return data
+  }, [voterIds, proposal])
 
-  const [showToast, setShowToast] = useState(true);
+  useEffect(
+    () =>
+      void (voterIds && voterIds.length && proposal?.createdBlock != null
+        ? queryClient.prefetchQuery({
+            queryKey: [
+              delegateNounsAtBlockQuery(voterIds, proposal.createdBlock),
+            ],
+            queryFn: fetchDelegates,
+          })
+        : undefined),
+    [voterIds, proposal?.createdBlock, queryClient],
+  )
+
+  const { data: delegateSnapshot } = useQuery<Delegates>({
+    queryKey: [
+      delegateNounsAtBlockQuery(voterIds ?? [], proposal?.createdBlock ?? 0),
+    ],
+    queryFn: fetchDelegates,
+    skip: !voters?.votes?.length,
+  })
+
+  const { delegates } = delegateSnapshot || {}
+  const delegateToNounIds = useMemo(
+    () =>
+      delegates?.reduce<Record<string, string[]>>((acc, curr) => {
+        acc[curr.id] = curr?.nounsRepresented?.map((nr) => nr.id) ?? []
+        return acc
+      }, {}),
+    [delegates],
+  )
+
+  const data: DelegateVote[] | undefined = useMemo(
+    () =>
+      voters?.votes?.map((v) => ({
+        delegate: v.voter.id,
+        supportDetailed: v.supportDetailed,
+        nounsRepresented: delegateToNounIds?.[v.voter.id] ?? [],
+      })),
+    [voters, delegateToNounIds],
+  )
+
+  // @TODO: What is this for?
+  const [showToast, setShowToast] = useState(true)
   useEffect(() => {
     if (showToast) {
       setTimeout(() => {
-        setShowToast(false);
-      }, 5000);
+        setShowToast(false)
+      }, 5000)
     }
-  }, [showToast]);
+  }, [showToast])
+
+  useEffect(() => {
+    if (id === 'create-proposal') {
+      setRedirectToPage(`/${id}`)
+    } else if (
+      !propId ||
+      (propId && isNaN(propId)) ||
+      (proposalCount && propId && propId > proposalCount)
+    ) {
+      setRedirectToPage(`/vote/${proposalCount}`)
+    }
+  }, [id, propId, proposalCount])
+
+  useEffect(() => {
+    if (redirectToPage) navigate(redirectToPage)
+  }, [redirectToPage])
+
+  const cleanup = useRef(() => {
+    setModal({ show: false })
+    setShowDynamicQuorumInfoModal(false)
+    setShowVoteModal(false)
+  })
+
+  useEffect(() => {
+    const currentCleanup = cleanup.current
+    return () => {
+      currentCleanup()
+    }
+  }, [])
 
   if (!proposal || loading || !data || loadingDQInfo || !dqInfo) {
     return (
       <div className={classes.spinner}>
         <Spinner animation="border" />
       </div>
-    );
+    )
   }
 
   if (error || dqError) {
-    return <Trans>Failed to fetch</Trans>;
+    return <Trans>Failed to fetch</Trans>
   }
 
-  const isWalletConnected = !(activeAccount === undefined);
-  const isActiveForVoting = startDate?.isBefore(now) && endDate?.isAfter(now);
-
-  const forNouns = getNounVotes(data, 1);
-  const againstNouns = getNounVotes(data, 0);
-  const abstainNouns = getNounVotes(data, 2);
-  const isV2Prop = dqInfo.proposal.quorumCoefficient > 0;
+  const forNouns = getNounVotes(data, 1)
+  const againstNouns = getNounVotes(data, 0)
+  const abstainNouns = getNounVotes(data, 2)
+  const isV2Prop = dqInfo.proposal.quorumCoefficient > 0
 
   return (
     <Section fullWidth={false} className={classes.votePage}>
@@ -323,12 +531,15 @@ const VotePage = ({
           currentQuorum={currentQuorum}
         />
       )}
-      <VoteModal
-        show={showVoteModal}
-        onHide={() => setShowVoteModal(false)}
-        proposalId={proposal?.id}
-        availableVotes={availableVotes || 0}
-      />
+      {contractAddresses && (
+        <VoteModal
+          show={showVoteModal}
+          onHide={() => setShowVoteModal(false)}
+          proposalId={proposal?.id}
+          availableVotes={availableVotes || 0}
+          addresses={contractAddresses}
+        />
+      )}
       <Col lg={10} className={classes.wrapper}>
         {proposal && (
           <ProposalHeader
@@ -340,52 +551,59 @@ const VotePage = ({
         )}
       </Col>
       <Col lg={10} className={clsx(classes.proposal, classes.wrapper)}>
-        {(isAwaitingStateChange() || isAwaitingDestructiveStateChange()) && (
-          <Row className={clsx(classes.section, classes.transitionStateButtonSection)}>
-            <Col className="d-grid gap-4">
-              {isAwaitingStateChange() && (
-                <Button
-                  onClick={moveStateAction}
-                  disabled={isQueuePending || isExecutePending}
-                  variant="dark"
-                  className={classes.transitionStateButton}
-                >
-                  {isQueuePending || isExecutePending ? (
-                    <Spinner animation="border" />
-                  ) : (
-                    <Trans>{moveStateButtonAction} Proposal ⌐◧-◧</Trans>
-                  )}
-                </Button>
+        {isWalletConnected &&
+          (isAwaitingStateChange || isAwaitingDestructiveStateChange) && (
+            <Row
+              className={clsx(
+                classes.section,
+                classes.transitionStateButtonSection,
               )}
+            >
+              <Col className="d-grid gap-4">
+                {isAwaitingStateChange && (
+                  <Button
+                    onClick={moveStateAction}
+                    disabled={isQueuePending || isExecutePending}
+                    variant="dark"
+                    className={classes.transitionStateButton}
+                  >
+                    {isQueuePending || isExecutePending ? (
+                      <Spinner animation="border" />
+                    ) : (
+                      `${moveStateButtonAction} Proposal ⌐◧-◧`
+                    )}
+                  </Button>
+                )}
 
-              {isAwaitingDestructiveStateChange() && (
-                <Button
-                  onClick={destructiveStateAction}
-                  disabled={isCancelPending}
-                  variant="danger"
-                  className={classes.destructiveTransitionStateButton}
-                >
-                  {isCancelPending ? (
-                    <Spinner animation="border" />
-                  ) : (
-                    <Trans>{destructiveStateButtonAction} Proposal ⌐◧-◧</Trans>
-                  )}
-                </Button>
-              )}
-            </Col>
-          </Row>
-        )}
-
-        <p
+                {isAwaitingDestructiveStateChange && (
+                  <Button
+                    onClick={destructiveStateAction}
+                    disabled={isCancelPending}
+                    variant="danger"
+                    className={classes.destructiveTransitionStateButton}
+                  >
+                    {isCancelPending ? (
+                      <Spinner animation="border" />
+                    ) : (
+                      <Trans>
+                        {destructiveStateButtonAction} Proposal ⌐◧-◧
+                      </Trans>
+                    )}
+                  </Button>
+                )}
+              </Col>
+            </Row>
+          )}
+        <button
           onClick={() => setIsDelegateView(!isDelegateView)}
-          className={classes.toggleDelegateVoteView}
+          className={classes.toggleDelegateVoteViewButton}
         >
           {isDelegateView ? (
             <Trans>Switch to Noun view</Trans>
           ) : (
             <Trans>Switch to delegate view</Trans>
           )}
-        </p>
+        </button>
         <Row>
           <VoteCard
             proposal={proposal}
@@ -428,23 +646,40 @@ const VotePage = ({
                     <ReactTooltip
                       id={'view-dq-info'}
                       className={classes.delegateHover}
-                      getContent={dataTip => {
-                        return <Trans>View Threshold Info</Trans>;
-                      }}
+                      content={'View Threshold Info'}
                     />
                   )}
                   <div
                     data-for="view-dq-info"
                     data-tip="View Dynamic Quorum Info"
-                    onClick={() => setShowDynamicQuorumInfoModal(true && isV2Prop)}
-                    className={clsx(classes.thresholdInfo, isV2Prop ? classes.cursorPointer : '')}
+                    onClick={() =>
+                      setShowDynamicQuorumInfoModal(true && isV2Prop)
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        setShowDynamicQuorumInfoModal(true && isV2Prop)
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    className={clsx(
+                      classes.thresholdInfo,
+                      isV2Prop ? classes.cursorPointer : '',
+                    )}
                   >
                     <span>
-                      {isV2Prop ? <Trans>Current Threshold</Trans> : <Trans>Threshold</Trans>}
+                      {isV2Prop ? (
+                        <Trans>Current Threshold</Trans>
+                      ) : (
+                        <Trans>Threshold</Trans>
+                      )}
                     </span>
                     <h3>
                       <Trans>
-                        {isV2Prop ? i18n.number(currentQuorum ?? 0) : proposal.quorumVotes} votes
+                        {isV2Prop
+                          ? i18n.number(currentQuorum ?? 0)
+                          : proposal.quorumVotes}{' '}
+                        votes
                       </Trans>
                       {isV2Prop && <SearchIcon className={classes.dqIcon} />}
                     </h3>
@@ -463,17 +698,23 @@ const VotePage = ({
                   <div className={classes.voteMetadataTime}>
                     <span>
                       {startOrEndTimeTime() &&
-                        i18n.date(new Date(startOrEndTimeTime()?.toISOString() || 0), {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          timeZoneName: 'short',
-                        })}
+                        i18n.date(
+                          new Date(startOrEndTimeTime()?.toISOString() || 0),
+                          {
+                            hour: 'numeric',
+                            minute: '2-digit',
+                            timeZoneName: 'short',
+                          },
+                        )}
                     </span>
                     <h3>
                       {startOrEndTimeTime() &&
-                        i18n.date(new Date(startOrEndTimeTime()?.toISOString() || 0), {
-                          dateStyle: 'long',
-                        })}
+                        i18n.date(
+                          new Date(startOrEndTimeTime()?.toISOString() || 0),
+                          {
+                            dateStyle: 'long',
+                          },
+                        )}
                     </h3>
                   </div>
                 </div>
@@ -502,7 +743,7 @@ const VotePage = ({
         <ProposalContent proposal={proposal} />
       </Col>
     </Section>
-  );
-};
+  )
+}
 
-export default VotePage;
+export default VotePage

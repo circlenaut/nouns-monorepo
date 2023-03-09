@@ -1,35 +1,54 @@
-import { Trans } from '@lingui/macro';
-import BigNumber from 'bignumber.js';
-import { utils } from 'ethers';
-import React, { useEffect, useState } from 'react';
-import { ProposalActionModalStepProps } from '../..';
-import BrandDropdown from '../../../BrandDropdown';
-import BrandTextEntry from '../../../BrandTextEntry';
-import BrandNumericEntry from '../../../BrandNumericEntry';
-import ModalBottomButtonRow from '../../../ModalBottomButtonRow';
-import ModalTitle from '../../../ModalTitle';
+import { Trans } from '@lingui/macro'
+import BigNumber from 'bignumber.js'
+import { utils } from 'ethers'
+import React, { useCallback, useEffect, useState } from 'react'
+
+import BrandDropdown from '@/components/BrandDropdown'
+import BrandNumericEntry from '@/components/BrandNumericEntry'
+import BrandTextEntry from '@/components/BrandTextEntry'
+import ModalBottomButtonRow from '@/components/ModalBottomButtonRow'
+import ModalTitle from '@/components/ModalTitle'
+import { ProposalActionModalStepProps } from '../..'
 
 export enum SupportedCurrency {
   ETH = 'ETH',
   USDC = 'USDC',
 }
 
-const TransferFundsDetailsStep: React.FC<ProposalActionModalStepProps> = props => {
-  const { onNextBtnClick, onPrevBtnClick, state, setState } = props;
+const TransferFundsDetailsStep: React.FC<ProposalActionModalStepProps> = (
+  props,
+) => {
+  const { onNextBtnClick, onPrevBtnClick, state, setState } = props
 
   const [currency, setCurrency] = useState<SupportedCurrency>(
     state.TransferFundsCurrency ?? SupportedCurrency.ETH,
-  );
-  const [amount, setAmount] = useState<string>(state.amount ?? '');
-  const [formattedAmount, setFormattedAmount] = useState<string>(state.amount ?? '');
-  const [address, setAddress] = useState(state.address ?? '');
-  const [isValidForNextStage, setIsValidForNextStage] = useState(false);
+  )
+  const [amount, setAmount] = useState<string>(state.amount ?? '')
+  const [formattedAmount, setFormattedAmount] = useState<string>(
+    state.amount ?? '',
+  )
+  const [address, setAddress] = useState(state.address ?? '')
+  const [isValidForNextStage, setIsValidForNextStage] = useState(false)
+
+  const handleNextBtnClick = useCallback(() => {
+    setState((x) => ({
+      ...x,
+      amount,
+      address,
+      TransferFundsCurrency: currency,
+    }))
+    onNextBtnClick()
+  }, [amount, address, currency, onNextBtnClick])
 
   useEffect(() => {
-    if (utils.isAddress(address) && parseFloat(amount) > 0 && !isValidForNextStage) {
-      setIsValidForNextStage(true);
+    if (
+      utils.isAddress(address) &&
+      parseFloat(amount) > 0 &&
+      !isValidForNextStage
+    ) {
+      setIsValidForNextStage(true)
     }
-  }, [amount, address, isValidForNextStage]);
+  }, [amount, address, isValidForNextStage])
 
   return (
     <div>
@@ -40,11 +59,11 @@ const TransferFundsDetailsStep: React.FC<ProposalActionModalStepProps> = props =
       <BrandDropdown
         label={'Currency'}
         value={currency === SupportedCurrency.ETH ? 'ETH' : 'USDC'}
-        onChange={e => {
+        onChange={(e) => {
           if (e.target.value === 'ETH') {
-            setCurrency(SupportedCurrency.ETH);
+            setCurrency(SupportedCurrency.ETH)
           } else {
-            setCurrency(SupportedCurrency.USDC);
+            setCurrency(SupportedCurrency.USDC)
           }
         }}
         chevronTop={38}
@@ -56,9 +75,9 @@ const TransferFundsDetailsStep: React.FC<ProposalActionModalStepProps> = props =
       <BrandNumericEntry
         label={'Amount'}
         value={formattedAmount}
-        onValueChange={e => {
-          setAmount(e.value);
-          setFormattedAmount(e.formattedValue);
+        onValueChange={(e) => {
+          setAmount(e.value)
+          setFormattedAmount(e.formattedValue)
         }}
         placeholder={currency === SupportedCurrency.ETH ? '0 ETH' : '0 USDC'}
         isInvalid={parseFloat(amount) > 0 && new BigNumber(amount).isNaN()}
@@ -66,11 +85,11 @@ const TransferFundsDetailsStep: React.FC<ProposalActionModalStepProps> = props =
 
       <BrandTextEntry
         label={'Recipient'}
-        onChange={e => setAddress(e.target.value)}
+        onChange={(e) => setAddress(e.target.value)}
         value={address}
         type="string"
         placeholder="0x..."
-        isInvalid={address.length === 0 ? false : !utils.isAddress(address)}
+        isInvalid={address?.length === 0 ? false : !utils.isAddress(address)}
       />
 
       <ModalBottomButtonRow
@@ -78,18 +97,10 @@ const TransferFundsDetailsStep: React.FC<ProposalActionModalStepProps> = props =
         onPrevBtnClick={onPrevBtnClick}
         nextBtnText={<Trans>Review and Add</Trans>}
         isNextBtnDisabled={!isValidForNextStage}
-        onNextBtnClick={() => {
-          setState(x => ({
-            ...x,
-            amount,
-            address,
-            TransferFundsCurrency: currency,
-          }));
-          onNextBtnClick();
-        }}
+        onNextBtnClick={handleNextBtnClick}
       />
     </div>
-  );
-};
+  )
+}
 
-export default TransferFundsDetailsStep;
+export default TransferFundsDetailsStep

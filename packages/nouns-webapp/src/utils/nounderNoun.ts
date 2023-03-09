@@ -1,27 +1,32 @@
-import { Auction } from '../wrappers/nounsAuction';
-import { AuctionState } from '../state/slices/auction';
-import { BigNumber } from '@ethersproject/bignumber';
+import { BigNumber } from '@ethersproject/bignumber'
+import { constants } from 'ethers'
+
+import { AuctionState } from '@/state/slices/auction'
+import { Auction } from '@/wrappers/nounsAuction'
 
 export const isNounderNoun = (nounId: BigNumber) => {
-  return nounId.mod(10).eq(0) || nounId.eq(0);
-};
+  return nounId.mod(10).eq(0) || nounId.eq(0)
+}
 
 const emptyNounderAuction = (onDisplayAuctionId: number): Auction => {
   return {
     amount: BigNumber.from(0).toJSON(),
-    bidder: '',
+    bidder: constants.AddressZero,
     startTime: BigNumber.from(0).toJSON(),
     endTime: BigNumber.from(0).toJSON(),
     nounId: BigNumber.from(onDisplayAuctionId).toJSON(),
     settled: false,
-  };
-};
+  }
+}
 
-const findAuction = (id: BigNumber, auctions: AuctionState[]): Auction | undefined => {
-  return auctions.find(auction => {
-    return BigNumber.from(auction.activeAuction?.nounId).eq(id);
-  })?.activeAuction;
-};
+const findAuction = (
+  id: BigNumber,
+  auctions: AuctionState[],
+): Auction | undefined => {
+  return auctions.find((auction) => {
+    return BigNumber.from(auction.activeAuction?.nounId).eq(id)
+  })?.activeAuction
+}
 
 /**
  *
@@ -33,11 +38,13 @@ export const generateEmptyNounderAuction = (
   nounId: BigNumber,
   pastAuctions: AuctionState[],
 ): Auction => {
-  const nounderAuction = emptyNounderAuction(nounId.toNumber());
+  const nounderAuction = emptyNounderAuction(nounId.toNumber())
   // use nounderAuction.nounId + 1 to get mint time
-  const auctionAbove = findAuction(nounId.add(1), pastAuctions);
-  const auctionAboveStartTime = auctionAbove && BigNumber.from(auctionAbove.startTime);
-  if (auctionAboveStartTime) nounderAuction.startTime = auctionAboveStartTime.toJSON();
+  const auctionAbove = findAuction(nounId.add(1), pastAuctions)
+  const auctionAboveStartTime =
+    auctionAbove && BigNumber.from(auctionAbove.startTime)
+  if (auctionAboveStartTime)
+    nounderAuction.startTime = auctionAboveStartTime.toJSON()
 
-  return nounderAuction;
-};
+  return nounderAuction
+}

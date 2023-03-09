@@ -1,34 +1,43 @@
-import { useReverseENSLookUp } from '../../utils/ensLookup';
-import { resolveNounContractAddress } from '../../utils/resolveNounsContractAddress';
-import { useEthers } from '@usedapp/core';
-import classes from './ShortAddress.module.css';
-import { containsBlockedText } from '../../utils/moderation/containsBlockedText';
-import { useShortAddress } from '../../utils/addressAndENSDisplayUtils';
-import React from 'react';
-import Identicon from '../Identicon';
+import React, { useRef } from 'react'
 
-const ShortAddress: React.FC<{ address: string; avatar?: boolean; size?: number }> = props => {
-  const { address, avatar, size = 24 } = props;
-  const { library: provider } = useEthers();
+import { useReadonlyProvider } from '@/hooks/useReadonlyProvider'
+import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
+import Identicon from '../Identicon'
 
-  const ens = useReverseENSLookUp(address) || resolveNounContractAddress(address);
-  const ensMatchesBlocklistRegex = containsBlockedText(ens || '', 'en');
-  const shortAddress = useShortAddress(address);
+import { constants } from 'ethers'
+import classes from './ShortAddress.module.css'
+
+const ShortAddress: React.FC<{
+  address: string
+  avatar?: boolean
+  size?: number
+  showZero?: boolean
+}> = (props) => {
+  const { address, avatar, size = 24, showZero = false } = props
+  const provider = useRef(useReadonlyProvider())
+
+  const shortAddress = toShortAddress(
+    address === constants.AddressZero && showZero ? constants.AddressZero : '',
+  )
 
   if (avatar) {
     return (
       <div className={classes.shortAddress}>
         {avatar && (
           <div key={address}>
-            <Identicon size={size} address={address} provider={provider} />
+            <Identicon
+              size={size}
+              address={address}
+              provider={provider.current}
+            />
           </div>
         )}
-        <span>{ens && !ensMatchesBlocklistRegex ? ens : shortAddress}</span>
+        <span>{shortAddress}</span>
       </div>
-    );
+    )
   }
 
-  return <>{ens && !ensMatchesBlocklistRegex ? ens : shortAddress}</>;
-};
+  return <>{shortAddress}</>
+}
 
-export default ShortAddress;
+export default ShortAddress

@@ -1,0 +1,38 @@
+{
+  "locales": [
+    "da",
+    "en",
+    "ja",
+    "pseudo"
+  ],
+  "catalogs": [
+    {
+      "path": "src/locales/{locale}",
+      "include": [
+        "src"
+      ],
+      "exclude": [
+        "src/locales/**"
+      ]
+    }
+  ],
+  "format": "po",
+  "formatOptions": {
+    "lineNumbers": false
+  },
+  "compileNamespace": "cjs",
+  "sourceLocale": "en",
+  "pseudoLocale": "pseudo",
+  "runtimeConfigModule": ["@lingui/core", "i18n"],
+  "orderBy": "messageId",
+  "rootDir": ".",
+  "fallbackLocales": {
+    "default": "en",
+    "pseudo": "en"
+  },
+  "extractBabelOptions": {
+    "presets": [
+      "@babel/preset-typescript"
+    ]
+  }
+}

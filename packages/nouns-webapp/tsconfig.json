@@ -1,22 +1,38 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "composite": false,
-    "declaration": false,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
     "module": "esnext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
-  },
-  "include": ["src"],
-  "references": [
-    {
-      "path": "../nouns-contracts/tsconfig.build.json"
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/public/*": ["./public/*"]
     }
-  ]
+  },
+  "tsc-alias": {
+    "verbose": false,
+    "resolveFullPaths": true,
+    "fileExtensions": {
+      "inputGlob": "js, jsx, mjs",
+      "outputCheck": ["js", "json", "jsx", "mjs"]
+    }
+  },
+  "references": [
+    { "path": "../nouns-contracts/tsconfig.build.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "exclude": ["./out/**/*"],
+  "include": ["src", "functions", "**/*.json"]
 }

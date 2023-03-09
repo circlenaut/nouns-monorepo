@@ -1,131 +1,157 @@
-import { Proposal } from '../../wrappers/nounsDao';
-import { Image } from 'react-bootstrap';
-import _YesVoteIcon from '../../assets/icons/YesVote.svg';
-import _NoVoteIcon from '../../assets/icons/NoVote.svg';
-import _AbsentVoteIcon from '../../assets/icons/AbsentVote.svg';
-import _AbstainVoteIcon from '../../assets/icons/Abstain.svg';
-import { ProposalState } from '../../wrappers/nounsDao';
+import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Image } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 
-import classes from './NounProfileVoteRow.module.css';
+import { NounVoteHistory } from '@/components/ProfileActivityFeed'
+import ShortAddress from '@/components/ShortAddress'
+import VoteStatusPill from '@/components/VoteStatusPill'
+import { useActiveLocale } from '@/hooks/useActivateLocale'
+import { Vote } from '@/utils/vote'
+import { Proposal, ProposalState } from '@/wrappers/nounsDao'
+import { Locales } from '@/i18n/locales'
 
-import { useHistory } from 'react-router-dom';
-import VoteStatusPill from '../VoteStatusPill';
+// tslint:disable:ordered-imports
+import classes from './NounProfileVoteRow.module.css'
+import responsiveUiUtilsClasses from '@/utils/ResponsiveUIUtils.module.css'
 
-import _PendingVoteIcon from '../../assets/icons/PendingVote.svg';
-import { Vote } from '../../utils/vote';
-import { NounVoteHistory } from '../ProfileActivityFeed';
-import { Trans } from '@lingui/macro';
-import { useActiveLocale } from '../../hooks/useActivateLocale';
-import responsiveUiUtilsClasses from '../../utils/ResponsiveUIUtils.module.css';
-import ShortAddress from '../ShortAddress';
-import React from 'react';
-import ReactTooltip from 'react-tooltip';
+import _AbsentVoteIcon from '@/assets/icons/AbsentVote.svg'
+import _AbstainVoteIcon from '@/assets/icons/Abstain.svg'
+import _NoVoteIcon from '@/assets/icons/NoVote.svg'
+import _PendingVoteIcon from '@/assets/icons/PendingVote.svg'
+import _YesVoteIcon from '@/assets/icons/YesVote.svg'
 
 interface NounProfileVoteRowProps {
-  proposal: Proposal;
-  vote?: NounVoteHistory;
+  proposal: Proposal
+  vote?: NounVoteHistory
 }
 
-const selectIconForNounVoteActivityRow = (proposal: Proposal, vote?: NounVoteHistory) => {
+const selectIconForNounVoteActivityRow = (
+  proposal: Proposal,
+  vote?: NounVoteHistory,
+) => {
   if (!vote) {
-    if (proposal.status === ProposalState.PENDING || proposal.status === ProposalState.ACTIVE) {
-      return <Image src={_PendingVoteIcon} className={classes.voteIcon} />;
+    if (
+      proposal.status === ProposalState.PENDING ||
+      proposal.status === ProposalState.ACTIVE
+    ) {
+      return <Image src={_PendingVoteIcon} className={classes.voteIcon} />
     }
-    return <Image src={_AbsentVoteIcon} className={classes.voteIcon} />;
+    return <Image src={_AbsentVoteIcon} className={classes.voteIcon} />
   } else if (vote.supportDetailed) {
     switch (vote.supportDetailed) {
       case Vote.FOR:
-        return <Image src={_YesVoteIcon} className={classes.voteIcon} />;
+        return <Image src={_YesVoteIcon} className={classes.voteIcon} />
       case Vote.ABSTAIN:
       default:
-        return <Image src={_AbstainVoteIcon} className={classes.voteIcon} />;
+        return <Image src={_AbstainVoteIcon} className={classes.voteIcon} />
     }
   } else {
-    return <Image src={_NoVoteIcon} className={classes.voteIcon} />;
+    return <Image src={_NoVoteIcon} className={classes.voteIcon} />
   }
-};
+}
 
 const selectVotingInfoText = (proposal: Proposal, vote?: NounVoteHistory) => {
   if (!vote) {
-    if (proposal.status === ProposalState.PENDING || proposal.status === ProposalState.ACTIVE) {
-      return <Trans>Waiting for</Trans>;
+    if (
+      proposal.status === ProposalState.PENDING ||
+      proposal.status === ProposalState.ACTIVE
+    ) {
+      return <Trans>Waiting for</Trans>
     }
-    return <Trans>Absent for</Trans>;
+    return <Trans>Absent for</Trans>
   } else if (vote.supportDetailed) {
     switch (vote.supportDetailed) {
       case Vote.FOR:
-        return <Trans>Voted for</Trans>;
+        return <Trans>Voted for</Trans>
       case Vote.ABSTAIN:
       default:
-        return <Trans>Abstained on</Trans>;
+        return <Trans>Abstained on</Trans>
     }
   } else {
-    return <Trans>Voted against</Trans>;
+    return <Trans>Voted against</Trans>
   }
-};
+}
 
 const selectProposalStatusIcon = (proposal: Proposal) => {
   return (
-    <VoteStatusPill status={selectProposalStatus(proposal)} text={selectProposalText(proposal)} />
-  );
-};
+    <VoteStatusPill
+      status={selectProposalStatus(proposal)}
+      text={selectProposalText(proposal)}
+    />
+  )
+}
 
 const selectProposalStatus = (proposal: Proposal) => {
   switch (proposal.status) {
     case ProposalState.SUCCEEDED:
     case ProposalState.EXECUTED:
     case ProposalState.QUEUED:
-      return 'success';
+      return 'success'
     case ProposalState.DEFEATED:
     case ProposalState.VETOED:
-      return 'failure';
+      return 'failure'
     default:
-      return 'pending';
+      return 'pending'
   }
-};
+}
 
 const selectProposalText = (proposal: Proposal) => {
   switch (proposal.status) {
     case ProposalState.PENDING:
-      return <Trans>Pending</Trans>;
+      return <Trans>Pending</Trans>
     case ProposalState.ACTIVE:
-      return <Trans>Active</Trans>;
+      return <Trans>Active</Trans>
     case ProposalState.SUCCEEDED:
-      return <Trans>Succeeded</Trans>;
+      return <Trans>Succeeded</Trans>
     case ProposalState.EXECUTED:
-      return <Trans>Executed</Trans>;
+      return <Trans>Executed</Trans>
     case ProposalState.DEFEATED:
-      return <Trans>Defeated</Trans>;
+      return <Trans>Defeated</Trans>
     case ProposalState.QUEUED:
-      return <Trans>Queued</Trans>;
+      return <Trans>Queued</Trans>
     case ProposalState.CANCELLED:
-      return <Trans>Canceled</Trans>;
+      return <Trans>Canceled</Trans>
     case ProposalState.VETOED:
-      return <Trans>Vetoed</Trans>;
+      return <Trans>Vetoed</Trans>
     case ProposalState.EXPIRED:
-      return <Trans>Expired</Trans>;
+      return <Trans>Expired</Trans>
     default:
-      return <Trans>Undetermined</Trans>;
+      return <Trans>Undetermined</Trans>
   }
-};
+}
 
-const NounProfileVoteRow: React.FC<NounProfileVoteRowProps> = props => {
-  const { proposal, vote } = props;
+const NounProfileVoteRow: React.FC<NounProfileVoteRowProps> = (props) => {
+  const { proposal, vote } = props
 
-  const history = useHistory();
-  const proposalOnClickHandler = () => history.push(proposal.id ? `/vote/${proposal.id}` : '/vote');
-  const activeLocale = useActiveLocale();
+  const navigate = useNavigate()
+  const proposalOnClickHandler = () =>
+    navigate(proposal.id ? `/vote/${proposal.id}` : '/vote')
+
+  const activeLocale = useActiveLocale()
+  // const renderHoverCardContent = (dataTip: string) => {
+  //   return <div>{dataTip}</div>
+  // }
 
   return (
     <tr onClick={proposalOnClickHandler} className={classes.voteInfoRow}>
-      <td className={classes.voteIcon}>{selectIconForNounVoteActivityRow(proposal, vote)}</td>
+      <td className={classes.voteIcon}>
+        {selectIconForNounVoteActivityRow(proposal, vote)}
+      </td>
       <td className={classes.voteInfoTableCell}>
         <div className={classes.voteInfoContainer}>
           {selectVotingInfoText(proposal, vote)}
           <span className={classes.proposalTitle}>{proposal.title}</span>
         </div>
       </td>
-      <td className={activeLocale === 'ja-JP' ? responsiveUiUtilsClasses.desktopOnly : ''}>
+      <td
+        className={
+          activeLocale === Locales.ja_JP
+            ? responsiveUiUtilsClasses.desktopOnly
+            : ''
+        }
+      >
         <div
           style={{
             display: 'flex',
@@ -142,11 +168,9 @@ const NounProfileVoteRow: React.FC<NounProfileVoteRowProps> = props => {
             >
               <ReactTooltip
                 id={'noun-profile-delegate'}
-                effect={'solid'}
                 className={classes.delegateHover}
-                getContent={dataTip => {
-                  return <div>{dataTip}</div>;
-                }}
+                content={`Delegate for Proposal ${vote.proposal.id}`}
+                place={'top'}
               />
               <div
                 data-tip={`Delegate for Proposal ${vote.proposal.id}`}
@@ -185,12 +209,14 @@ const NounProfileVoteRow: React.FC<NounProfileVoteRowProps> = props => {
             </div>
           )}
           <div className={classes.voteStatusWrapper}>
-            <div className={classes.voteProposalStatus}>{selectProposalStatusIcon(proposal)}</div>
+            <div className={classes.voteProposalStatus}>
+              {selectProposalStatusIcon(proposal)}
+            </div>
           </div>
         </div>
       </td>
     </tr>
-  );
-};
+  )
+}
 
-export default NounProfileVoteRow;
+export default NounProfileVoteRow

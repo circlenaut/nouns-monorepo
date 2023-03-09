@@ -1,10 +1,5 @@
 {
   "compilerOptions": {
-    /*
-     * Uncomment for small accuracy reduction & vast build time reduction for
-     * --watch mode 
-     */
-    // "assumeChangesOnlyAffectDirectDependencies": true,
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
     "declaration": true,
@@ -21,7 +16,7 @@
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
-    "target": "es6",
+    "target": "es6"
   },
   "exclude": ["**/dist"]
 }

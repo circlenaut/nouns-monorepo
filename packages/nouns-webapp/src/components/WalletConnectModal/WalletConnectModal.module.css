@@ -1,3 +1,16 @@
+/* Resets button to default to div */
+button {
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  outline: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
 .clickable {
   cursor: pointer;
 }
@@ -13,4 +26,55 @@
 
 .walletConnectData:hover {
   opacity: 1;
+}
+
+.selectBox select {
+  background: white;
+  color: black;
+  border-radius: 5px;
+}
+
+.selectBox select option {
+  background: white;
+  color: black;
+}
+
+.selectBox select option:not(:checked) {
+  background: white;
+  color: black;
+  border-radius: 10px;
+}
+
+.connectionBox button {
+  display: 'flex';
+  justify-content: center;
+  align-items: center;
+  width: 95%;
+  background: lightgray;
+  color: rgba(75, 75, 75, 0.8);
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.connectionBox button:hover {
+  color: black;
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.toggleWalletDetailDisplay {
+  opacity: 0.5;
+
+  cursor: pointer;
+  transition: all 0.125s ease-in-out;
+  height: fit-content;
+  width: fit-content;
+  border-radius: 4px;
+  background-color: transition;
+  color: var(--brand-black);
+}
+
+.toggleWalletDetailDisplay:hover {
+  opacity: 1;
+  cursor: pointer;
 }

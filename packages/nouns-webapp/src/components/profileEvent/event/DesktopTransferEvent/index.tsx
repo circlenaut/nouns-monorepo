@@ -1,20 +1,25 @@
-import React from 'react';
-import { buildEtherscanAddressLink, buildEtherscanTxLink } from '../../../../utils/etherscan';
-import { TransferEvent } from '../../../../wrappers/nounActivity';
-import classes from './DesktopTransferEvent.module.css';
-import DesktopNounActivityRow from '../../activityRow/DesktopNounActivityRow';
-import { SwitchHorizontalIcon } from '@heroicons/react/solid';
-import ReactTooltip from 'react-tooltip';
-import ShortAddress from '../../../ShortAddress';
-import TransactionHashPill from '../../eventData/infoPills/TransactionHashPill';
-import { Trans } from '@lingui/macro';
+import { SwitchHorizontalIcon } from '@heroicons/react/solid'
+import { t, Trans } from '@lingui/macro'
+import React from 'react'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
+
+import ShortAddress from '@/components/ShortAddress'
+import {
+  buildEtherscanAddressLink,
+  buildEtherscanTxLink,
+} from '@/utils/etherscan'
+import { TransferEvent } from '@/wrappers/nounActivity'
+import DesktopNounActivityRow from '../../activityRow/DesktopNounActivityRow'
+import TransactionHashPill from '../../eventData/infoPills/TransactionHashPill'
+
+import classes from './DesktopTransferEvent.module.css'
 
 interface DesktopTransferEventProps {
-  event: TransferEvent;
+  event: TransferEvent
 }
 
-const DesktopTransferEvent: React.FC<DesktopTransferEventProps> = props => {
-  const { event } = props;
+const DesktopTransferEvent: React.FC<DesktopTransferEventProps> = (props) => {
+  const { event } = props
 
   return (
     <DesktopNounActivityRow
@@ -27,30 +32,46 @@ const DesktopTransferEvent: React.FC<DesktopTransferEventProps> = props => {
         <>
           <ReactTooltip
             id={'view-on-etherscan-tooltip-primary'}
-            effect={'solid'}
             className={classes.delegateHover}
-            getContent={dataTip => {
-              return <Trans>View on Etherscan</Trans>;
-            }}
+            content={t`View on Etherscan`}
+            place={'top'}
           />
           <Trans>
             Holder changed from{' '}
             <span
               data-tip={`View on Etherscan`}
-              onClick={() => window.open(buildEtherscanAddressLink(event.from), '_blank')}
+              onClick={() =>
+                window.open(buildEtherscanAddressLink(event.from), '_blank')
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  window.open(buildEtherscanAddressLink(event.from), '_blank')
+                }
+              }}
+              role="button"
+              tabIndex={0}
               data-for="view-on-etherscan-tooltip"
               className={classes.address}
             >
               {' '}
-              <ShortAddress address={event.from} />
+              <ShortAddress address={event.from} showZero={true} />
             </span>{' '}
             to{' '}
             <span
               data-for="view-on-etherscan-tooltip"
-              onClick={() => window.open(buildEtherscanAddressLink(event.to), '_blank')}
+              onClick={() =>
+                window.open(buildEtherscanAddressLink(event.to), '_blank')
+              }
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  window.open(buildEtherscanAddressLink(event.to), '_blank')
+                }
+              }}
+              role="button"
+              tabIndex={0}
               className={classes.address}
             >
-              <ShortAddress address={event.to} />
+              <ShortAddress address={event.to} showZero={true} />
             </span>
           </Trans>
         </>
@@ -59,14 +80,24 @@ const DesktopTransferEvent: React.FC<DesktopTransferEventProps> = props => {
         <>
           <ReactTooltip
             id={'view-on-etherscan-txn-tooltip'}
-            effect={'solid'}
             className={classes.delegateHover}
-            getContent={dataTip => {
-              return <Trans>View on Etherscan</Trans>;
-            }}
+            content={t`View on Etherscan`}
+            place={'top'}
           />
           <div
-            onClick={() => window.open(buildEtherscanTxLink(event.transactionHash), '_blank')}
+            onClick={() =>
+              window.open(buildEtherscanTxLink(event.transactionHash), '_blank')
+            }
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                window.open(
+                  buildEtherscanTxLink(event.transactionHash),
+                  '_blank',
+                )
+              }
+            }}
+            role="button"
+            tabIndex={0}
             data-tip={`View on Etherscan`}
             data-for="view-on-etherscan-txn-tooltip"
           >
@@ -75,7 +106,7 @@ const DesktopTransferEvent: React.FC<DesktopTransferEventProps> = props => {
         </>
       }
     />
-  );
-};
+  )
+}
 
-export default DesktopTransferEvent;
+export default DesktopTransferEvent

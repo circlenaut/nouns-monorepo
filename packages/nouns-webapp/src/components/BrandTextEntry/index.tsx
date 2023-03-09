@@ -1,18 +1,28 @@
-import clsx from 'clsx';
-import classes from './BrandTextEntry.module.css';
+import clsx from 'clsx'
+import React from 'react'
+
+import classes from './BrandTextEntry.module.css'
 
 interface BrandTextEntryProps {
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  value?: string | number;
-  placeholder?: string;
-  type?: string;
-  min?: string;
-  label?: string;
-  isInvalid?: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  value?: string | number
+  placeholder?: string
+  type?: string
+  min?: string
+  label?: string
+  isInvalid?: boolean
 }
 
-const BrandTextEntry: React.FC<BrandTextEntryProps> = props => {
-  const { onChange, value, placeholder, type, min, label, isInvalid = false } = props;
+const BrandTextEntry: React.FC<BrandTextEntryProps> = (props) => {
+  const {
+    onChange,
+    value,
+    placeholder,
+    type,
+    min,
+    label,
+    isInvalid = false,
+  } = props
 
   return (
     <div className={classes.container}>
@@ -26,7 +36,7 @@ const BrandTextEntry: React.FC<BrandTextEntryProps> = props => {
         className={clsx(classes.entry, isInvalid ? classes.invalid : '')}
       />
     </div>
-  );
-};
+  )
+}
 
-export default BrandTextEntry;
+export default BrandTextEntry

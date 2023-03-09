@@ -1,16 +1,20 @@
-import classes from './Banner.module.css';
-import Section from '../../layout/Section';
-import { Col } from 'react-bootstrap';
-import calendar_noun from '../../assets/calendar_noun.png';
-import Noun from '../Noun';
-import { Trans } from '@lingui/macro';
+import { Trans } from '@lingui/macro'
+import React from 'react'
+import { Col } from 'react-bootstrap'
 
-const Banner = () => {
+import Noun from '@/components/Noun'
+import Section from '@/layout/Section'
+
+import classes from './Banner.module.css'
+
+import calendar_noun from '@/assets/calendar_noun.png'
+
+const Banner: React.FC = () => {
   return (
     <Section fullWidth={false} className={classes.bannerSection}>
       <Col lg={6}>
         <div className={classes.wrapper}>
-          <h1>
+          <h1 className="h1-title">
             <Trans>ONE NOUN,</Trans>
             <br />
             <Trans>EVERY DAY,</Trans>
@@ -25,7 +29,7 @@ const Banner = () => {
         </div>
       </Col>
     </Section>
-  );
-};
+  )
+}
 
-export default Banner;
+export default Banner

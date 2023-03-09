@@ -1,17 +1,18 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ReactNode } from 'react';
-import { grey } from '../../utils/nounBgColors';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import React, { ReactNode } from 'react'
+
+import { grey } from '@/utils/nounBgColors'
 
 export interface AlertModal {
-  show: boolean;
-  title?: ReactNode;
-  message?: ReactNode;
+  show: boolean
+  title?: ReactNode
+  message?: ReactNode
 }
 
-interface ApplicationState {
-  stateBackgroundColor: string;
-  isCoolBackground: boolean;
-  alertModal: AlertModal;
+export interface ApplicationState {
+  stateBackgroundColor: string
+  isCoolBackground: boolean
+  alertModal: AlertModal
 }
 
 const initialState: ApplicationState = {
@@ -20,22 +21,26 @@ const initialState: ApplicationState = {
   alertModal: {
     show: false,
   },
-};
+}
 
 export const applicationSlice = createSlice({
   name: 'application',
   initialState,
   reducers: {
     setStateBackgroundColor: (state, action: PayloadAction<string>) => {
-      state.stateBackgroundColor = action.payload;
-      state.isCoolBackground = action.payload === grey;
+      state.stateBackgroundColor = action.payload
+      state.isCoolBackground = action.payload === grey
     },
     setAlertModal: (state, action: PayloadAction<AlertModal>) => {
-      state.alertModal = action.payload;
+      const isElement = React.isValidElement(action.payload?.title)
+      if (isElement) return
+      state.alertModal = action.payload
     },
   },
-});
+})
 
-export const { setStateBackgroundColor, setAlertModal } = applicationSlice.actions;
+export const { setStateBackgroundColor, setAlertModal } =
+  applicationSlice.actions
 
-export default applicationSlice.reducer;
+const applicationReducer = applicationSlice.reducer
+export default applicationReducer

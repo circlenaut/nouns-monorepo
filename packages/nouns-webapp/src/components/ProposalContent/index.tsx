@@ -1,43 +1,54 @@
-import React, { Fragment } from 'react';
-import { Col, Row } from 'react-bootstrap';
-import ReactMarkdown from 'react-markdown';
-import { processProposalDescriptionText } from '../../utils/processProposalDescriptionText';
-import { Proposal } from '../../wrappers/nounsDao';
-import remarkBreaks from 'remark-breaks';
-import { buildEtherscanAddressLink, buildEtherscanTxLink } from '../../utils/etherscan';
-import { utils } from 'ethers';
-import classes from './ProposalContent.module.css';
-import { Trans } from '@lingui/macro';
-import EnsOrLongAddress from '../EnsOrLongAddress';
-import config from '../../config';
-import { InformationCircleIcon } from '@heroicons/react/solid';
-import ShortAddress from '../ShortAddress';
+import { InformationCircleIcon } from '@heroicons/react/solid'
+import { Trans } from '@lingui/macro'
+import { utils } from 'ethers'
+import React, { Fragment } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import ReactMarkdown from 'react-markdown'
+import { Link } from 'react-router-dom'
+import remarkBreaks from 'remark-breaks'
+
+import EnsOrLongAddress from '@/components/EnsOrLongAddress'
+import ShortAddress from '@/components/ShortAddress'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import {
+  buildEtherscanAddressLink,
+  buildEtherscanTxLink,
+} from '@/utils/etherscan'
+import { processProposalDescriptionText } from '@/utils/processProposalDescriptionText'
+import { Proposal } from '@/wrappers/nounsDao'
+
+import classes from './ProposalContent.module.css'
 
 interface ProposalContentProps {
-  proposal?: Proposal;
+  proposal?: Proposal
 }
 
 export const linkIfAddress = (content: string) => {
   if (utils.isAddress(content)) {
     return (
-      <a href={buildEtherscanAddressLink(content)} target="_blank" rel="noreferrer">
+      <Link
+        to={buildEtherscanAddressLink(content)}
+        target="_blank"
+        rel="noreferrer"
+      >
         <EnsOrLongAddress address={content} />
-      </a>
-    );
+      </Link>
+    )
   }
-  return <span>{content}</span>;
-};
+  return <span>{content}</span>
+}
 
 export const transactionLink = (content: string) => {
   return (
-    <a href={buildEtherscanTxLink(content)} target="_blank" rel="noreferrer">
+    <Link to={buildEtherscanTxLink(content)} target="_blank" rel="noreferrer">
       {content.substring(0, 7)}
-    </a>
-  );
-};
+    </Link>
+  )
+}
 
-const ProposalContent: React.FC<ProposalContentProps> = props => {
-  const { proposal } = props;
+const ProposalContent: React.FC<ProposalContentProps> = (props) => {
+  const { proposal } = props
+  const { contractAddresses } = useContractAddresses()
 
   return (
     <>
@@ -49,9 +60,13 @@ const ProposalContent: React.FC<ProposalContentProps> = props => {
           {proposal?.description && (
             <ReactMarkdown
               className={classes.markdown}
-              children={processProposalDescriptionText(proposal.description, proposal.title)}
               remarkPlugins={[remarkBreaks]}
-            />
+            >
+              {processProposalDescriptionText(
+                proposal.description,
+                proposal.title,
+              )}
+            </ReactMarkdown>
           )}
         </Col>
       </Row>
@@ -62,6 +77,7 @@ const ProposalContent: React.FC<ProposalContentProps> = props => {
           </h5>
           <ol>
             {proposal?.details?.map((d, i) => {
+              const addr = d.callData.split(',')?.[1]
               return (
                 <li key={i} className="m-0">
                   {linkIfAddress(d.target)}.{d.functionSig}
@@ -77,47 +93,55 @@ const ProposalContent: React.FC<ProposalContentProps> = props => {
                         </span>
                         <br />
                       </Fragment>
-                    );
+                    )
                   })}
                   )
-                  {d.target.toLowerCase() === config.addresses.tokenBuyer?.toLowerCase() && (
+                  {d.target.toLowerCase() ===
+                    contractAddresses.tokenBuyer?.toLowerCase() && (
                     <div className={classes.txnInfoText}>
                       <div className={classes.txnInfoIconWrapper}>
-                        <InformationCircleIcon className={classes.txnInfoIcon} />
+                        <InformationCircleIcon
+                          className={classes.txnInfoIcon}
+                        />
                       </div>
                       <div>
                         <Trans>
-                          This transaction was automatically added to refill the TokenBuyer.
-                          Proposers do not receive this ETH.
+                          This transaction was automatically added to refill the
+                          TokenBuyer. Proposers do not receive this ETH.
                         </Trans>
                       </div>
                     </div>
                   )}
-                  {d.target.toLowerCase() === config.addresses.payerContract?.toLowerCase() && (
+                  {d.target.toLowerCase() ===
+                    contractAddresses.payerContract?.toLowerCase() && (
                     <div className={classes.txnInfoText}>
                       <div className={classes.txnInfoIconWrapper}>
-                        <InformationCircleIcon className={classes.txnInfoIcon} />
+                        <InformationCircleIcon
+                          className={classes.txnInfoIcon}
+                        />
                       </div>
                       <div>
-                        <Trans>
-                          This transaction sends{' '}
-                          {Intl.NumberFormat(undefined, { maximumFractionDigits: 6 }).format(
-                            Number(utils.formatUnits(d.callData.split(',')[1], 6)),
-                          )}{' '}
-                          USDC to <ShortAddress address={d.callData.split(',')[0]} /> via the DAO's
-                          PayerContract.
-                        </Trans>
+                        {addr && (
+                          <Trans>
+                            This transaction sends{' '}
+                            {Intl.NumberFormat(undefined, {
+                              maximumFractionDigits: 6,
+                            }).format(Number(utils.formatUnits(addr, 6)))}{' '}
+                            USDC to <ShortAddress address={addr} /> via the
+                            DAO&apos;s PayerContract.
+                          </Trans>
+                        )}
                       </div>
                     </div>
                   )}
                 </li>
-              );
+              )
             })}
           </ol>
         </Col>
       </Row>
     </>
-  );
-};
+  )
+}
 
-export default ProposalContent;
+export default ProposalContent

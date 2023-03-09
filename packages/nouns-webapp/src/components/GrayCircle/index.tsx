@@ -1,14 +1,18 @@
-import { getGrayBackgroundSVG } from '../../utils/grayBackgroundSVG';
-import nounClasses from '../Noun/Noun.module.css';
-import Noun from '../Noun';
-import classes from './GrayCircle.module.css';
+import Noun from '@/components/Noun'
+import React from 'react'
+
+// tslint:disable:ordered-imports
+import nounClasses from '@/components/Noun/Noun.module.css'
+import classes from './GrayCircle.module.css'
+
+import { getGrayBackgroundSVG } from '@/utils/grayBackgroundSVG'
 
 interface GrayCircleProps {
-  isDelegateView?: boolean;
+  isDelegateView?: boolean
 }
 
-export const GrayCircle: React.FC<GrayCircleProps> = props => {
-  const { isDelegateView } = props;
+export const GrayCircle: React.FC<GrayCircleProps> = (props) => {
+  const { isDelegateView } = props
   return (
     <div className={isDelegateView ? classes.wrapper : ''}>
       <Noun
@@ -19,8 +23,12 @@ export const GrayCircle: React.FC<GrayCircleProps> = props => {
             ? nounClasses.delegateViewCircularNounWrapper
             : nounClasses.circularNounWrapper
         }
-        className={isDelegateView ? nounClasses.delegateViewCircular : nounClasses.circular}
+        className={
+          isDelegateView
+            ? nounClasses.delegateViewCircular
+            : nounClasses.circular
+        }
       />
     </div>
-  );
-};
+  )
+}

@@ -10,9 +10,30 @@ import '@openzeppelin/hardhat-upgrades';
 import 'hardhat-gas-reporter';
 import './tasks';
 
+
 dotenv.config();
 
-const config: HardhatUserConfig = {
+interface HardhatUserConfigInterface extends HardhatUserConfig {
+  etherscan: {
+    apiKey?: string 
+  }
+  abiExporter: {
+    path: string,
+    clear: boolean
+  }
+  typechain: {
+    outDir: string
+  }
+  gasReporter: {
+    enabled: boolean,
+    currency: string,
+    gasPrice: number,
+    src: string,
+    coinmarketcap: string,
+  }
+}
+
+const config: HardhatUserConfigInterface = {
   solidity: {
     version: '0.8.17',
     settings: {

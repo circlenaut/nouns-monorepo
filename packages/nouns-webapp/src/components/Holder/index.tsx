@@ -1,42 +1,81 @@
-import { Row, Col } from 'react-bootstrap';
-import { useAppSelector } from '../../hooks';
-import classes from './Holder.module.css';
-import ShortAddress from '../ShortAddress';
-import clsx from 'clsx';
-import { Trans } from '@lingui/macro';
-import { useQuery } from '@apollo/client';
-import { nounQuery } from '../../wrappers/subgraph';
-import { buildEtherscanAddressLink } from '../../utils/etherscan';
-import React from 'react';
-import Tooltip from '../Tooltip';
+import { useConfig } from '@/hooks/useConfig'
+import { useQuery } from '@/wrappers/subgraph'
+import { Trans } from '@lingui/macro'
+import { useQueryClient } from '@tanstack/react-query'
+import clsx from 'clsx'
+import { print } from 'graphql/language/printer'
+import React, { useCallback, useEffect, useMemo } from 'react'
+import { Col, Row } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+
+import ShortAddress from '@/components/ShortAddress'
+import Tooltip from '@/components/Tooltip'
+import { useAppSelector } from '@/hooks'
+import { useEnv } from '@/hooks/useEnv'
+import { buildEtherscanAddressLink } from '@/utils/etherscan'
+import { nounQuery } from '@/wrappers/subgraph'
+
+import classes from './Holder.module.css'
 
 interface HolderProps {
-  nounId: number;
-  isNounders?: boolean;
+  nounId: number
+  isNounders?: boolean
 }
 
-const Holder: React.FC<HolderProps> = props => {
-  const { nounId, isNounders } = props;
+const Holder: React.FC<HolderProps> = (props) => {
+  const { nounId, isNounders } = props
 
-  const isCool = useAppSelector(state => state.application.isCoolBackground);
+  const envs = useEnv()
 
-  const { loading, error, data } = useQuery(nounQuery(nounId.toString()));
+  const isCool = useAppSelector((state) => state.application.isCoolBackground)
+
+  const { app } = useConfig()
+
+  const queryClient = useQueryClient()
+
+  const fetchNoun = useCallback(async () => {
+    if (!nounId) return
+
+    const query = print(nounQuery(nounId.toString()))
+    const response = await fetch(app.subgraphApiUri, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    })
+    const { data } = await response.json()
+    return data
+  }, [nounId])
+
+  useEffect(
+    () =>
+      void !!nounId &&
+      queryClient.prefetchQuery({
+        queryKey: [nounQuery(nounId.toString())],
+        queryFn: fetchNoun,
+      }),
+    [nounId, queryClient],
+  )
+
+  const { loading, data, error } = useQuery({
+    queryKey: [nounQuery(nounId.toString())],
+    queryFn: fetchNoun,
+  })
+
+  const holder = useMemo(() => data?.noun.owner.id, [data])
 
   if (loading) {
-    return <></>;
+    return <></>
   } else if (error) {
     return (
       <div>
         <Trans>Failed to fetch Noun info</Trans>
       </div>
-    );
+    )
   }
 
-  const holder = data && data.noun.owner.id;
-
   const nonNounderNounContent = (
-    <a
-      href={buildEtherscanAddressLink(holder)}
+    <Link
+      to={buildEtherscanAddressLink(holder)}
       target={'_blank'}
       rel="noreferrer"
       className={classes.link}
@@ -44,16 +83,17 @@ const Holder: React.FC<HolderProps> = props => {
       <Tooltip
         tip="View on Etherscan"
         tooltipContent={(tip: string) => {
-          return <Trans>View on Etherscan</Trans>;
+          return <Trans>`${tip}`</Trans>
+          // return <></>
         }}
         id="holder-etherscan-tooltip"
       >
         <ShortAddress size={40} address={holder} avatar={true} />
       </Tooltip>
-    </a>
-  );
+    </Link>
+  )
 
-  const nounderNounContent = 'nounders.eth';
+  const nounderNounContent = envs.NOUNDERS_ADDRESS
 
   return (
     <>
@@ -61,7 +101,9 @@ const Holder: React.FC<HolderProps> = props => {
         <Col xs={1} lg={12} className={classes.leftCol}>
           <h4
             style={{
-              color: isCool ? 'var(--brand-cool-light-text)' : 'var(--brand-warm-light-text)',
+              color: isCool
+                ? 'var(--brand-cool-light-text)'
+                : 'var(--brand-warm-light-text)',
             }}
             className={classes.holderCopy}
           >
@@ -72,7 +114,9 @@ const Holder: React.FC<HolderProps> = props => {
           <h2
             className={classes.holderContent}
             style={{
-              color: isCool ? 'var(--brand-cool-dark-text)' : 'var(--brand-warm-dark-text)',
+              color: isCool
+                ? 'var(--brand-cool-dark-text)'
+                : 'var(--brand-warm-dark-text)',
             }}
           >
             {isNounders ? nounderNounContent : nonNounderNounContent}
@@ -80,7 +124,7 @@ const Holder: React.FC<HolderProps> = props => {
         </Col>
       </Row>
     </>
-  );
-};
+  )
+}
 
-export default Holder;
+export default Holder

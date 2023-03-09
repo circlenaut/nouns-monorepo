@@ -22,6 +22,8 @@
   line-height: 28px;
   font-size: 1.2rem !important;
   background: transparent;
+  margin-bottom: 2.5rem;
+  border: none !important;
 }
 
 @media (max-width: 992px) {
@@ -30,10 +32,10 @@
   }
 }
 
-.accordionItem {
+/* .accordionItem {
   margin-bottom: 2.5rem;
   border: none;
-}
+} */
 
 .aboutText {
   margin: 0px !important;

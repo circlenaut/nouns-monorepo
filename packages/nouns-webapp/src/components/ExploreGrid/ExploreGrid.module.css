@@ -55,7 +55,9 @@
   margin: 0;
   padding: 0;
   border-radius: var(--border-radius);
-  width: calc((100% / var(--columns)) - var(--gap) + (var(--gap) / var(--columns)));
+  width: calc(
+    (100% / var(--columns)) - var(--gap) + (var(--gap) / var(--columns))
+  );
   transition: width 0.3s ease-in-out;
 }
 
