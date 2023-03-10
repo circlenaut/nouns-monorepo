@@ -1,36 +1,29 @@
-import { useEthers } from '@usedapp/core'
-import { Contract, utils } from 'ethers'
+import { Contract } from 'ethers';
+import { Interface } from 'ethers/lib/utils';
 
-import tokenBuyerABI from '@/libs/abi/tokenBuyerABI.json'
-import type { TokenBuyerABI } from '@/types/typechain'
-import { useCachedCall } from '@/wrappers/contracts'
+import tokenBuyerABI from '@/libs/abi/tokenBuyerABI.json';
+import { useCachedCall } from '@/wrappers/contracts';
+import { TokenBuyerABI } from '@/types/typechain/TokenBuyerABI';
 
-const abi = tokenBuyerABI && new utils.Interface(tokenBuyerABI)
-const BUFFER_BPS = 5_000
+const abi = new Interface(tokenBuyerABI);
+const BUFFER_BPS = 5_000;
 
-export const useEthNeeded = (
-  address?: string,
-  additionalTokens?: number,
-): string | undefined => {
-  const { library } = useEthers()
+export const useEthNeeded = (address: string, additionalTokens: number, skip?: boolean) => {
+  const contract = new Contract(address, abi) as TokenBuyerABI
 
-  const contract =
-    address && (new Contract(address, abi, library) as TokenBuyerABI)
-
-  // console.debug(`Calling function 'ethNeeded' on contract ${contract.address}`);
   const { value: ethNeeded, error } =
     useCachedCall(
       contract &&
-        additionalTokens && {
-          contract,
+        !skip && {
+          contract: contract,
           method: 'ethNeeded',
           args: [additionalTokens, BUFFER_BPS],
         },
     ) ?? {}
   if (error) {
     console.error(error.message)
-    return
+    return undefined
   }
-
-  return ethNeeded && ethNeeded[0]?.toString()
-}
+  
+  return ethNeeded && ethNeeded[0]?.toString();
+};

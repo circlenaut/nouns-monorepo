@@ -1,9 +1,9 @@
-import React, { ReactNode, UIEvent } from 'react'
+import React, { ReactNode, TouchEvent } from 'react'
 
 import classes from './MobileNounActivityRow.module.css'
 
 interface MobileNounActivityRowProps {
-  onClick: (event: UIEvent) => void
+  onClick: (event: TouchEvent) => void
   icon: ReactNode
   primaryContent: ReactNode
   secondaryContent?: ReactNode
@@ -15,14 +15,11 @@ const MobileNounActivityRow: React.FC<MobileNounActivityRowProps> = (props) => {
   return (
     <div
       className={classes.wrapper}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          onClick(e)
-        }
+      onTouchStart={onClick}
+      onTouchEnd={(e) => {
+        e.preventDefault()
+        onClick(e)
       }}
-      role="button"
-      tabIndex={0}
     >
       <div className={classes.icon}>{icon}</div>
 

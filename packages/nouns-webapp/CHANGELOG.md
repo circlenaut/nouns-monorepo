@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed principle app Unit test and ensured compatibility with Vite
 - Fixed the Collapse toggle on the Auction page
-- Fixed alertModal persistence and behavior inconsistencies. Alert modals would randomly persist and not reset on action/state changes.
+- Fixed alertModal persistence and behavior inconsistencies. Alert modals would randomly persist and not reset on action/state changes, especially during settlement.
 - Fixed spinner not stopping on auction settlement
 - Replaced 0x with the address.ZeroAddress constants to stop various invalid address errors
 

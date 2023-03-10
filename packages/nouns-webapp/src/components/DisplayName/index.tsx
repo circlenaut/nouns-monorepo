@@ -6,7 +6,7 @@ import Identicon from '@/components/Identicon'
 import { useAppDispatch, useAppSelector } from '@/hooks'
 import { useReverseENSLookUp } from '@/utils/ensLookup'
 import { useNounsNameService } from '@/wrappers/nounsNameService'
-import { toShortAddress } from '../../utils/addressAndChainNameDisplayUtils'
+import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
 import Web3Name from '../Web3Name'
 
 import { setActiveName } from '@/state/slices/account'

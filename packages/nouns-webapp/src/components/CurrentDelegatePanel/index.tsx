@@ -6,7 +6,7 @@ import ShortAddress from '@/components/ShortAddress'
 import { useAppSelector } from '@/hooks'
 import { useContractAddresses } from '@/hooks/useAddresses'
 import { useUserDelegatee, useUserNounTokenBalance } from '@/wrappers/nounToken'
-import { toShortAddress } from '../../utils/addressAndChainNameDisplayUtils'
+import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
 
 import classes from './CurrentDelegatePanel.module.css'
 

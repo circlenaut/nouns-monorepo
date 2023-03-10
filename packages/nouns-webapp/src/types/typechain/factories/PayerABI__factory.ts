@@ -2,293 +2,293 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Provider } from '@ethersproject/providers'
-import { Contract, Signer, utils } from 'ethers'
-import type { PayerABI, PayerABIInterface } from '../PayerABI'
+import type { Provider } from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { PayerABI, PayerABIInterface } from "../PayerABI";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: 'address',
-        name: '_owner',
-        type: 'address',
+        internalType: "address",
+        name: "_owner",
+        type: "address",
       },
       {
-        internalType: 'address',
-        name: '_paymentToken',
-        type: 'address',
+        internalType: "address",
+        name: "_paymentToken",
+        type: "address",
       },
     ],
-    stateMutability: 'nonpayable',
-    type: 'constructor',
+    stateMutability: "nonpayable",
+    type: "constructor",
   },
   {
     inputs: [],
-    name: 'CastError',
-    type: 'error',
+    name: "CastError",
+    type: "error",
   },
   {
     inputs: [],
-    name: 'Empty',
-    type: 'error',
+    name: "Empty",
+    type: "error",
   },
   {
     inputs: [],
-    name: 'OutOfBounds',
-    type: 'error',
+    name: "OutOfBounds",
+    type: "error",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'address',
-        name: 'previousOwner',
-        type: 'address',
+        internalType: "address",
+        name: "previousOwner",
+        type: "address",
       },
       {
         indexed: true,
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
       },
     ],
-    name: 'OwnershipTransferred',
-    type: 'event',
+    name: "OwnershipTransferred",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
+        internalType: "address",
+        name: "account",
+        type: "address",
       },
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'remainingDebt',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "remainingDebt",
+        type: "uint256",
       },
     ],
-    name: 'PaidBackDebt',
-    type: 'event',
+    name: "PaidBackDebt",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
+        internalType: "address",
+        name: "account",
+        type: "address",
       },
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
-    name: 'RegisteredDebt',
-    type: 'event',
+    name: "RegisteredDebt",
+    type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
+        internalType: "address",
+        name: "account",
+        type: "address",
       },
       {
         indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
-    name: 'TokensWithdrawn',
-    type: 'event',
+    name: "TokensWithdrawn",
+    type: "event",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
+        internalType: "address",
+        name: "account",
+        type: "address",
       },
     ],
-    name: 'debtOf',
+    name: "debtOf",
     outputs: [
       {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'owner',
+    name: "owner",
     outputs: [
       {
-        internalType: 'address',
-        name: '',
-        type: 'address',
+        internalType: "address",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
-    name: 'payBackDebt',
+    name: "payBackDebt",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'paymentToken',
+    name: "paymentToken",
     outputs: [
       {
-        internalType: 'contract IERC20',
-        name: '',
-        type: 'address',
+        internalType: "contract IERC20",
+        name: "",
+        type: "address",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'queue',
+    name: "queue",
     outputs: [
       {
-        internalType: 'int128',
-        name: '_begin',
-        type: 'int128',
+        internalType: "int128",
+        name: "_begin",
+        type: "int128",
       },
       {
-        internalType: 'int128',
-        name: '_end',
-        type: 'int128',
+        internalType: "int128",
+        name: "_end",
+        type: "int128",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'index',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "index",
+        type: "uint256",
       },
     ],
-    name: 'queueAt',
+    name: "queueAt",
     outputs: [
       {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
+        internalType: "address",
+        name: "account",
+        type: "address",
       },
       {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'renounceOwnership',
+    name: "renounceOwnership",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'account',
-        type: 'address',
+        internalType: "address",
+        name: "account",
+        type: "address",
       },
       {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
       },
     ],
-    name: 'sendOrRegisterDebt',
+    name: "sendOrRegisterDebt",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'totalDebt',
+    name: "totalDebt",
     outputs: [
       {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'newOwner',
-        type: 'address',
+        internalType: "address",
+        name: "newOwner",
+        type: "address",
       },
     ],
-    name: 'transferOwnership',
+    name: "transferOwnership",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [],
-    name: 'withdrawPaymentToken',
+    name: "withdrawPaymentToken",
     outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
+    stateMutability: "nonpayable",
+    type: "function",
   },
-] as const
+] as const;
 
 export class PayerABI__factory {
-  static readonly abi = _abi
+  static readonly abi = _abi;
   static createInterface(): PayerABIInterface {
-    return new utils.Interface(_abi) as PayerABIInterface
+    return new utils.Interface(_abi) as PayerABIInterface;
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider,
+    signerOrProvider: Signer | Provider
   ): PayerABI {
-    return new Contract(address, _abi, signerOrProvider) as PayerABI
+    return new Contract(address, _abi, signerOrProvider) as PayerABI;
   }
 }

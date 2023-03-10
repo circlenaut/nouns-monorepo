@@ -13,6 +13,12 @@ import TransferFundsDetailsStep, {
   SupportedCurrency,
 } from './steps/TransferFundsDetailsStep'
 import TransferFundsReviewStep from './steps/TransferFundsReviewStep'
+import StreamPaymentsPaymentDetailsStep from './steps/StreamPaymentsPaymentDetailsStep';
+import StreamPaymentDateDetailsStep from './steps/StreamPaymentsDateDetailsStep';
+import StreamPaymentsReviewStep from './steps/StreamPaymentsReviewStep';
+
+
+
 
 export enum ProposalActionCreationStep {
   SELECT_ACTION_TYPE,
@@ -21,11 +27,16 @@ export enum ProposalActionCreationStep {
   FUNCTION_CALL_SELECT_FUNCTION,
   FUNCTION_CALL_ADD_ARGUMENTS,
   FUNCTION_CALL_REVIEW,
+  STREAM_PAYMENT_PAYMENT_DETAILS,
+  STREAM_PAYMENT_DATE_DETAILS,
+  STREAM_PAYMENT_REVIEW
 }
+
 
 export enum ProposalActionType {
   LUMP_SUM,
   FUNCTION_CALL,
+  STREAM
 }
 
 export interface ProposalActionModalState {
@@ -34,13 +45,16 @@ export interface ProposalActionModalState {
   config: Config
   amount?: string
   TransferFundsCurrency?: SupportedCurrency
+  streamStartTimestamp?: number;
+  streamEndTimestamp?: number;
   function?: string
   abi?: Interface
   args?: string[]
 }
 export interface ProposalActionModalStepProps {
-  onPrevBtnClick: (e?: ProposalTransaction | UIEvent) => void
-  onNextBtnClick: (e?: ProposalTransaction | UIEvent) => void
+
+  onPrevBtnClick: (e?: ProposalTransaction) => void
+  onNextBtnClick: (e?: ProposalTransaction) => void
   state: ProposalActionModalState
   setState: (e: SetStateAction<ProposalActionModalState>) => void
 }
@@ -165,6 +179,34 @@ const ModalContent: React.FC<{
           onDismiss={onDismiss}
         />
       )
+    case ProposalActionCreationStep.STREAM_PAYMENT_PAYMENT_DETAILS:
+      return (
+        <StreamPaymentsPaymentDetailsStep
+          onNextBtnClick={() => setStep(ProposalActionCreationStep.STREAM_PAYMENT_DATE_DETAILS)}
+          onPrevBtnClick={() => setStep(ProposalActionCreationStep.SELECT_ACTION_TYPE)}
+          state={state}
+          setState={setState}
+        />
+      );
+    case ProposalActionCreationStep.STREAM_PAYMENT_DATE_DETAILS:
+      return (
+        <StreamPaymentDateDetailsStep
+          onNextBtnClick={() => setStep(ProposalActionCreationStep.STREAM_PAYMENT_REVIEW)}
+          onPrevBtnClick={() => setStep(ProposalActionCreationStep.STREAM_PAYMENT_PAYMENT_DETAILS)}
+          state={state}
+          setState={setState}
+        />
+      );
+    case ProposalActionCreationStep.STREAM_PAYMENT_REVIEW:
+      return (
+        <StreamPaymentsReviewStep
+          onNextBtnClick={(transaction?: ProposalTransaction) => transaction && onActionAdd(transaction)}
+          onPrevBtnClick={() => setStep(ProposalActionCreationStep.STREAM_PAYMENT_DATE_DETAILS)}
+          state={state}
+          setState={setState}
+          onDismiss={onDismiss}
+        />
+      );
     default:
       return (
         <SelectProposalActionStep

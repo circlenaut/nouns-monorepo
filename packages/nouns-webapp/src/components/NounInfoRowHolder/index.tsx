@@ -19,7 +19,7 @@ import classes from './NounInfoRowHolder.module.css'
 import _HeartIcon from '@/assets/icons/Heart.svg'
 import _LinkIcon from '@/assets/icons/Link.svg'
 import { constants } from 'ethers'
-import { toShortAddress } from '../../utils/addressAndChainNameDisplayUtils'
+import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
 
 interface NounInfoRowHolderProps {
   nounId: number

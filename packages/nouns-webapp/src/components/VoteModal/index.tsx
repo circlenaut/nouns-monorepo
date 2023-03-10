@@ -1,20 +1,20 @@
-import { i18n } from '@lingui/core'
-import { Trans } from '@lingui/macro'
-import { TransactionStatus } from '@usedapp/core'
-import clsx from 'clsx'
 import React, { ReactNode, useCallback, useEffect, useState } from 'react'
-import { Button, FloatingLabel, FormControl, Spinner } from 'react-bootstrap'
+import { Button, FloatingLabel, FormControl, Spinner } from 'react-bootstrap';
+import { TransactionStatus } from '@usedapp/core';
+import clsx from 'clsx';
+import { Trans } from '@lingui/macro';
+import { i18n } from '@lingui/core';
 
-import NavBarButton, { NavBarButtonStyle } from '@/components/NavBarButton'
-import SolidColorBackgroundModal from '@/components/SolidColorBackgroundModal'
-import { ContractAddresses } from '@/configs'
 import {
   useCastRefundableVote,
   useCastRefundableVoteWithReason,
   Vote,
-} from '@/wrappers/nounsDao'
+} from '@/wrappers/nounsDao';
+import { ContractAddresses } from '@/configs';
+import NavBarButton, { NavBarButtonStyle } from '../NavBarButton';
+import SolidColorBackgroundModal from '../SolidColorBackgroundModal';
 
-import classes from './VoteModal.module.css'
+import classes from './VoteModal.module.css';
 
 interface VoteModalProps {
   show: boolean
@@ -39,6 +39,7 @@ const VoteModal: React.FC<VoteModalProps> = ({
     : { castRefundableVote: null, castRefundableVoteState: null }
 
   const { castRefundableVoteWithReason, castRefundableVoteWithReasonState } =
+   
     useCastRefundableVoteWithReason(addresses)
   const [vote, setVote] = useState<Vote>()
   const [voteReason, setVoteReason] = useState('')
@@ -169,11 +170,7 @@ const VoteModal: React.FC<VoteModalProps> = ({
         >
           <div
             onClick={() => setVote(Vote.FOR)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                ;() => setVote(Vote.FOR)
-              }
-            }}
+            onKeyDown={(e) => e.key === 'Enter' && setVote(Vote.FOR)}
             role="button"
             tabIndex={0}
           >
@@ -193,11 +190,7 @@ const VoteModal: React.FC<VoteModalProps> = ({
           <br />
           <div
             onClick={() => setVote(Vote.AGAINST)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                ;() => setVote(Vote.AGAINST)
-              }
-            }}
+            onKeyDown={(e) => e.key === 'Enter' && setVote(Vote.AGAINST)}
             role="button"
             tabIndex={0}
           >
@@ -217,11 +210,7 @@ const VoteModal: React.FC<VoteModalProps> = ({
           <br />
           <div
             onClick={() => setVote(Vote.ABSTAIN)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                ;() => setVote(Vote.ABSTAIN)
-              }
-            }}
+            onKeyDown={(e) => e.key === 'Enter' && setVote(Vote.ABSTAIN)}
             role="button"
             tabIndex={0}
           >

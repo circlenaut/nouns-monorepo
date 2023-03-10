@@ -12,6 +12,7 @@ import { ProposalActionModalStepProps } from '../..'
 
 export enum SupportedCurrency {
   ETH = 'ETH',
+  WETH = 'WETH',
   USDC = 'USDC',
 }
 

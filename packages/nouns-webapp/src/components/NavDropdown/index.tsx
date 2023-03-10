@@ -58,11 +58,7 @@ const NavDropDown: React.FC<NavDropDownProps> = (props) => {
             e.preventDefault()
             onClick(e)
           }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              onClick(e)
-            }
-          }}
+          onKeyDown={(e) => (e.key === 'Enter') && onClick(e)}
           role="button"
           tabIndex={0}
         >

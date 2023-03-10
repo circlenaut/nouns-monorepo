@@ -106,6 +106,7 @@ const VoteCard: React.FC<VoteCardProps> = (props) => {
         })
         .catch((error) => {
           console.error(`error resolving reverse ens lookup: `, error)
+          localStorage.clear()
         })
     })
     setEnsCached(true)

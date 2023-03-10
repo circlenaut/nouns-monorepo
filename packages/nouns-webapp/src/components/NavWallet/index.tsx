@@ -134,8 +134,9 @@ const NavWallet: React.FC<NavWalletProps> = (props) => {
             e.preventDefault()
             onClick(e)
           }}
-          onKeyDown={(e) => {
+          onKeyDown={(e?) => {
             if (e.key === 'Enter') {
+              e.preventDefault()
               // onClick(e)
             }
           }}

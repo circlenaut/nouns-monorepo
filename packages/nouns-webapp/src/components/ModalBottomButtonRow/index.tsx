@@ -1,13 +1,13 @@
 import { ProposalTransaction } from '@/wrappers/nounsDao'
-import React, { UIEvent } from 'react'
+import React from 'react'
 
 import NavBarButton, { NavBarButtonStyle } from '@/components/NavBarButton'
 
 import classes from './ModalBottomButtonRow.module.css'
 
 export interface ModalBottomButtonRowProps {
-  onPrevBtnClick: (e?: ProposalTransaction | UIEvent) => void
-  onNextBtnClick: (e?: ProposalTransaction | UIEvent) => void
+  onPrevBtnClick: (e?: ProposalTransaction) => void
+  onNextBtnClick: (e?: ProposalTransaction) => void
   prevBtnText: React.ReactNode
   nextBtnText: React.ReactNode
   isNextBtnDisabled?: boolean
@@ -27,7 +27,7 @@ const ModalBottomButtonRow: React.FC<ModalBottomButtonRowProps> = (props) => {
       <NavBarButton
         buttonText={prevBtnText}
         buttonStyle={NavBarButtonStyle.DELEGATE_BACK}
-        onClick={onPrevBtnClick}
+        onClick={() => onPrevBtnClick()}
       />
       <NavBarButton
         buttonText={nextBtnText}
@@ -36,7 +36,7 @@ const ModalBottomButtonRow: React.FC<ModalBottomButtonRowProps> = (props) => {
             ? NavBarButtonStyle.DELEGATE_DISABLED
             : NavBarButtonStyle.DELEGATE_SECONDARY
         }
-        onClick={onNextBtnClick}
+        onClick={() => onNextBtnClick()}
         disabled={isNextBtnDisabled}
       />
     </div>

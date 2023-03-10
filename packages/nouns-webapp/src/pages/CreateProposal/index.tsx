@@ -61,11 +61,36 @@ const CreateProposalPage: React.FC = () => {
   const [tokenBuyerTopUpEth, setTokenBuyerTopUpETH] = useState<string>('0')
 
   const ethNeededCall = useEthNeeded(
-    contractAddresses.tokenBuyer,
+    contractAddresses.tokenBuyer ?? '',
     totalUSDCPayment,
+    contractAddresses.tokenBuyer === undefined || totalUSDCPayment === 0,
   )
   const ethNeeded = useMemo(() => ethNeededCall, [ethNeededCall])
 
+  // const [proposalTransactions, setProposalTransactions] = useState<ProposalTransaction[]>([]);
+  
+  // const handleAddProposalAction = useCallback(
+  //   (transactions: ProposalTransaction | ProposalTransaction[]) => {
+  //     const transactionsArray = Array.isArray(transactions) ? transactions : [transactions];
+
+  //     transactionsArray.forEach(transaction => {
+  //       if (!transaction.address.startsWith('0x')) {
+  //         transaction.address = `0x${transaction.address}`;
+  //       }
+  //       if (!transaction.calldata.startsWith('0x')) {
+  //         transaction.calldata = `0x${transaction.calldata}`;
+  //       }
+
+  //       if (transaction.usdcValue) {
+  //         setTotalUSDCPayment(totalUSDCPayment + transaction.usdcValue);
+  //       }
+  //     });
+  //     setProposalTransactions([...proposalTransactions, ...transactionsArray]);
+
+  //     setShowTransactionFormModal(false);
+  //   },
+  //   [proposalTransactions, totalUSDCPayment],
+  // );
   const proposalTransactionsRef = useRef<ProposalTransaction[]>([])
   const setProposalTransactions = (value: ProposalTransaction[]) => {
     proposalTransactionsRef.current = value
@@ -90,7 +115,6 @@ const CreateProposalPage: React.FC = () => {
     },
     [proposalTransactionsRef, setProposalTransactions, totalUSDCPayment],
   )
-
   const handleRemoveProposalAction = useCallback(
     (index: number) => {
       const propTxInx = proposalTransactionsRef.current[index]

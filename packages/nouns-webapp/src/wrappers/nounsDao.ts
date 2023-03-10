@@ -17,7 +17,7 @@ import {
   Overrides,
   utils,
 } from 'ethers'
-import { defaultAbiCoder, Result } from 'ethers/lib/utils'
+import { defaultAbiCoder, keccak256, Result, toUtf8Bytes } from 'ethers/lib/utils'
 import { print } from 'graphql/language/printer'
 import * as R from 'ramda'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -232,8 +232,8 @@ export const useCurrentQuorum = (
   proposalId: number,
   skip = false,
 ): number | undefined => {
-  const { library } = useEthers()
-  const contract = new Contract(nounsDao, abi, library) as NounsDAOLogicV2
+  // const { library } = useEthers()
+  const contract = new Contract(nounsDao, abi) as NounsDAOLogicV2
 
   // console.debug(`Calling function 'quorumVotes' on contract ${contract.address}`);
   const { value: quorum, error } =
@@ -257,8 +257,8 @@ export const useDynamicQuorumProps = (
   nounsDao: string,
   block: number,
 ): DynamicQuorumParams | undefined => {
-  const { library } = useEthers()
-  const contract = new Contract(nounsDao, abi, library) as NounsDAOLogicV2
+  // const { library } = useEthers()
+  const contract = new Contract(nounsDao, abi) as NounsDAOLogicV2
 
   // console.debug(`Calling function 'getDynamicQuorumParamsAt' on contract ${contract.address}`);
   const { value: params, error } =
@@ -281,13 +281,14 @@ export const useHasVotedOnProposal = (
   addresses: ContractAddresses,
   proposalId: string | undefined,
 ): boolean | undefined => {
-  const { library } = useEthers()
+  // const { library } = useEthers()
   const { activeAccount } = useAppSelector((state) => state.account)
+  console.warn(activeAccount)
 
   const contract = new Contract(
     addresses.nounsDAOProxy,
     abi,
-    library,
+    // library,
   ) as NounsDAOLogicV2
 
   // Fetch a voting receipt for the passed proposal id
@@ -352,11 +353,10 @@ export const useProposalVote = (
 export const useProposalCount = (
   addresses: ContractAddresses,
 ): number | undefined => {
-  const { library } = useEthers()
+Y
   const contract = new Contract(
     addresses.nounsDAOProxy,
-    abi,
-    library,
+    abi
   ) as NounsDAOLogicV2
 
   // console.debug(`Calling function 'proposalCount' on contract ${contract.address}`);
@@ -378,11 +378,11 @@ export const useProposalCount = (
 export const useProposalThreshold = (
   addresses: ContractAddresses,
 ): number | undefined => {
-  const { library } = useEthers()
+  // const { library } = useEthers()
   const contract = new Contract(
     addresses.nounsDAOProxy,
     abi,
-    library,
+    // library,
   ) as NounsDAOLogicV2
 
   // console.debug(`Calling function 'proposalThreshold' on contract ${contract.address}`);
@@ -406,6 +406,13 @@ const countToIndices = (count?: number) =>
     ? new Array(count).fill(0).map((_, i) => [i + 1])
     : []
 
+  const concatSelectorToCalldata = (signature: string, callData: string) => {
+    if (signature) {
+      return `${keccak256(toUtf8Bytes(signature)).substring(0, 10)}${callData.substring(2)}`;
+    }
+    return callData;
+  };
+
 const formatProposalTransactionDetails = (
   details: ProposalTransactionDetails | Result,
 ) => {
@@ -417,36 +424,48 @@ const formatProposalTransactionDetails = (
         (details as Result)?.[3]?.[i] ??
         0,
     )
+    const callData = details.calldatas[i];
+    
     // Split at first occurrence of '('
     const [name, types] = signature
       .substring(0, signature.length - 1)
       ?.split(/\((.*)/s)
     if (!name || !types) {
+      // If there's no signature and calldata is present, display the raw calldata
+      if (callData && callData !== '0x') {
+        return {
+          target,
+          callData: concatSelectorToCalldata(signature, callData),
+          value: value.gt(0) ? `{ value: ${utils.formatEther(value)} ETH } ` : '',
+        };
+      }
+
       return {
         target,
-        functionSig:
-          name === '' ? 'transfer' : name === undefined ? 'unknown' : name,
-        callData: types
-          ? types
-          : value
-          ? `${utils.formatEther(value)} ETH`
-          : '',
-      }
+        functionSig: name === '' ? 'transfer' : name === undefined ? 'unknown' : name,
+        callData: types ? types : value ? `${utils.formatEther(value)} ETH` : '',
+      };
     }
-    const calldata = details.calldatas[i]
-    // Split using comma as separator, unless comma is between parentheses (tuple).
-    const decoded = defaultAbiCoder.decode(
-      types.split(/,(?![^(]*\))/g),
-      calldata,
-    )
-    return {
-      target,
-      functionSig: name,
-      callData: decoded.join(),
-      value: value.gt(0) ? `{ value: ${utils.formatEther(value)} ETH }` : '',
+
+    try {
+      // Split using comma as separator, unless comma is between parentheses (tuple).
+      const decoded = defaultAbiCoder.decode(types.split(/,(?![^(]*\))/g), callData);
+      return {
+        target,
+        functionSig: name,
+        callData: decoded.join(),
+        value: value.gt(0) ? `{ value: ${utils.formatEther(value)} ETH }` : '',
+      };
+    } catch (error) {
+      // We failed to decode. Display the raw calldata, appending function selectors if they exist.
+      return {
+        target,
+        callData: concatSelectorToCalldata(signature, callData),
+        value: value.gt(0) ? `{ value: ${utils.formatEther(value)} ETH } ` : '',
+      };
     }
-  })
-}
+  });
+};
 
 const useFormattedProposalCreatedLogs = (
   addresses: ContractAddresses,
@@ -1000,7 +1019,6 @@ export const usePropose = (addresses: ContractAddresses) => {
   return { propose, proposeState }
 }
 
-//!?
 export const useQueueProposal = (addresses: ContractAddresses) => {
   const { provider } = useWeb3React()
 

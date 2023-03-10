@@ -54,6 +54,7 @@ export const useReverseENSLookUp = (address: string, skip?: boolean) => {
           })
           .catch((error) => {
             console.error(`error resolving reverse ens lookup: `, error)
+            localStorage.clear()
           })
       }
     }

@@ -2,38 +2,38 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Provider } from '@ethersproject/providers'
-import { Contract, Signer, utils } from 'ethers'
-import type { ERC20, ERC20Interface } from '../ERC20'
+import type { Provider } from "@ethersproject/providers";
+import { Contract, Signer, utils } from "ethers";
+import type { ERC20, ERC20Interface } from "../ERC20";
 
 const _abi = [
   {
     constant: true,
     inputs: [
       {
-        name: '_account',
-        type: 'address',
+        name: "_account",
+        type: "address",
       },
     ],
-    name: 'balanceOf',
+    name: "balanceOf",
     outputs: [
       {
-        name: '',
-        type: 'uint256',
+        name: "",
+        type: "uint256",
       },
     ],
     payable: false,
-    stateMutability: 'view',
-    type: 'function',
+    stateMutability: "view",
+    type: "function",
   },
-] as const
+] as const;
 
 export class ERC20__factory {
-  static readonly abi = _abi
+  static readonly abi = _abi;
   static createInterface(): ERC20Interface {
-    return new utils.Interface(_abi) as ERC20Interface
+    return new utils.Interface(_abi) as ERC20Interface;
   }
   static connect(address: string, signerOrProvider: Signer | Provider): ERC20 {
-    return new Contract(address, _abi, signerOrProvider) as ERC20
+    return new Contract(address, _abi, signerOrProvider) as ERC20;
   }
 }
