@@ -26,8 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimize CSS: There's significant usage of !important modifiers, making it quite difficult to debug.
 - Simplified the display of addresses/names by adding and breaking down calls among various separate components for handling the rendering of Eth and Nouns names
 
+
 ## [0.2.0] - 2023-03-07
 ### Added
+- Setup Vite for build tooling and added associated polyfills
 - Support for Goerli testnet
 - Added tanstack/react-query, in addition to Apollo client for handling GraphQL calls. Created a wrapper with proper typing and a toggle to handle easy switching on calls. Added state handlers for handling query prefetching if using react-query.
 - Added msgpack, lru-cache and useCall/useCalls wrappers for caching blockchain calls and minimizing RPC traffic
@@ -36,8 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create various object interfaces and associated typeguards 
 - Memoized chain calls and state reporters to minimize unnecessary calls on rerenders
 - Added Goerli testnet support for querying the Nouns Name Service
-- Added absolute imports "@/" for internal components; kept relative for closely associated components
-- Configured Vite and associated polyfills
+- Added absolute imports "@/" for internal components; kept relative import for closely associated components
+
+### Fixed
+- Fixed principle app Unit test and ensured compatibility with Vite
+- Fixed the Collapse toggle on the Auction page
+- Fixed alertModal persistence and behavior inconsistencies. Alert modals would randomly persist and not reset on action/state changes, especially during settlement.
+- Fixed spinner not stopping on auction settlement
+- Replaced 0x with the address.ZeroAddress constants to stop various invalid address errors
 
 ### Changed
 - Updated the NounsPic API packages and added various request error handling
@@ -57,13 +65,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Moved away from react-scripts to Vite and reconfigured/adapted the mono-repo and other packages
-
-### Fixed
-- Fixed principle app Unit test and ensured compatibility with Vite
-- Fixed the Collapse toggle on the Auction page
-- Fixed alertModal persistence and behavior inconsistencies. Alert modals would randomly persist and not reset on action/state changes, especially during settlement.
-- Fixed spinner not stopping on auction settlement
-- Replaced 0x with the address.ZeroAddress constants to stop various invalid address errors
 
 Note: This changelog is not exhaustive and only includes the most significant changes.
 
