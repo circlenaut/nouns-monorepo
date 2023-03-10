@@ -7,9 +7,9 @@ import { ChangeDelegateState } from '@/components/ChangeDelegatePanel'
 import DelegationCandidateVoteCountInfo from '@/components/DelegationCandidateVoteCountInfo'
 import ShortAddress from '@/components/ShortAddress'
 import { useContractAddresses } from '@/hooks/useAddresses'
+import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
 import { usePickByState } from '@/utils/pickByState'
 import { useAccountVotes } from '@/wrappers/nounToken'
-import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
 
 import classes from './DelegationCandidateInfo.module.css'
 

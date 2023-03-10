@@ -5,8 +5,8 @@ import type {
   EventFragment,
   FunctionFragment,
   Result,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+} from '@ethersproject/abi'
+import type { Listener, Provider } from '@ethersproject/providers'
 import type {
   BaseContract,
   BigNumber,
@@ -18,55 +18,55 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
+} from 'ethers'
 import type {
   OnEvent,
   PromiseOrValue,
   TypedEvent,
   TypedEventFilter,
   TypedListener,
-} from "./common";
+} from './common'
 
 export interface StreamFactoryAbiInterface extends utils.Interface {
   functions: {
-    "createAndFundStream(address,uint256,address,uint256,uint256)": FunctionFragment;
-    "createStream(address,uint256,address,uint256,uint256,uint8,address)": FunctionFragment;
-    "predictStreamAddress(address,address,address,uint256,address,uint256,uint256)": FunctionFragment;
-    "streamImplementation()": FunctionFragment;
-  };
+    'createAndFundStream(address,uint256,address,uint256,uint256)': FunctionFragment
+    'createStream(address,uint256,address,uint256,uint256,uint8,address)': FunctionFragment
+    'predictStreamAddress(address,address,address,uint256,address,uint256,uint256)': FunctionFragment
+    'streamImplementation()': FunctionFragment
+  }
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "createAndFundStream"
-      | "createStream"
-      | "predictStreamAddress"
-      | "streamImplementation"
-  ): FunctionFragment;
+      | 'createAndFundStream'
+      | 'createStream'
+      | 'predictStreamAddress'
+      | 'streamImplementation',
+  ): FunctionFragment
 
   encodeFunctionData(
-    functionFragment: "createAndFundStream",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createStream",
+    functionFragment: 'createAndFundStream',
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
-  ): string;
+    ],
+  ): string
   encodeFunctionData(
-    functionFragment: "predictStreamAddress",
+    functionFragment: 'createStream',
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>,
+    ],
+  ): string
+  encodeFunctionData(
+    functionFragment: 'predictStreamAddress',
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
@@ -74,80 +74,80 @@ export interface StreamFactoryAbiInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
+      PromiseOrValue<BigNumberish>,
+    ],
+  ): string
   encodeFunctionData(
-    functionFragment: "streamImplementation",
-    values?: undefined
-  ): string;
+    functionFragment: 'streamImplementation',
+    values?: undefined,
+  ): string
 
   decodeFunctionResult(
-    functionFragment: "createAndFundStream",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'createAndFundStream',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "createStream",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'createStream',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "predictStreamAddress",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'predictStreamAddress',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "streamImplementation",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'streamImplementation',
+    data: BytesLike,
+  ): Result
 
   events: {
-    "StreamCreated(address,address,address,uint256,address,uint256,uint256,address)": EventFragment;
-  };
+    'StreamCreated(address,address,address,uint256,address,uint256,uint256,address)': EventFragment
+  }
 
-  getEvent(nameOrSignatureOrTopic: "StreamCreated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'StreamCreated'): EventFragment
 }
 
 export interface StreamCreatedEventObject {
-  msgSender: string;
-  payer: string;
-  recipient: string;
-  tokenAmount: BigNumber;
-  tokenAddress: string;
-  startTime: BigNumber;
-  stopTime: BigNumber;
-  streamAddress: string;
+  msgSender: string
+  payer: string
+  recipient: string
+  tokenAmount: BigNumber
+  tokenAddress: string
+  startTime: BigNumber
+  stopTime: BigNumber
+  streamAddress: string
 }
 export type StreamCreatedEvent = TypedEvent<
   [string, string, string, BigNumber, string, BigNumber, BigNumber, string],
   StreamCreatedEventObject
->;
+>
 
-export type StreamCreatedEventFilter = TypedEventFilter<StreamCreatedEvent>;
+export type StreamCreatedEventFilter = TypedEventFilter<StreamCreatedEvent>
 
 export interface StreamFactoryAbi extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(signerOrProvider: Signer | Provider | string): this
+  attach(addressOrName: string): this
+  deployed(): Promise<this>
 
-  interface: StreamFactoryAbiInterface;
+  interface: StreamFactoryAbiInterface
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TEvent>>
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
+    eventFilter?: TypedEventFilter<TEvent>,
+  ): Array<TypedListener<TEvent>>
+  listeners(eventName?: string): Array<Listener>
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+    eventFilter: TypedEventFilter<TEvent>,
+  ): this
+  removeAllListeners(eventName?: string): this
+  off: OnEvent<this>
+  on: OnEvent<this>
+  once: OnEvent<this>
+  removeListener: OnEvent<this>
 
   functions: {
     createAndFundStream(
@@ -156,8 +156,8 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     createStream(
       recipient: PromiseOrValue<string>,
@@ -167,8 +167,8 @@ export interface StreamFactoryAbi extends BaseContract {
       stopTime: PromiseOrValue<BigNumberish>,
       nonce: PromiseOrValue<BigNumberish>,
       predictedStreamAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     predictStreamAddress(
       msgSender: PromiseOrValue<string>,
@@ -178,11 +178,11 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
+      overrides?: CallOverrides,
+    ): Promise<[string]>
 
-    streamImplementation(overrides?: CallOverrides): Promise<[string]>;
-  };
+    streamImplementation(overrides?: CallOverrides): Promise<[string]>
+  }
 
   createAndFundStream(
     recipient: PromiseOrValue<string>,
@@ -190,8 +190,8 @@ export interface StreamFactoryAbi extends BaseContract {
     tokenAddress: PromiseOrValue<string>,
     startTime: PromiseOrValue<BigNumberish>,
     stopTime: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   createStream(
     recipient: PromiseOrValue<string>,
@@ -201,8 +201,8 @@ export interface StreamFactoryAbi extends BaseContract {
     stopTime: PromiseOrValue<BigNumberish>,
     nonce: PromiseOrValue<BigNumberish>,
     predictedStreamAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   predictStreamAddress(
     msgSender: PromiseOrValue<string>,
@@ -212,10 +212,10 @@ export interface StreamFactoryAbi extends BaseContract {
     tokenAddress: PromiseOrValue<string>,
     startTime: PromiseOrValue<BigNumberish>,
     stopTime: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<string>;
+    overrides?: CallOverrides,
+  ): Promise<string>
 
-  streamImplementation(overrides?: CallOverrides): Promise<string>;
+  streamImplementation(overrides?: CallOverrides): Promise<string>
 
   callStatic: {
     createAndFundStream(
@@ -224,8 +224,8 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+      overrides?: CallOverrides,
+    ): Promise<string>
 
     createStream(
       recipient: PromiseOrValue<string>,
@@ -235,8 +235,8 @@ export interface StreamFactoryAbi extends BaseContract {
       stopTime: PromiseOrValue<BigNumberish>,
       nonce: PromiseOrValue<BigNumberish>,
       predictedStreamAddress: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+      overrides?: CallOverrides,
+    ): Promise<string>
 
     predictStreamAddress(
       msgSender: PromiseOrValue<string>,
@@ -246,14 +246,14 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<string>;
+      overrides?: CallOverrides,
+    ): Promise<string>
 
-    streamImplementation(overrides?: CallOverrides): Promise<string>;
-  };
+    streamImplementation(overrides?: CallOverrides): Promise<string>
+  }
 
   filters: {
-    "StreamCreated(address,address,address,uint256,address,uint256,uint256,address)"(
+    'StreamCreated(address,address,address,uint256,address,uint256,uint256,address)'(
       msgSender?: PromiseOrValue<string> | null,
       payer?: PromiseOrValue<string> | null,
       recipient?: PromiseOrValue<string> | null,
@@ -261,8 +261,8 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress?: null,
       startTime?: null,
       stopTime?: null,
-      streamAddress?: null
-    ): StreamCreatedEventFilter;
+      streamAddress?: null,
+    ): StreamCreatedEventFilter
     StreamCreated(
       msgSender?: PromiseOrValue<string> | null,
       payer?: PromiseOrValue<string> | null,
@@ -271,9 +271,9 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress?: null,
       startTime?: null,
       stopTime?: null,
-      streamAddress?: null
-    ): StreamCreatedEventFilter;
-  };
+      streamAddress?: null,
+    ): StreamCreatedEventFilter
+  }
 
   estimateGas: {
     createAndFundStream(
@@ -282,8 +282,8 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     createStream(
       recipient: PromiseOrValue<string>,
@@ -293,8 +293,8 @@ export interface StreamFactoryAbi extends BaseContract {
       stopTime: PromiseOrValue<BigNumberish>,
       nonce: PromiseOrValue<BigNumberish>,
       predictedStreamAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     predictStreamAddress(
       msgSender: PromiseOrValue<string>,
@@ -304,11 +304,11 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    streamImplementation(overrides?: CallOverrides): Promise<BigNumber>;
-  };
+    streamImplementation(overrides?: CallOverrides): Promise<BigNumber>
+  }
 
   populateTransaction: {
     createAndFundStream(
@@ -317,8 +317,8 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     createStream(
       recipient: PromiseOrValue<string>,
@@ -328,8 +328,8 @@ export interface StreamFactoryAbi extends BaseContract {
       stopTime: PromiseOrValue<BigNumberish>,
       nonce: PromiseOrValue<BigNumberish>,
       predictedStreamAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     predictStreamAddress(
       msgSender: PromiseOrValue<string>,
@@ -339,11 +339,11 @@ export interface StreamFactoryAbi extends BaseContract {
       tokenAddress: PromiseOrValue<string>,
       startTime: PromiseOrValue<BigNumberish>,
       stopTime: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     streamImplementation(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-  };
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
+  }
 }

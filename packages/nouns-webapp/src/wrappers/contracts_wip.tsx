@@ -56,14 +56,14 @@ const isCallResult = <
   'error' in value &&
   Array.isArray(value['value']) &&
   value['error'] === null
-  // && value['value'].every((result) => (
-  //   typeof result === 'object' &&
-  //   result !== null &&
-  //   'data' in result &&
-  //   'meta' in result &&
-  //   typeof result['data'] === 'object' &&
-  //   typeof result['meta'] === 'object'
-  // ))
+// && value['value'].every((result) => (
+//   typeof result === 'object' &&
+//   result !== null &&
+//   'data' in result &&
+//   'meta' in result &&
+//   typeof result['data'] === 'object' &&
+//   typeof result['meta'] === 'object'
+// ))
 
 const isString = (value: unknown): value is string => typeof value === 'string'
 

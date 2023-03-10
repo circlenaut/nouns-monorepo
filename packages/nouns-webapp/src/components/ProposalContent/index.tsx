@@ -91,7 +91,9 @@ const ProposalContent: React.FC<ProposalContentProps> = (props) => {
                             <span key={i}>
                               &emsp;
                               {linkIfAddress(content)}
-                              {d.callData.split(',').length - 1 === i ? '' : ','}
+                              {d.callData.split(',').length - 1 === i
+                                ? ''
+                                : ','}
                             </span>
                             <br />
                           </Fragment>

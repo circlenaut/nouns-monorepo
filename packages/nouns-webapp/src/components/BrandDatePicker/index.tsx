@@ -1,18 +1,18 @@
+import clsx from 'clsx'
 import React from 'react'
-import clsx from 'clsx';
 
-import classes from './BrandDatePicker.module.css';
+import classes from './BrandDatePicker.module.css'
 
 interface BrandDatePickerProps {
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  value?: string | number;
-  placeholder?: string;
-  label?: string;
-  isInvalid?: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  value?: string | number
+  placeholder?: string
+  label?: string
+  isInvalid?: boolean
 }
 
-const BrandDatePicker: React.FC<BrandDatePickerProps> = props => {
-  const { onChange, value, label, isInvalid = false } = props;
+const BrandDatePicker: React.FC<BrandDatePickerProps> = (props) => {
+  const { onChange, value, label, isInvalid = false } = props
 
   return (
     <div className={classes.container}>
@@ -24,7 +24,7 @@ const BrandDatePicker: React.FC<BrandDatePickerProps> = props => {
         className={clsx(classes.entry, isInvalid ? classes.invalid : '')}
       />
     </div>
-  );
-};
+  )
+}
 
-export default BrandDatePicker;
+export default BrandDatePicker

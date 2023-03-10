@@ -6,8 +6,8 @@ interface ExternalContractAddresses {
   chainlinkEthUsdc: string | undefined
   payerContract: string | undefined
   tokenBuyer: string | undefined
-  nounsStreamFactory: string | undefined;
-  weth: string | undefined;
+  nounsStreamFactory: string | undefined
+  weth: string | undefined
 }
 
 export type ContractAddresses = NounsContractAddresses &

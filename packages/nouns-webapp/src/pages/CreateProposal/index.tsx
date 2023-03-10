@@ -68,7 +68,7 @@ const CreateProposalPage: React.FC = () => {
   const ethNeeded = useMemo(() => ethNeededCall, [ethNeededCall])
 
   // const [proposalTransactions, setProposalTransactions] = useState<ProposalTransaction[]>([]);
-  
+
   // const handleAddProposalAction = useCallback(
   //   (transactions: ProposalTransaction | ProposalTransaction[]) => {
   //     const transactionsArray = Array.isArray(transactions) ? transactions : [transactions];

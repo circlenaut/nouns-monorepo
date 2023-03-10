@@ -5,8 +5,8 @@ import type {
   EventFragment,
   FunctionFragment,
   Result,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+} from '@ethersproject/abi'
+import type { Listener, Provider } from '@ethersproject/providers'
 import type {
   BaseContract,
   BigNumber,
@@ -18,1309 +18,1304 @@ import type {
   PopulatedTransaction,
   Signer,
   utils,
-} from "ethers";
+} from 'ethers'
 import type {
   OnEvent,
   PromiseOrValue,
   TypedEvent,
   TypedEventFilter,
   TypedListener,
-} from "./common";
+} from './common'
 
 export interface TokenBuyerABIInterface extends utils.Interface {
   functions: {
-    "admin()": FunctionFragment;
-    "baselinePaymentTokenAmount()": FunctionFragment;
-    "botDiscountBPs()": FunctionFragment;
-    "buyETH(uint256,address,bytes)": FunctionFragment;
-    "buyETH(uint256)": FunctionFragment;
-    "ethAmountPerTokenAmount(uint256)": FunctionFragment;
-    "ethNeeded(uint256,uint256)": FunctionFragment;
-    "maxAdminBaselinePaymentTokenAmount()": FunctionFragment;
-    "maxAdminBotDiscountBPs()": FunctionFragment;
-    "minAdminBaselinePaymentTokenAmount()": FunctionFragment;
-    "minAdminBotDiscountBPs()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "pause()": FunctionFragment;
-    "paused()": FunctionFragment;
-    "payer()": FunctionFragment;
-    "paymentToken()": FunctionFragment;
-    "paymentTokenDecimalsDigits()": FunctionFragment;
-    "price()": FunctionFragment;
-    "priceFeed()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
-    "setAdmin(address)": FunctionFragment;
-    "setBaselinePaymentTokenAmount(uint256)": FunctionFragment;
-    "setBotDiscountBPs(uint16)": FunctionFragment;
-    "setMaxAdminBaselinePaymentTokenAmount(uint256)": FunctionFragment;
-    "setMaxAdminBotDiscountBPs(uint16)": FunctionFragment;
-    "setMinAdminBaselinePaymentTokenAmount(uint256)": FunctionFragment;
-    "setMinAdminBotDiscountBPs(uint16)": FunctionFragment;
-    "setPayer(address)": FunctionFragment;
-    "setPriceFeed(address)": FunctionFragment;
-    "tokenAmountNeeded()": FunctionFragment;
-    "tokenAmountNeededAndETHPayout()": FunctionFragment;
-    "tokenAmountPerEthAmount(uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-    "unpause()": FunctionFragment;
-    "withdrawETH()": FunctionFragment;
-  };
+    'admin()': FunctionFragment
+    'baselinePaymentTokenAmount()': FunctionFragment
+    'botDiscountBPs()': FunctionFragment
+    'buyETH(uint256,address,bytes)': FunctionFragment
+    'buyETH(uint256)': FunctionFragment
+    'ethAmountPerTokenAmount(uint256)': FunctionFragment
+    'ethNeeded(uint256,uint256)': FunctionFragment
+    'maxAdminBaselinePaymentTokenAmount()': FunctionFragment
+    'maxAdminBotDiscountBPs()': FunctionFragment
+    'minAdminBaselinePaymentTokenAmount()': FunctionFragment
+    'minAdminBotDiscountBPs()': FunctionFragment
+    'owner()': FunctionFragment
+    'pause()': FunctionFragment
+    'paused()': FunctionFragment
+    'payer()': FunctionFragment
+    'paymentToken()': FunctionFragment
+    'paymentTokenDecimalsDigits()': FunctionFragment
+    'price()': FunctionFragment
+    'priceFeed()': FunctionFragment
+    'renounceOwnership()': FunctionFragment
+    'setAdmin(address)': FunctionFragment
+    'setBaselinePaymentTokenAmount(uint256)': FunctionFragment
+    'setBotDiscountBPs(uint16)': FunctionFragment
+    'setMaxAdminBaselinePaymentTokenAmount(uint256)': FunctionFragment
+    'setMaxAdminBotDiscountBPs(uint16)': FunctionFragment
+    'setMinAdminBaselinePaymentTokenAmount(uint256)': FunctionFragment
+    'setMinAdminBotDiscountBPs(uint16)': FunctionFragment
+    'setPayer(address)': FunctionFragment
+    'setPriceFeed(address)': FunctionFragment
+    'tokenAmountNeeded()': FunctionFragment
+    'tokenAmountNeededAndETHPayout()': FunctionFragment
+    'tokenAmountPerEthAmount(uint256)': FunctionFragment
+    'transferOwnership(address)': FunctionFragment
+    'unpause()': FunctionFragment
+    'withdrawETH()': FunctionFragment
+  }
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "admin"
-      | "baselinePaymentTokenAmount"
-      | "botDiscountBPs"
-      | "buyETH(uint256,address,bytes)"
-      | "buyETH(uint256)"
-      | "ethAmountPerTokenAmount"
-      | "ethNeeded"
-      | "maxAdminBaselinePaymentTokenAmount"
-      | "maxAdminBotDiscountBPs"
-      | "minAdminBaselinePaymentTokenAmount"
-      | "minAdminBotDiscountBPs"
-      | "owner"
-      | "pause"
-      | "paused"
-      | "payer"
-      | "paymentToken"
-      | "paymentTokenDecimalsDigits"
-      | "price"
-      | "priceFeed"
-      | "renounceOwnership"
-      | "setAdmin"
-      | "setBaselinePaymentTokenAmount"
-      | "setBotDiscountBPs"
-      | "setMaxAdminBaselinePaymentTokenAmount"
-      | "setMaxAdminBotDiscountBPs"
-      | "setMinAdminBaselinePaymentTokenAmount"
-      | "setMinAdminBotDiscountBPs"
-      | "setPayer"
-      | "setPriceFeed"
-      | "tokenAmountNeeded"
-      | "tokenAmountNeededAndETHPayout"
-      | "tokenAmountPerEthAmount"
-      | "transferOwnership"
-      | "unpause"
-      | "withdrawETH"
-  ): FunctionFragment;
+      | 'admin'
+      | 'baselinePaymentTokenAmount'
+      | 'botDiscountBPs'
+      | 'buyETH(uint256,address,bytes)'
+      | 'buyETH(uint256)'
+      | 'ethAmountPerTokenAmount'
+      | 'ethNeeded'
+      | 'maxAdminBaselinePaymentTokenAmount'
+      | 'maxAdminBotDiscountBPs'
+      | 'minAdminBaselinePaymentTokenAmount'
+      | 'minAdminBotDiscountBPs'
+      | 'owner'
+      | 'pause'
+      | 'paused'
+      | 'payer'
+      | 'paymentToken'
+      | 'paymentTokenDecimalsDigits'
+      | 'price'
+      | 'priceFeed'
+      | 'renounceOwnership'
+      | 'setAdmin'
+      | 'setBaselinePaymentTokenAmount'
+      | 'setBotDiscountBPs'
+      | 'setMaxAdminBaselinePaymentTokenAmount'
+      | 'setMaxAdminBotDiscountBPs'
+      | 'setMinAdminBaselinePaymentTokenAmount'
+      | 'setMinAdminBotDiscountBPs'
+      | 'setPayer'
+      | 'setPriceFeed'
+      | 'tokenAmountNeeded'
+      | 'tokenAmountNeededAndETHPayout'
+      | 'tokenAmountPerEthAmount'
+      | 'transferOwnership'
+      | 'unpause'
+      | 'withdrawETH',
+  ): FunctionFragment
 
-  encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'admin', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "baselinePaymentTokenAmount",
-    values?: undefined
-  ): string;
+    functionFragment: 'baselinePaymentTokenAmount',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "botDiscountBPs",
-    values?: undefined
-  ): string;
+    functionFragment: 'botDiscountBPs',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "buyETH(uint256,address,bytes)",
+    functionFragment: 'buyETH(uint256,address,bytes)',
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
+      PromiseOrValue<BytesLike>,
+    ],
+  ): string
   encodeFunctionData(
-    functionFragment: "buyETH(uint256)",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'buyETH(uint256)',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "ethAmountPerTokenAmount",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'ethAmountPerTokenAmount',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "ethNeeded",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'ethNeeded',
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "maxAdminBaselinePaymentTokenAmount",
-    values?: undefined
-  ): string;
+    functionFragment: 'maxAdminBaselinePaymentTokenAmount',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "maxAdminBotDiscountBPs",
-    values?: undefined
-  ): string;
+    functionFragment: 'maxAdminBotDiscountBPs',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "minAdminBaselinePaymentTokenAmount",
-    values?: undefined
-  ): string;
+    functionFragment: 'minAdminBaselinePaymentTokenAmount',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "minAdminBotDiscountBPs",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
-  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
-  encodeFunctionData(functionFragment: "payer", values?: undefined): string;
+    functionFragment: 'minAdminBotDiscountBPs',
+    values?: undefined,
+  ): string
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string
+  encodeFunctionData(functionFragment: 'pause', values?: undefined): string
+  encodeFunctionData(functionFragment: 'paused', values?: undefined): string
+  encodeFunctionData(functionFragment: 'payer', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "paymentToken",
-    values?: undefined
-  ): string;
+    functionFragment: 'paymentToken',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "paymentTokenDecimalsDigits",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "price", values?: undefined): string;
-  encodeFunctionData(functionFragment: "priceFeed", values?: undefined): string;
+    functionFragment: 'paymentTokenDecimalsDigits',
+    values?: undefined,
+  ): string
+  encodeFunctionData(functionFragment: 'price', values?: undefined): string
+  encodeFunctionData(functionFragment: 'priceFeed', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
+    functionFragment: 'renounceOwnership',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "setAdmin",
-    values: [PromiseOrValue<string>]
-  ): string;
+    functionFragment: 'setAdmin',
+    values: [PromiseOrValue<string>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setBaselinePaymentTokenAmount",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setBaselinePaymentTokenAmount',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setBotDiscountBPs",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setBotDiscountBPs',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setMaxAdminBaselinePaymentTokenAmount",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setMaxAdminBaselinePaymentTokenAmount',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setMaxAdminBotDiscountBPs",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setMaxAdminBotDiscountBPs',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setMinAdminBaselinePaymentTokenAmount",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setMinAdminBaselinePaymentTokenAmount',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setMinAdminBotDiscountBPs",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'setMinAdminBotDiscountBPs',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setPayer",
-    values: [PromiseOrValue<string>]
-  ): string;
+    functionFragment: 'setPayer',
+    values: [PromiseOrValue<string>],
+  ): string
   encodeFunctionData(
-    functionFragment: "setPriceFeed",
-    values: [PromiseOrValue<string>]
-  ): string;
+    functionFragment: 'setPriceFeed',
+    values: [PromiseOrValue<string>],
+  ): string
   encodeFunctionData(
-    functionFragment: "tokenAmountNeeded",
-    values?: undefined
-  ): string;
+    functionFragment: 'tokenAmountNeeded',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "tokenAmountNeededAndETHPayout",
-    values?: undefined
-  ): string;
+    functionFragment: 'tokenAmountNeededAndETHPayout',
+    values?: undefined,
+  ): string
   encodeFunctionData(
-    functionFragment: "tokenAmountPerEthAmount",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
+    functionFragment: 'tokenAmountPerEthAmount',
+    values: [PromiseOrValue<BigNumberish>],
+  ): string
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
+    functionFragment: 'transferOwnership',
+    values: [PromiseOrValue<string>],
+  ): string
+  encodeFunctionData(functionFragment: 'unpause', values?: undefined): string
   encodeFunctionData(
-    functionFragment: "withdrawETH",
-    values?: undefined
-  ): string;
+    functionFragment: 'withdrawETH',
+    values?: undefined,
+  ): string
 
-  decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'admin', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: "baselinePaymentTokenAmount",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'baselinePaymentTokenAmount',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "botDiscountBPs",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'botDiscountBPs',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "buyETH(uint256,address,bytes)",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'buyETH(uint256,address,bytes)',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "buyETH(uint256)",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'buyETH(uint256)',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "ethAmountPerTokenAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "ethNeeded", data: BytesLike): Result;
+    functionFragment: 'ethAmountPerTokenAmount',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'ethNeeded', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: "maxAdminBaselinePaymentTokenAmount",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'maxAdminBaselinePaymentTokenAmount',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "maxAdminBotDiscountBPs",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'maxAdminBotDiscountBPs',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "minAdminBaselinePaymentTokenAmount",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'minAdminBaselinePaymentTokenAmount',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "minAdminBotDiscountBPs",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "payer", data: BytesLike): Result;
+    functionFragment: 'minAdminBotDiscountBPs',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'pause', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'paused', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'payer', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: "paymentToken",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'paymentToken',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "paymentTokenDecimalsDigits",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "price", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "priceFeed", data: BytesLike): Result;
+    functionFragment: 'paymentTokenDecimalsDigits',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'price', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'priceFeed', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setAdmin", data: BytesLike): Result;
+    functionFragment: 'renounceOwnership',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'setAdmin', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: "setBaselinePaymentTokenAmount",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'setBaselinePaymentTokenAmount',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "setBotDiscountBPs",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'setBotDiscountBPs',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "setMaxAdminBaselinePaymentTokenAmount",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'setMaxAdminBaselinePaymentTokenAmount',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "setMaxAdminBotDiscountBPs",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'setMaxAdminBotDiscountBPs',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "setMinAdminBaselinePaymentTokenAmount",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'setMinAdminBaselinePaymentTokenAmount',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "setMinAdminBotDiscountBPs",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setPayer", data: BytesLike): Result;
+    functionFragment: 'setMinAdminBotDiscountBPs',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'setPayer', data: BytesLike): Result
   decodeFunctionResult(
-    functionFragment: "setPriceFeed",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'setPriceFeed',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "tokenAmountNeeded",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'tokenAmountNeeded',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "tokenAmountNeededAndETHPayout",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'tokenAmountNeededAndETHPayout',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "tokenAmountPerEthAmount",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'tokenAmountPerEthAmount',
+    data: BytesLike,
+  ): Result
   decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "withdrawETH",
-    data: BytesLike
-  ): Result;
+    functionFragment: 'transferOwnership',
+    data: BytesLike,
+  ): Result
+  decodeFunctionResult(functionFragment: 'unpause', data: BytesLike): Result
+  decodeFunctionResult(functionFragment: 'withdrawETH', data: BytesLike): Result
 
   events: {
-    "AdminSet(address,address)": EventFragment;
-    "BaselinePaymentTokenAmountSet(uint256,uint256)": EventFragment;
-    "BotDiscountBPsSet(uint16,uint16)": EventFragment;
-    "ETHWithdrawn(address,uint256)": EventFragment;
-    "MaxAdminBaselinePaymentTokenAmountSet(uint256,uint256)": EventFragment;
-    "MaxAdminBotDiscountBPsSet(uint16,uint16)": EventFragment;
-    "MinAdminBaselinePaymentTokenAmountSet(uint256,uint256)": EventFragment;
-    "MinAdminBotDiscountBPsSet(uint16,uint16)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "Paused(address)": EventFragment;
-    "PayerSet(address,address)": EventFragment;
-    "PriceFeedSet(address,address)": EventFragment;
-    "SoldETH(address,uint256,uint256)": EventFragment;
-    "Unpaused(address)": EventFragment;
-  };
+    'AdminSet(address,address)': EventFragment
+    'BaselinePaymentTokenAmountSet(uint256,uint256)': EventFragment
+    'BotDiscountBPsSet(uint16,uint16)': EventFragment
+    'ETHWithdrawn(address,uint256)': EventFragment
+    'MaxAdminBaselinePaymentTokenAmountSet(uint256,uint256)': EventFragment
+    'MaxAdminBotDiscountBPsSet(uint16,uint16)': EventFragment
+    'MinAdminBaselinePaymentTokenAmountSet(uint256,uint256)': EventFragment
+    'MinAdminBotDiscountBPsSet(uint16,uint16)': EventFragment
+    'OwnershipTransferred(address,address)': EventFragment
+    'Paused(address)': EventFragment
+    'PayerSet(address,address)': EventFragment
+    'PriceFeedSet(address,address)': EventFragment
+    'SoldETH(address,uint256,uint256)': EventFragment
+    'Unpaused(address)': EventFragment
+  }
 
-  getEvent(nameOrSignatureOrTopic: "AdminSet"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'AdminSet'): EventFragment
   getEvent(
-    nameOrSignatureOrTopic: "BaselinePaymentTokenAmountSet"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BotDiscountBPsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "ETHWithdrawn"): EventFragment;
+    nameOrSignatureOrTopic: 'BaselinePaymentTokenAmountSet',
+  ): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'BotDiscountBPsSet'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'ETHWithdrawn'): EventFragment
   getEvent(
-    nameOrSignatureOrTopic: "MaxAdminBaselinePaymentTokenAmountSet"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MaxAdminBotDiscountBPsSet"): EventFragment;
+    nameOrSignatureOrTopic: 'MaxAdminBaselinePaymentTokenAmountSet',
+  ): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'MaxAdminBotDiscountBPsSet'): EventFragment
   getEvent(
-    nameOrSignatureOrTopic: "MinAdminBaselinePaymentTokenAmountSet"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MinAdminBotDiscountBPsSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Paused"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PayerSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PriceFeedSet"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SoldETH"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Unpaused"): EventFragment;
+    nameOrSignatureOrTopic: 'MinAdminBaselinePaymentTokenAmountSet',
+  ): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'MinAdminBotDiscountBPsSet'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'OwnershipTransferred'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'Paused'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'PayerSet'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'PriceFeedSet'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'SoldETH'): EventFragment
+  getEvent(nameOrSignatureOrTopic: 'Unpaused'): EventFragment
 }
 
 export interface AdminSetEventObject {
-  oldAdmin: string;
-  newAdmin: string;
+  oldAdmin: string
+  newAdmin: string
 }
-export type AdminSetEvent = TypedEvent<[string, string], AdminSetEventObject>;
+export type AdminSetEvent = TypedEvent<[string, string], AdminSetEventObject>
 
-export type AdminSetEventFilter = TypedEventFilter<AdminSetEvent>;
+export type AdminSetEventFilter = TypedEventFilter<AdminSetEvent>
 
 export interface BaselinePaymentTokenAmountSetEventObject {
-  oldAmount: BigNumber;
-  newAmount: BigNumber;
+  oldAmount: BigNumber
+  newAmount: BigNumber
 }
 export type BaselinePaymentTokenAmountSetEvent = TypedEvent<
   [BigNumber, BigNumber],
   BaselinePaymentTokenAmountSetEventObject
->;
+>
 
 export type BaselinePaymentTokenAmountSetEventFilter =
-  TypedEventFilter<BaselinePaymentTokenAmountSetEvent>;
+  TypedEventFilter<BaselinePaymentTokenAmountSetEvent>
 
 export interface BotDiscountBPsSetEventObject {
-  oldBPs: number;
-  newBPs: number;
+  oldBPs: number
+  newBPs: number
 }
 export type BotDiscountBPsSetEvent = TypedEvent<
   [number, number],
   BotDiscountBPsSetEventObject
->;
+>
 
 export type BotDiscountBPsSetEventFilter =
-  TypedEventFilter<BotDiscountBPsSetEvent>;
+  TypedEventFilter<BotDiscountBPsSetEvent>
 
 export interface ETHWithdrawnEventObject {
-  to: string;
-  amount: BigNumber;
+  to: string
+  amount: BigNumber
 }
 export type ETHWithdrawnEvent = TypedEvent<
   [string, BigNumber],
   ETHWithdrawnEventObject
->;
+>
 
-export type ETHWithdrawnEventFilter = TypedEventFilter<ETHWithdrawnEvent>;
+export type ETHWithdrawnEventFilter = TypedEventFilter<ETHWithdrawnEvent>
 
 export interface MaxAdminBaselinePaymentTokenAmountSetEventObject {
-  oldAmount: BigNumber;
-  newAmount: BigNumber;
+  oldAmount: BigNumber
+  newAmount: BigNumber
 }
 export type MaxAdminBaselinePaymentTokenAmountSetEvent = TypedEvent<
   [BigNumber, BigNumber],
   MaxAdminBaselinePaymentTokenAmountSetEventObject
->;
+>
 
 export type MaxAdminBaselinePaymentTokenAmountSetEventFilter =
-  TypedEventFilter<MaxAdminBaselinePaymentTokenAmountSetEvent>;
+  TypedEventFilter<MaxAdminBaselinePaymentTokenAmountSetEvent>
 
 export interface MaxAdminBotDiscountBPsSetEventObject {
-  oldBPs: number;
-  newBPs: number;
+  oldBPs: number
+  newBPs: number
 }
 export type MaxAdminBotDiscountBPsSetEvent = TypedEvent<
   [number, number],
   MaxAdminBotDiscountBPsSetEventObject
->;
+>
 
 export type MaxAdminBotDiscountBPsSetEventFilter =
-  TypedEventFilter<MaxAdminBotDiscountBPsSetEvent>;
+  TypedEventFilter<MaxAdminBotDiscountBPsSetEvent>
 
 export interface MinAdminBaselinePaymentTokenAmountSetEventObject {
-  oldAmount: BigNumber;
-  newAmount: BigNumber;
+  oldAmount: BigNumber
+  newAmount: BigNumber
 }
 export type MinAdminBaselinePaymentTokenAmountSetEvent = TypedEvent<
   [BigNumber, BigNumber],
   MinAdminBaselinePaymentTokenAmountSetEventObject
->;
+>
 
 export type MinAdminBaselinePaymentTokenAmountSetEventFilter =
-  TypedEventFilter<MinAdminBaselinePaymentTokenAmountSetEvent>;
+  TypedEventFilter<MinAdminBaselinePaymentTokenAmountSetEvent>
 
 export interface MinAdminBotDiscountBPsSetEventObject {
-  oldBPs: number;
-  newBPs: number;
+  oldBPs: number
+  newBPs: number
 }
 export type MinAdminBotDiscountBPsSetEvent = TypedEvent<
   [number, number],
   MinAdminBotDiscountBPsSetEventObject
->;
+>
 
 export type MinAdminBotDiscountBPsSetEventFilter =
-  TypedEventFilter<MinAdminBotDiscountBPsSetEvent>;
+  TypedEventFilter<MinAdminBotDiscountBPsSetEvent>
 
 export interface OwnershipTransferredEventObject {
-  previousOwner: string;
-  newOwner: string;
+  previousOwner: string
+  newOwner: string
 }
 export type OwnershipTransferredEvent = TypedEvent<
   [string, string],
   OwnershipTransferredEventObject
->;
+>
 
 export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
+  TypedEventFilter<OwnershipTransferredEvent>
 
 export interface PausedEventObject {
-  account: string;
+  account: string
 }
-export type PausedEvent = TypedEvent<[string], PausedEventObject>;
+export type PausedEvent = TypedEvent<[string], PausedEventObject>
 
-export type PausedEventFilter = TypedEventFilter<PausedEvent>;
+export type PausedEventFilter = TypedEventFilter<PausedEvent>
 
 export interface PayerSetEventObject {
-  oldPayer: string;
-  newPayer: string;
+  oldPayer: string
+  newPayer: string
 }
-export type PayerSetEvent = TypedEvent<[string, string], PayerSetEventObject>;
+export type PayerSetEvent = TypedEvent<[string, string], PayerSetEventObject>
 
-export type PayerSetEventFilter = TypedEventFilter<PayerSetEvent>;
+export type PayerSetEventFilter = TypedEventFilter<PayerSetEvent>
 
 export interface PriceFeedSetEventObject {
-  oldFeed: string;
-  newFeed: string;
+  oldFeed: string
+  newFeed: string
 }
 export type PriceFeedSetEvent = TypedEvent<
   [string, string],
   PriceFeedSetEventObject
->;
+>
 
-export type PriceFeedSetEventFilter = TypedEventFilter<PriceFeedSetEvent>;
+export type PriceFeedSetEventFilter = TypedEventFilter<PriceFeedSetEvent>
 
 export interface SoldETHEventObject {
-  to: string;
-  ethOut: BigNumber;
-  tokenIn: BigNumber;
+  to: string
+  ethOut: BigNumber
+  tokenIn: BigNumber
 }
 export type SoldETHEvent = TypedEvent<
   [string, BigNumber, BigNumber],
   SoldETHEventObject
->;
+>
 
-export type SoldETHEventFilter = TypedEventFilter<SoldETHEvent>;
+export type SoldETHEventFilter = TypedEventFilter<SoldETHEvent>
 
 export interface UnpausedEventObject {
-  account: string;
+  account: string
 }
-export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>;
+export type UnpausedEvent = TypedEvent<[string], UnpausedEventObject>
 
-export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>;
+export type UnpausedEventFilter = TypedEventFilter<UnpausedEvent>
 
 export interface TokenBuyerABI extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(signerOrProvider: Signer | Provider | string): this
+  attach(addressOrName: string): this
+  deployed(): Promise<this>
 
-  interface: TokenBuyerABIInterface;
+  interface: TokenBuyerABIInterface
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TEvent>>
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
+    eventFilter?: TypedEventFilter<TEvent>,
+  ): Array<TypedListener<TEvent>>
+  listeners(eventName?: string): Array<Listener>
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+    eventFilter: TypedEventFilter<TEvent>,
+  ): this
+  removeAllListeners(eventName?: string): this
+  off: OnEvent<this>
+  on: OnEvent<this>
+  once: OnEvent<this>
+  removeListener: OnEvent<this>
 
   functions: {
-    admin(overrides?: CallOverrides): Promise<[string]>;
+    admin(overrides?: CallOverrides): Promise<[string]>
 
-    baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
+    baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    botDiscountBPs(overrides?: CallOverrides): Promise<[number]>;
+    botDiscountBPs(overrides?: CallOverrides): Promise<[number]>
 
-    "buyETH(uint256,address,bytes)"(
+    'buyETH(uint256,address,bytes)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
       to: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    "buyETH(uint256)"(
+    'buyETH(uint256)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     ethAmountPerTokenAmount(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
     ethNeeded(
       additionalTokens: PromiseOrValue<BigNumberish>,
       bufferBPs: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
     maxAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
-    maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<[number]>;
+    maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<[number]>
 
     minAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
-    minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<[number]>;
+    minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<[number]>
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
+    owner(overrides?: CallOverrides): Promise<[string]>
 
     pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    paused(overrides?: CallOverrides): Promise<[boolean]>;
+    paused(overrides?: CallOverrides): Promise<[boolean]>
 
-    payer(overrides?: CallOverrides): Promise<[string]>;
+    payer(overrides?: CallOverrides): Promise<[string]>
 
-    paymentToken(overrides?: CallOverrides): Promise<[string]>;
+    paymentToken(overrides?: CallOverrides): Promise<[string]>
 
-    paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<[BigNumber]>;
+    paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    price(overrides?: CallOverrides): Promise<[BigNumber]>;
+    price(overrides?: CallOverrides): Promise<[BigNumber]>
 
-    priceFeed(overrides?: CallOverrides): Promise<[string]>;
+    priceFeed(overrides?: CallOverrides): Promise<[string]>
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setBaselinePaymentTokenAmount(
       newBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setBotDiscountBPs(
       newBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setMaxAdminBaselinePaymentTokenAmount(
       newMaxAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setMaxAdminBotDiscountBPs(
       newMaxAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setMinAdminBaselinePaymentTokenAmount(
       newMinAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setMinAdminBotDiscountBPs(
       newMinAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setPayer(
       newPayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     setPriceFeed(
       newPriceFeed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
-    tokenAmountNeeded(overrides?: CallOverrides): Promise<[BigNumber]>;
+    tokenAmountNeeded(overrides?: CallOverrides): Promise<[BigNumber]>
 
     tokenAmountNeededAndETHPayout(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber, BigNumber]>
 
     tokenAmountPerEthAmount(
       ethAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber]>
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
 
     withdrawETH(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-  };
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<ContractTransaction>
+  }
 
-  admin(overrides?: CallOverrides): Promise<string>;
+  admin(overrides?: CallOverrides): Promise<string>
 
-  baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<BigNumber>;
+  baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<BigNumber>
 
-  botDiscountBPs(overrides?: CallOverrides): Promise<number>;
+  botDiscountBPs(overrides?: CallOverrides): Promise<number>
 
-  "buyETH(uint256,address,bytes)"(
+  'buyETH(uint256,address,bytes)'(
     tokenAmount: PromiseOrValue<BigNumberish>,
     to: PromiseOrValue<string>,
     data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  "buyETH(uint256)"(
+  'buyETH(uint256)'(
     tokenAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   ethAmountPerTokenAmount(
     tokenAmount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
   ethNeeded(
     additionalTokens: PromiseOrValue<BigNumberish>,
     bufferBPs: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
   maxAdminBaselinePaymentTokenAmount(
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
-  maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>;
+  maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>
 
   minAdminBaselinePaymentTokenAmount(
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
-  minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>;
+  minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>
 
-  owner(overrides?: CallOverrides): Promise<string>;
+  owner(overrides?: CallOverrides): Promise<string>
 
   pause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  paused(overrides?: CallOverrides): Promise<boolean>;
+  paused(overrides?: CallOverrides): Promise<boolean>
 
-  payer(overrides?: CallOverrides): Promise<string>;
+  payer(overrides?: CallOverrides): Promise<string>
 
-  paymentToken(overrides?: CallOverrides): Promise<string>;
+  paymentToken(overrides?: CallOverrides): Promise<string>
 
-  paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<BigNumber>;
+  paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<BigNumber>
 
-  price(overrides?: CallOverrides): Promise<BigNumber>;
+  price(overrides?: CallOverrides): Promise<BigNumber>
 
-  priceFeed(overrides?: CallOverrides): Promise<string>;
+  priceFeed(overrides?: CallOverrides): Promise<string>
 
   renounceOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setAdmin(
     newAdmin: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setBaselinePaymentTokenAmount(
     newBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setBotDiscountBPs(
     newBotDiscountBPs: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setMaxAdminBaselinePaymentTokenAmount(
     newMaxAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setMaxAdminBotDiscountBPs(
     newMaxAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setMinAdminBaselinePaymentTokenAmount(
     newMinAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setMinAdminBotDiscountBPs(
     newMinAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setPayer(
     newPayer: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   setPriceFeed(
     newPriceFeed: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
-  tokenAmountNeeded(overrides?: CallOverrides): Promise<BigNumber>;
+  tokenAmountNeeded(overrides?: CallOverrides): Promise<BigNumber>
 
   tokenAmountNeededAndETHPayout(
-    overrides?: CallOverrides
-  ): Promise<[BigNumber, BigNumber]>;
+    overrides?: CallOverrides,
+  ): Promise<[BigNumber, BigNumber]>
 
   tokenAmountPerEthAmount(
     ethAmount: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+    overrides?: CallOverrides,
+  ): Promise<BigNumber>
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   unpause(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   withdrawETH(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
+    overrides?: Overrides & { from?: PromiseOrValue<string> },
+  ): Promise<ContractTransaction>
 
   callStatic: {
-    admin(overrides?: CallOverrides): Promise<string>;
+    admin(overrides?: CallOverrides): Promise<string>
 
-    baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<BigNumber>;
+    baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<BigNumber>
 
-    botDiscountBPs(overrides?: CallOverrides): Promise<number>;
+    botDiscountBPs(overrides?: CallOverrides): Promise<number>
 
-    "buyETH(uint256,address,bytes)"(
+    'buyETH(uint256,address,bytes)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
       to: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    "buyETH(uint256)"(
+    'buyETH(uint256)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     ethAmountPerTokenAmount(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     ethNeeded(
       additionalTokens: PromiseOrValue<BigNumberish>,
       bufferBPs: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     maxAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>;
+    maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>
 
     minAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>;
+    minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<number>
 
-    owner(overrides?: CallOverrides): Promise<string>;
+    owner(overrides?: CallOverrides): Promise<string>
 
-    pause(overrides?: CallOverrides): Promise<void>;
+    pause(overrides?: CallOverrides): Promise<void>
 
-    paused(overrides?: CallOverrides): Promise<boolean>;
+    paused(overrides?: CallOverrides): Promise<boolean>
 
-    payer(overrides?: CallOverrides): Promise<string>;
+    payer(overrides?: CallOverrides): Promise<string>
 
-    paymentToken(overrides?: CallOverrides): Promise<string>;
+    paymentToken(overrides?: CallOverrides): Promise<string>
 
-    paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<BigNumber>;
+    paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<BigNumber>
 
-    price(overrides?: CallOverrides): Promise<BigNumber>;
+    price(overrides?: CallOverrides): Promise<BigNumber>
 
-    priceFeed(overrides?: CallOverrides): Promise<string>;
+    priceFeed(overrides?: CallOverrides): Promise<string>
 
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
+    renounceOwnership(overrides?: CallOverrides): Promise<void>
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setBaselinePaymentTokenAmount(
       newBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setBotDiscountBPs(
       newBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setMaxAdminBaselinePaymentTokenAmount(
       newMaxAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setMaxAdminBotDiscountBPs(
       newMaxAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setMinAdminBaselinePaymentTokenAmount(
       newMinAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setMinAdminBotDiscountBPs(
       newMinAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setPayer(
       newPayer: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
     setPriceFeed(
       newPriceFeed: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    tokenAmountNeeded(overrides?: CallOverrides): Promise<BigNumber>;
+    tokenAmountNeeded(overrides?: CallOverrides): Promise<BigNumber>
 
     tokenAmountNeededAndETHPayout(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber, BigNumber]>;
+      overrides?: CallOverrides,
+    ): Promise<[BigNumber, BigNumber]>
 
     tokenAmountPerEthAmount(
       ethAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+      overrides?: CallOverrides,
+    ): Promise<void>
 
-    unpause(overrides?: CallOverrides): Promise<void>;
+    unpause(overrides?: CallOverrides): Promise<void>
 
-    withdrawETH(overrides?: CallOverrides): Promise<void>;
-  };
+    withdrawETH(overrides?: CallOverrides): Promise<void>
+  }
 
   filters: {
-    "AdminSet(address,address)"(
+    'AdminSet(address,address)'(
       oldAdmin?: null,
-      newAdmin?: null
-    ): AdminSetEventFilter;
-    AdminSet(oldAdmin?: null, newAdmin?: null): AdminSetEventFilter;
+      newAdmin?: null,
+    ): AdminSetEventFilter
+    AdminSet(oldAdmin?: null, newAdmin?: null): AdminSetEventFilter
 
-    "BaselinePaymentTokenAmountSet(uint256,uint256)"(
+    'BaselinePaymentTokenAmountSet(uint256,uint256)'(
       oldAmount?: null,
-      newAmount?: null
-    ): BaselinePaymentTokenAmountSetEventFilter;
+      newAmount?: null,
+    ): BaselinePaymentTokenAmountSetEventFilter
     BaselinePaymentTokenAmountSet(
       oldAmount?: null,
-      newAmount?: null
-    ): BaselinePaymentTokenAmountSetEventFilter;
+      newAmount?: null,
+    ): BaselinePaymentTokenAmountSetEventFilter
 
-    "BotDiscountBPsSet(uint16,uint16)"(
+    'BotDiscountBPsSet(uint16,uint16)'(
       oldBPs?: null,
-      newBPs?: null
-    ): BotDiscountBPsSetEventFilter;
+      newBPs?: null,
+    ): BotDiscountBPsSetEventFilter
     BotDiscountBPsSet(
       oldBPs?: null,
-      newBPs?: null
-    ): BotDiscountBPsSetEventFilter;
+      newBPs?: null,
+    ): BotDiscountBPsSetEventFilter
 
-    "ETHWithdrawn(address,uint256)"(
+    'ETHWithdrawn(address,uint256)'(
       to?: PromiseOrValue<string> | null,
-      amount?: null
-    ): ETHWithdrawnEventFilter;
+      amount?: null,
+    ): ETHWithdrawnEventFilter
     ETHWithdrawn(
       to?: PromiseOrValue<string> | null,
-      amount?: null
-    ): ETHWithdrawnEventFilter;
+      amount?: null,
+    ): ETHWithdrawnEventFilter
 
-    "MaxAdminBaselinePaymentTokenAmountSet(uint256,uint256)"(
+    'MaxAdminBaselinePaymentTokenAmountSet(uint256,uint256)'(
       oldAmount?: null,
-      newAmount?: null
-    ): MaxAdminBaselinePaymentTokenAmountSetEventFilter;
+      newAmount?: null,
+    ): MaxAdminBaselinePaymentTokenAmountSetEventFilter
     MaxAdminBaselinePaymentTokenAmountSet(
       oldAmount?: null,
-      newAmount?: null
-    ): MaxAdminBaselinePaymentTokenAmountSetEventFilter;
+      newAmount?: null,
+    ): MaxAdminBaselinePaymentTokenAmountSetEventFilter
 
-    "MaxAdminBotDiscountBPsSet(uint16,uint16)"(
+    'MaxAdminBotDiscountBPsSet(uint16,uint16)'(
       oldBPs?: null,
-      newBPs?: null
-    ): MaxAdminBotDiscountBPsSetEventFilter;
+      newBPs?: null,
+    ): MaxAdminBotDiscountBPsSetEventFilter
     MaxAdminBotDiscountBPsSet(
       oldBPs?: null,
-      newBPs?: null
-    ): MaxAdminBotDiscountBPsSetEventFilter;
+      newBPs?: null,
+    ): MaxAdminBotDiscountBPsSetEventFilter
 
-    "MinAdminBaselinePaymentTokenAmountSet(uint256,uint256)"(
+    'MinAdminBaselinePaymentTokenAmountSet(uint256,uint256)'(
       oldAmount?: null,
-      newAmount?: null
-    ): MinAdminBaselinePaymentTokenAmountSetEventFilter;
+      newAmount?: null,
+    ): MinAdminBaselinePaymentTokenAmountSetEventFilter
     MinAdminBaselinePaymentTokenAmountSet(
       oldAmount?: null,
-      newAmount?: null
-    ): MinAdminBaselinePaymentTokenAmountSetEventFilter;
+      newAmount?: null,
+    ): MinAdminBaselinePaymentTokenAmountSetEventFilter
 
-    "MinAdminBotDiscountBPsSet(uint16,uint16)"(
+    'MinAdminBotDiscountBPsSet(uint16,uint16)'(
       oldBPs?: null,
-      newBPs?: null
-    ): MinAdminBotDiscountBPsSetEventFilter;
+      newBPs?: null,
+    ): MinAdminBotDiscountBPsSetEventFilter
     MinAdminBotDiscountBPsSet(
       oldBPs?: null,
-      newBPs?: null
-    ): MinAdminBotDiscountBPsSetEventFilter;
+      newBPs?: null,
+    ): MinAdminBotDiscountBPsSetEventFilter
 
-    "OwnershipTransferred(address,address)"(
+    'OwnershipTransferred(address,address)'(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
+      newOwner?: PromiseOrValue<string> | null,
+    ): OwnershipTransferredEventFilter
     OwnershipTransferred(
       previousOwner?: PromiseOrValue<string> | null,
-      newOwner?: PromiseOrValue<string> | null
-    ): OwnershipTransferredEventFilter;
+      newOwner?: PromiseOrValue<string> | null,
+    ): OwnershipTransferredEventFilter
 
-    "Paused(address)"(account?: null): PausedEventFilter;
-    Paused(account?: null): PausedEventFilter;
+    'Paused(address)'(account?: null): PausedEventFilter
+    Paused(account?: null): PausedEventFilter
 
-    "PayerSet(address,address)"(
+    'PayerSet(address,address)'(
       oldPayer?: null,
-      newPayer?: null
-    ): PayerSetEventFilter;
-    PayerSet(oldPayer?: null, newPayer?: null): PayerSetEventFilter;
+      newPayer?: null,
+    ): PayerSetEventFilter
+    PayerSet(oldPayer?: null, newPayer?: null): PayerSetEventFilter
 
-    "PriceFeedSet(address,address)"(
+    'PriceFeedSet(address,address)'(
       oldFeed?: null,
-      newFeed?: null
-    ): PriceFeedSetEventFilter;
-    PriceFeedSet(oldFeed?: null, newFeed?: null): PriceFeedSetEventFilter;
+      newFeed?: null,
+    ): PriceFeedSetEventFilter
+    PriceFeedSet(oldFeed?: null, newFeed?: null): PriceFeedSetEventFilter
 
-    "SoldETH(address,uint256,uint256)"(
+    'SoldETH(address,uint256,uint256)'(
       to?: PromiseOrValue<string> | null,
       ethOut?: null,
-      tokenIn?: null
-    ): SoldETHEventFilter;
+      tokenIn?: null,
+    ): SoldETHEventFilter
     SoldETH(
       to?: PromiseOrValue<string> | null,
       ethOut?: null,
-      tokenIn?: null
-    ): SoldETHEventFilter;
+      tokenIn?: null,
+    ): SoldETHEventFilter
 
-    "Unpaused(address)"(account?: null): UnpausedEventFilter;
-    Unpaused(account?: null): UnpausedEventFilter;
-  };
+    'Unpaused(address)'(account?: null): UnpausedEventFilter
+    Unpaused(account?: null): UnpausedEventFilter
+  }
 
   estimateGas: {
-    admin(overrides?: CallOverrides): Promise<BigNumber>;
+    admin(overrides?: CallOverrides): Promise<BigNumber>
 
-    baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<BigNumber>;
+    baselinePaymentTokenAmount(overrides?: CallOverrides): Promise<BigNumber>
 
-    botDiscountBPs(overrides?: CallOverrides): Promise<BigNumber>;
+    botDiscountBPs(overrides?: CallOverrides): Promise<BigNumber>
 
-    "buyETH(uint256,address,bytes)"(
+    'buyETH(uint256,address,bytes)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
       to: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    "buyETH(uint256)"(
+    'buyETH(uint256)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     ethAmountPerTokenAmount(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     ethNeeded(
       additionalTokens: PromiseOrValue<BigNumberish>,
       bufferBPs: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     maxAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<BigNumber>;
+    maxAdminBotDiscountBPs(overrides?: CallOverrides): Promise<BigNumber>
 
     minAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
-    minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<BigNumber>;
+    minAdminBotDiscountBPs(overrides?: CallOverrides): Promise<BigNumber>
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
+    owner(overrides?: CallOverrides): Promise<BigNumber>
 
     pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    paused(overrides?: CallOverrides): Promise<BigNumber>;
+    paused(overrides?: CallOverrides): Promise<BigNumber>
 
-    payer(overrides?: CallOverrides): Promise<BigNumber>;
+    payer(overrides?: CallOverrides): Promise<BigNumber>
 
-    paymentToken(overrides?: CallOverrides): Promise<BigNumber>;
+    paymentToken(overrides?: CallOverrides): Promise<BigNumber>
 
-    paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<BigNumber>;
+    paymentTokenDecimalsDigits(overrides?: CallOverrides): Promise<BigNumber>
 
-    price(overrides?: CallOverrides): Promise<BigNumber>;
+    price(overrides?: CallOverrides): Promise<BigNumber>
 
-    priceFeed(overrides?: CallOverrides): Promise<BigNumber>;
+    priceFeed(overrides?: CallOverrides): Promise<BigNumber>
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setBaselinePaymentTokenAmount(
       newBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setBotDiscountBPs(
       newBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setMaxAdminBaselinePaymentTokenAmount(
       newMaxAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setMaxAdminBotDiscountBPs(
       newMaxAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setMinAdminBaselinePaymentTokenAmount(
       newMinAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setMinAdminBotDiscountBPs(
       newMinAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setPayer(
       newPayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     setPriceFeed(
       newPriceFeed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
-    tokenAmountNeeded(overrides?: CallOverrides): Promise<BigNumber>;
+    tokenAmountNeeded(overrides?: CallOverrides): Promise<BigNumber>
 
-    tokenAmountNeededAndETHPayout(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    tokenAmountNeededAndETHPayout(overrides?: CallOverrides): Promise<BigNumber>
 
     tokenAmountPerEthAmount(
       ethAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+      overrides?: CallOverrides,
+    ): Promise<BigNumber>
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
 
     withdrawETH(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-  };
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<BigNumber>
+  }
 
   populateTransaction: {
-    admin(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    admin(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     baselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
-    botDiscountBPs(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    botDiscountBPs(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    "buyETH(uint256,address,bytes)"(
+    'buyETH(uint256,address,bytes)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
       to: PromiseOrValue<string>,
       data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    "buyETH(uint256)"(
+    'buyETH(uint256)'(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     ethAmountPerTokenAmount(
       tokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     ethNeeded(
       additionalTokens: PromiseOrValue<BigNumberish>,
       bufferBPs: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     maxAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     maxAdminBotDiscountBPs(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     minAdminBaselinePaymentTokenAmount(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     minAdminBotDiscountBPs(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     pause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    paused(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    payer(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    payer(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    paymentToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    paymentToken(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     paymentTokenDecimalsDigits(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
-    price(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    price(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
-    priceFeed(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    priceFeed(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     renounceOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setAdmin(
       newAdmin: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setBaselinePaymentTokenAmount(
       newBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setBotDiscountBPs(
       newBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setMaxAdminBaselinePaymentTokenAmount(
       newMaxAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setMaxAdminBotDiscountBPs(
       newMaxAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setMinAdminBaselinePaymentTokenAmount(
       newMinAdminBaselinePaymentTokenAmount: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setMinAdminBotDiscountBPs(
       newMinAdminBotDiscountBPs: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setPayer(
       newPayer: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     setPriceFeed(
       newPriceFeed: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
-    tokenAmountNeeded(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    tokenAmountNeeded(overrides?: CallOverrides): Promise<PopulatedTransaction>
 
     tokenAmountNeededAndETHPayout(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     tokenAmountPerEthAmount(
       ethAmount: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+      overrides?: CallOverrides,
+    ): Promise<PopulatedTransaction>
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     unpause(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
 
     withdrawETH(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-  };
+      overrides?: Overrides & { from?: PromiseOrValue<string> },
+    ): Promise<PopulatedTransaction>
+  }
 }

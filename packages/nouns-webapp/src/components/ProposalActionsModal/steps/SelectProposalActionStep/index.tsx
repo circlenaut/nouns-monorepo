@@ -12,15 +12,17 @@ import {
   ProposalActionType,
 } from '../..'
 
-const proposalActionTypeToProposalActionCreationStep = (actionTypeString: string) => {
+const proposalActionTypeToProposalActionCreationStep = (
+  actionTypeString: string,
+) => {
   if (actionTypeString === ProposalActionType.LUMP_SUM.toString()) {
-    return ProposalActionCreationStep.LUMP_SUM_DETAILS;
+    return ProposalActionCreationStep.LUMP_SUM_DETAILS
   } else if (actionTypeString === ProposalActionType.STREAM.toString()) {
-    return ProposalActionCreationStep.STREAM_PAYMENT_PAYMENT_DETAILS;
+    return ProposalActionCreationStep.STREAM_PAYMENT_PAYMENT_DETAILS
   } else {
-    return ProposalActionCreationStep.FUNCTION_CALL_SELECT_FUNCTION;
+    return ProposalActionCreationStep.FUNCTION_CALL_SELECT_FUNCTION
   }
-};
+}
 
 const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = (
   props,
@@ -28,7 +30,9 @@ const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = (
   const { onPrevBtnClick, onNextBtnClick, state, setState } = props
 
   const [nextStep, setNextStep] = useState<ProposalActionCreationStep>(
-    proposalActionTypeToProposalActionCreationStep(state.actionType?.toString() ?? ''),
+    proposalActionTypeToProposalActionCreationStep(
+      state.actionType?.toString() ?? '',
+    ),
   )
 
   return (
@@ -41,10 +45,10 @@ const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = (
         <Trans>
           <hr />
           <b>Guidelines</b>
-          <hr />
-          • Do <b>NOT</b> request ETH to trade into USDC. Instead, request USDC directly.
-          <br />
-          • Do <b>NOT</b> transfer funds externally to create an ETH or USDC stream. Instead, use the &quot;Stream Funds&quot; action.
+          <hr />• Do <b>NOT</b> request ETH to trade into USDC. Instead, request
+          USDC directly.
+          <br />• Do <b>NOT</b> transfer funds externally to create an ETH or
+          USDC stream. Instead, use the &quot;Stream Funds&quot; action.
           <hr />
           <b>Supported Action Types</b>
           <hr />
@@ -58,19 +62,22 @@ const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = (
 
       <BrandDropdown
         value={state.actionType.toString()}
-        onChange={e => {
-          const actionType = Object.entries(ProposalActionType).find(entry => {
-            return entry[1] === e.target.value;
-          });
+        onChange={(e) => {
+          const actionType = Object.entries(ProposalActionType).find(
+            (entry) => {
+              return entry[1] === e.target.value
+            },
+          )
           setState((x) => ({
             ...x,
-            actionType:
-              actionType ? (actionType[1] as ProposalActionType) : ProposalActionType.LUMP_SUM,
-          }));
-          
+            actionType: actionType
+              ? (actionType[1] as ProposalActionType)
+              : ProposalActionType.LUMP_SUM,
+          }))
 
-
-          setNextStep(proposalActionTypeToProposalActionCreationStep(e.target.value));
+          setNextStep(
+            proposalActionTypeToProposalActionCreationStep(e.target.value),
+          )
         }}
       >
         <option value={'Transfer Funds'}>Transfer Funds</option>
@@ -80,7 +87,9 @@ const SelectProposalActionStep: React.FC<ProposalActionModalStepProps> = (
 
       <ModalBottomButtonRow
         prevBtnText={<Trans>Close</Trans>}
-        onPrevBtnClick={(transaction?: ProposalTransaction) => onPrevBtnClick(transaction)}
+        onPrevBtnClick={(transaction?: ProposalTransaction) =>
+          onPrevBtnClick(transaction)
+        }
         nextBtnText={<Trans>Add Action Details</Trans>}
         onNextBtnClick={() => {
           onNextBtnClick(nextStep as unknown as ProposalTransaction)

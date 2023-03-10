@@ -19,6 +19,8 @@ import { DelegateVote } from '@/components/DelegateGroupedNounImageVoteTable'
 import DynamicQuorumInfoModal from '@/components/DynamicQuorumInfoModal'
 import ProposalContent from '@/components/ProposalContent'
 import ProposalHeader from '@/components/ProposalHeader'
+import ShortAddress from '@/components/ShortAddress'
+import StreamWithdrawModal from '@/components/StreamWithdrawModal'
 import VoteCard, { VoteCardVariant } from '@/components/VoteCard'
 import VoteModal from '@/components/VoteModal'
 import { AVERAGE_BLOCK_TIME_IN_SECS } from '@/configs'
@@ -28,6 +30,7 @@ import { useConfig } from '@/hooks/useConfig'
 import Section from '@/layout/Section'
 import { AlertModal, setAlertModal } from '@/state/slices/application'
 import { getNounVotes } from '@/utils/getNounsVotes'
+import { parseStreamCreationCallData } from '@/utils/streamingPaymentUtils/streamingPaymentUtils'
 import {
   ProposalState,
   useCancelProposal,
@@ -46,10 +49,6 @@ import {
   propUsingDynamicQuorum,
   useQuery,
 } from '@/wrappers/subgraph'
-import ShortAddress from '@/components/ShortAddress';
-import StreamWithdrawModal from '@/components/StreamWithdrawModal';
-import { parseStreamCreationCallData } from '@/utils/streamingPaymentUtils/streamingPaymentUtils';
-
 
 import classes from './Vote.module.css'
 
@@ -117,14 +116,15 @@ const VotePage: React.FC = () => {
         : undefined),
     [id, queryClient],
   )
-  const [showStreamWithdrawModal, setShowStreamWithdrawModal] = useState<boolean>(false);
+  const [showStreamWithdrawModal, setShowStreamWithdrawModal] =
+    useState<boolean>(false)
   const [streamWithdrawInfo, setStreamWithdrawInfo] = useState<{
-    streamAddress: string;
-    startTime: number;
-    endTime: number;
-    streamAmount: number;
-    tokenAddress: string;
-  } | null>(null);
+    streamAddress: string
+    startTime: number
+    endTime: number
+    streamAmount: number
+    tokenAddress: string
+  } | null>(null)
 
   const {
     data: dqInfo,
@@ -570,41 +570,52 @@ const VotePage: React.FC = () => {
       <Col lg={10} className={clsx(classes.proposal, classes.wrapper)}>
         {proposal.status === ProposalState.EXECUTED &&
           proposal.details
-            .filter(txn => txn?.functionSig.includes('createStream'))
-            .map(txn => {
-              const parsedCallData = parseStreamCreationCallData(txn.callData);
-              if (parsedCallData.recipient.toLowerCase() !== activeAccount?.toLowerCase()) {
-                return <></>;
+            .filter((txn) => txn?.functionSig.includes('createStream'))
+            .map((txn) => {
+              const parsedCallData = parseStreamCreationCallData(txn.callData)
+              if (
+                parsedCallData.recipient.toLowerCase() !==
+                activeAccount?.toLowerCase()
+              ) {
+                return <></>
               }
 
               return (
-                <Row key={parsedCallData.streamAddress} className={clsx(classes.section, classes.transitionStateButtonSection)}>
+                <Row
+                  key={parsedCallData.streamAddress}
+                  className={clsx(
+                    classes.section,
+                    classes.transitionStateButtonSection,
+                  )}
+                >
                   <span className={classes.boldedLabel}>
                     <Trans>Only visible to you</Trans>
                   </span>
                   <Col className="d-grid gap-4">
                     <Button
                       onClick={() => {
-                        setShowStreamWithdrawModal(true);
+                        setShowStreamWithdrawModal(true)
                         setStreamWithdrawInfo({
                           streamAddress: parsedCallData.streamAddress,
                           startTime: parsedCallData.startTime,
                           endTime: parsedCallData.endTime,
                           streamAmount: parsedCallData.streamAmount,
                           tokenAddress: parsedCallData.tokenAddress,
-                        });
+                        })
                       }}
                       variant="primary"
                       className={classes.transitionStateButton}
                     >
                       <Trans>
                         Withdraw from Stream{' '}
-                        <ShortAddress address={parsedCallData.streamAddress ?? ''} />
+                        <ShortAddress
+                          address={parsedCallData.streamAddress ?? ''}
+                        />
                       </Trans>
                     </Button>
                   </Col>
                 </Row>
-              );
+              )
             })}
 
         {isWalletConnected &&
@@ -711,7 +722,10 @@ const VotePage: React.FC = () => {
                     onClick={() =>
                       setShowDynamicQuorumInfoModal(true && isV2Prop)
                     }
-                    onKeyDown={(e) => e.key === 'Enter' && setShowDynamicQuorumInfoModal(true && isV2Prop)}
+                    onKeyDown={(e) =>
+                      e.key === 'Enter' &&
+                      setShowDynamicQuorumInfoModal(true && isV2Prop)
+                    }
                     role="button"
                     tabIndex={0}
                     className={clsx(

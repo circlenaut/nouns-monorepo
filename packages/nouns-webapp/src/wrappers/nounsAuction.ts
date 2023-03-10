@@ -34,11 +34,11 @@ export const useAuction = (
   auctionHouseProxyAddress: string,
   provider?: WebSocketProvider,
 ): Auction | undefined => {
-  // const { library } = useEthers()
+  const { library } = useEthers()
   const contract = new Contract(
     auctionHouseProxyAddress,
     abi,
-    // provider ?? library,
+    provider ?? library,
   ) as NounsAuctionHouse
 
   // console.debug(`Calling function 'auction' on contract ${contract.address}`);

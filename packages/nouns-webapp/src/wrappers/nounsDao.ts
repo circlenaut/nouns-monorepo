@@ -17,7 +17,12 @@ import {
   Overrides,
   utils,
 } from 'ethers'
-import { defaultAbiCoder, keccak256, Result, toUtf8Bytes } from 'ethers/lib/utils'
+import {
+  defaultAbiCoder,
+  keccak256,
+  Result,
+  toUtf8Bytes,
+} from 'ethers/lib/utils'
 import { print } from 'graphql/language/printer'
 import * as R from 'ramda'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -353,11 +358,7 @@ export const useProposalVote = (
 export const useProposalCount = (
   addresses: ContractAddresses,
 ): number | undefined => {
-Y
-  const contract = new Contract(
-    addresses.nounsDAOProxy,
-    abi
-  ) as NounsDAOLogicV2
+  const contract = new Contract(addresses.nounsDAOProxy, abi) as NounsDAOLogicV2
 
   // console.debug(`Calling function 'proposalCount' on contract ${contract.address}`);
   const { value: count, error } =
@@ -406,12 +407,15 @@ const countToIndices = (count?: number) =>
     ? new Array(count).fill(0).map((_, i) => [i + 1])
     : []
 
-  const concatSelectorToCalldata = (signature: string, callData: string) => {
-    if (signature) {
-      return `${keccak256(toUtf8Bytes(signature)).substring(0, 10)}${callData.substring(2)}`;
-    }
-    return callData;
-  };
+const concatSelectorToCalldata = (signature: string, callData: string) => {
+  if (signature) {
+    return `${keccak256(toUtf8Bytes(signature)).substring(
+      0,
+      10,
+    )}${callData.substring(2)}`
+  }
+  return callData
+}
 
 const formatProposalTransactionDetails = (
   details: ProposalTransactionDetails | Result,
@@ -424,8 +428,8 @@ const formatProposalTransactionDetails = (
         (details as Result)?.[3]?.[i] ??
         0,
     )
-    const callData = details.calldatas[i];
-    
+    const callData = details.calldatas[i]
+
     // Split at first occurrence of '('
     const [name, types] = signature
       .substring(0, signature.length - 1)
@@ -436,36 +440,46 @@ const formatProposalTransactionDetails = (
         return {
           target,
           callData: concatSelectorToCalldata(signature, callData),
-          value: value.gt(0) ? `{ value: ${utils.formatEther(value)} ETH } ` : '',
-        };
+          value: value.gt(0)
+            ? `{ value: ${utils.formatEther(value)} ETH } `
+            : '',
+        }
       }
 
       return {
         target,
-        functionSig: name === '' ? 'transfer' : name === undefined ? 'unknown' : name,
-        callData: types ? types : value ? `${utils.formatEther(value)} ETH` : '',
-      };
+        functionSig:
+          name === '' ? 'transfer' : name === undefined ? 'unknown' : name,
+        callData: types
+          ? types
+          : value
+          ? `${utils.formatEther(value)} ETH`
+          : '',
+      }
     }
 
     try {
       // Split using comma as separator, unless comma is between parentheses (tuple).
-      const decoded = defaultAbiCoder.decode(types.split(/,(?![^(]*\))/g), callData);
+      const decoded = defaultAbiCoder.decode(
+        types.split(/,(?![^(]*\))/g),
+        callData,
+      )
       return {
         target,
         functionSig: name,
         callData: decoded.join(),
         value: value.gt(0) ? `{ value: ${utils.formatEther(value)} ETH }` : '',
-      };
+      }
     } catch (error) {
       // We failed to decode. Display the raw calldata, appending function selectors if they exist.
       return {
         target,
         callData: concatSelectorToCalldata(signature, callData),
         value: value.gt(0) ? `{ value: ${utils.formatEther(value)} ETH } ` : '',
-      };
+      }
     }
-  });
-};
+  })
+}
 
 const useFormattedProposalCreatedLogs = (
   addresses: ContractAddresses,
@@ -668,22 +682,7 @@ export const useAllProposalsViaSubgraph = (): PartialProposalData => {
   }
 }
 
-const testProposalData = {
-  data: [
-    {
-      id: '1',
-      title: 'title',
-      status: ProposalState.ACTIVE,
-      forCount: 20,
-      againstCount: 10,
-      abstainCount: 5,
-      startBlock: 0,
-      endBlock: 10000000,
-      quorumVotes: 20,
-    } as PartialProposal,
-  ],
-  loading: true,
-}
+
 
 export const useAllProposalsViaChain = (
   addresses: ContractAddresses,

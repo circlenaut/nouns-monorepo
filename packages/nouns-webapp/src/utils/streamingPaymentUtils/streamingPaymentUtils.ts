@@ -1,22 +1,21 @@
-import { Contract, utils } from 'ethers';
+import { Contract, utils } from 'ethers'
 
-import { SupportedCurrency } from '@/components/ProposalActionsModal/steps/TransferFundsDetailsStep';
-import StreamFactoryABI from '@/libs/abi/streamFactory.abi.json';
-import { useCachedCall } from '@/wrappers/contracts';
-import { useContractAddresses } from '@/hooks/useAddresses';
-
+import { SupportedCurrency } from '@/components/ProposalActionsModal/steps/TransferFundsDetailsStep'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import StreamFactoryABI from '@/libs/abi/streamFactory.abi.json'
+import { useCachedCall } from '@/wrappers/contracts'
 
 interface UsePredictStreamAddressProps {
-  msgSender?: string;
-  payer?: string;
-  recipient?: string;
-  tokenAmount?: string;
-  tokenAddress?: string;
-  startTime?: number;
-  endTime?: number;
+  msgSender?: string
+  payer?: string
+  recipient?: string
+  tokenAmount?: string
+  tokenAddress?: string
+  startTime?: number
+  endTime?: number
 }
 
-const abi = new utils.Interface(StreamFactoryABI);
+const abi = new utils.Interface(StreamFactoryABI)
 
 export const usePredictStreamAddress = ({
   msgSender,
@@ -36,7 +35,15 @@ export const usePredictStreamAddress = ({
       contract && {
         contract: contract,
         method: 'predictStreamAddress',
-        args: [msgSender, payer, recipient, tokenAmount, tokenAddress, startTime, endTime],
+        args: [
+          msgSender,
+          payer,
+          recipient,
+          tokenAmount,
+          tokenAddress,
+          startTime,
+          endTime,
+        ],
       },
     ) ?? {}
   if (error) {
@@ -46,15 +53,18 @@ export const usePredictStreamAddress = ({
   return predictedAddress && predictedAddress[0].toString()
 }
 
-export const formatTokenAmount = (amount?: string, currency?: SupportedCurrency) => {
-  const amt = amount ?? '0';
+export const formatTokenAmount = (
+  amount?: string,
+  currency?: SupportedCurrency,
+) => {
+  const amt = amount ?? '0'
   switch (currency) {
     case SupportedCurrency.USDC:
-      return Math.round(parseFloat(amt) * 1_000_000).toString();
+      return Math.round(parseFloat(amt) * 1_000_000).toString()
     case SupportedCurrency.WETH:
-      return utils.parseEther(amt).toString();
+      return utils.parseEther(amt).toString()
     default:
-      return amt;
+      return amt
   }
 }
 
@@ -62,16 +72,16 @@ export const getTokenAddressForCurrency = (currency?: SupportedCurrency) => {
   const { contractAddresses } = useContractAddresses()
   switch (currency) {
     case SupportedCurrency.USDC:
-      return contractAddresses.usdcToken;
+      return contractAddresses.usdcToken
     case SupportedCurrency.WETH:
-      return contractAddresses.weth;
+      return contractAddresses.weth
     default:
-      return '';
+      return ''
   }
 }
 
 export const parseStreamCreationCallData = (callData: string) => {
-  const callDataArray = callData.split(',');
+  const callDataArray = callData.split(',')
 
   if (!callDataArray || callDataArray.length < 6) {
     return {
@@ -81,16 +91,16 @@ export const parseStreamCreationCallData = (callData: string) => {
       endTime: 0,
       streamAmount: 0,
       tokenAddress: '',
-    };
+    }
   }
 
-  const streamAddress = callDataArray[6];
-  const nonce = callDataArray[5];
-  const startTime = parseInt(callDataArray[3]);
-  const endTime = parseInt(callDataArray[4]);
-  const streamAmount = parseInt(callDataArray[1]);
-  const recipient = callDataArray[0];
-  const tokenAddress = callDataArray[2];
+  const streamAddress = callDataArray[6]
+  const nonce = callDataArray[5]
+  const startTime = parseInt(callDataArray[3])
+  const endTime = parseInt(callDataArray[4])
+  const streamAmount = parseInt(callDataArray[1])
+  const recipient = callDataArray[0]
+  const tokenAddress = callDataArray[2]
   return {
     recipient,
     streamAddress,
@@ -98,6 +108,6 @@ export const parseStreamCreationCallData = (callData: string) => {
     endTime,
     streamAmount,
     tokenAddress,
-    nonce
-  };
+    nonce,
+  }
 }

@@ -18,7 +18,7 @@ const MinBid: React.FC<{ minBid: BigNumber; onClick: () => void }> = (
       role="button"
       tabIndex={0}
       onClick={onClick}
-      onKeyDown={(event) => (event.key === 'Enter') && onClick()}
+      onKeyDown={(event) => event.key === 'Enter' && onClick()}
     >
       <img src={nounPointerImg} alt="Pointer noun" />
       <h3 className={classes.minBid}>

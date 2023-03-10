@@ -1,27 +1,28 @@
-import { Trans } from '@lingui/macro';
-import React from 'react';
+import { Trans } from '@lingui/macro'
+import React from 'react'
 import { Tooltip as ReactTooltip } from 'react-tooltip'
 
-import { FinalProposalActionStepProps } from '../..';
-import ModalBottomButtonRow from '@/components/ModalBottomButtonRow';
-import ModalTitle from '@/components/ModalTitle';
+import ModalBottomButtonRow from '@/components/ModalBottomButtonRow'
+import ModalLabel from '@/components/ModalLabel'
+import ModalTextPrimary from '@/components/ModalTextPrimary'
+import ModalTitle from '@/components/ModalTitle'
+import ShortAddress from '@/components/ShortAddress'
+import { useContractAddresses } from '@/hooks/useAddresses'
+import useStreamPaymentTransactions from '@/hooks/useStreamPaymentTransactions'
 import {
   formatTokenAmount,
   getTokenAddressForCurrency,
   usePredictStreamAddress,
-} from '@/utils/streamingPaymentUtils/streamingPaymentUtils';
-import { unixToDateString } from '@/utils/timeUtils';
-import ModalLabel from '@/components/ModalLabel';
-import ModalTextPrimary from '@/components/ModalTextPrimary';
-import useStreamPaymentTransactions from '@/hooks/useStreamPaymentTransactions';
-import ShortAddress from '@/components/ShortAddress';
-import { useContractAddresses } from '@/hooks/useAddresses';
+} from '@/utils/streamingPaymentUtils/streamingPaymentUtils'
+import { unixToDateString } from '@/utils/timeUtils'
+import { FinalProposalActionStepProps } from '../..'
 
-import classes from "./StreamPaymentsReviewStep.module.css";
+import classes from './StreamPaymentsReviewStep.module.css'
 
-
-const StreamPaymentsReviewStep: React.FC<FinalProposalActionStepProps> = props => {
-  const { onNextBtnClick, onPrevBtnClick, state, onDismiss } = props;
+const StreamPaymentsReviewStep: React.FC<FinalProposalActionStepProps> = (
+  props,
+) => {
+  const { onNextBtnClick, onPrevBtnClick, state, onDismiss } = props
 
   const { contractAddresses } = useContractAddresses()
   const predictedAddress = usePredictStreamAddress({
@@ -32,22 +33,22 @@ const StreamPaymentsReviewStep: React.FC<FinalProposalActionStepProps> = props =
     tokenAddress: getTokenAddressForCurrency(state.TransferFundsCurrency),
     startTime: state.streamStartTimestamp,
     endTime: state.streamEndTimestamp,
-  });
+  })
 
   const actionTransactions = useStreamPaymentTransactions({
     state,
     predictedAddress,
-  });
+  })
 
   return (
     <>
-     <ReactTooltip
+      <ReactTooltip
         id={'address-tooltip'}
         // effect={'solid'}
         className={classes.hover}
         content={state.address}
         place={'top'}
-          />
+      />
       <ModalTitle>
         <Trans>Review Streaming Payment Action</Trans>
       </ModalTitle>
@@ -57,7 +58,9 @@ const StreamPaymentsReviewStep: React.FC<FinalProposalActionStepProps> = props =
       </ModalLabel>
 
       <ModalTextPrimary>
-        {Intl.NumberFormat(undefined, { maximumFractionDigits: 18 }).format(Number(state.amount))}{' '}
+        {Intl.NumberFormat(undefined, { maximumFractionDigits: 18 }).format(
+          Number(state.amount),
+        )}{' '}
         {state.TransferFundsCurrency}
       </ModalTextPrimary>
 
@@ -65,36 +68,37 @@ const StreamPaymentsReviewStep: React.FC<FinalProposalActionStepProps> = props =
         <Trans>To</Trans>
       </ModalLabel>
       <ModalTextPrimary>
-        <span 
-           data-for="address-tooltip" 
-           data-tip="address" 
-        >
-        <ShortAddress address={state.address}/>
+        <span data-for="address-tooltip" data-tip="address">
+          <ShortAddress address={state.address} />
         </span>
       </ModalTextPrimary>
 
       <ModalLabel>
         <Trans>Starting on</Trans>
       </ModalLabel>
-      <ModalTextPrimary>{unixToDateString(state.streamStartTimestamp)}</ModalTextPrimary>
+      <ModalTextPrimary>
+        {unixToDateString(state.streamStartTimestamp)}
+      </ModalTextPrimary>
 
       <ModalLabel>
         <Trans>Ending on</Trans>
       </ModalLabel>
 
-      <ModalTextPrimary>{unixToDateString(state.streamEndTimestamp)}</ModalTextPrimary>
+      <ModalTextPrimary>
+        {unixToDateString(state.streamEndTimestamp)}
+      </ModalTextPrimary>
 
       <ModalBottomButtonRow
         prevBtnText={<Trans>Back</Trans>}
         onPrevBtnClick={onPrevBtnClick}
         nextBtnText={<Trans>Add Streaming Payment Action</Trans>}
         onNextBtnClick={() => {
-          onNextBtnClick(actionTransactions[0]);
-          onDismiss();
+          onNextBtnClick(actionTransactions[0])
+          onDismiss()
         }}
       />
     </>
-  );
-};
+  )
+}
 
-export default StreamPaymentsReviewStep;
+export default StreamPaymentsReviewStep

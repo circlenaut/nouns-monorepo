@@ -2,86 +2,86 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Provider } from "@ethersproject/providers";
-import { Contract, Signer, utils } from "ethers";
+import type { Provider } from '@ethersproject/providers'
+import { Contract, Signer, utils } from 'ethers'
 import type {
   NounsNameServiceABI,
   NounsNameServiceABIInterface,
-} from "../NounsNameServiceABI";
+} from '../NounsNameServiceABI'
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_nns",
-        type: "address",
+        internalType: 'address',
+        name: '_nns',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "_ens",
-        type: "address",
+        internalType: 'address',
+        name: '_ens',
+        type: 'address',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     inputs: [],
-    name: "ens",
+    name: 'ens',
     outputs: [
       {
-        internalType: "contract ENS",
-        name: "",
-        type: "address",
+        internalType: 'contract ENS',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "nns",
+    name: 'nns',
     outputs: [
       {
-        internalType: "contract ENS",
-        name: "",
-        type: "address",
+        internalType: 'contract ENS',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "addr",
-        type: "address",
+        internalType: 'address',
+        name: 'addr',
+        type: 'address',
       },
     ],
-    name: "resolve",
+    name: 'resolve',
     outputs: [
       {
-        internalType: "string",
-        name: "",
-        type: "string",
+        internalType: 'string',
+        name: '',
+        type: 'string',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
-] as const;
+] as const
 
 export class NounsNameServiceABI__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): NounsNameServiceABIInterface {
-    return new utils.Interface(_abi) as NounsNameServiceABIInterface;
+    return new utils.Interface(_abi) as NounsNameServiceABIInterface
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    signerOrProvider: Signer | Provider,
   ): NounsNameServiceABI {
-    return new Contract(address, _abi, signerOrProvider) as NounsNameServiceABI;
+    return new Contract(address, _abi, signerOrProvider) as NounsNameServiceABI
   }
 }

@@ -111,11 +111,10 @@ const NavBarButton: React.FC<NavBarButtonProps> = (props) => {
           props.isDropdown && classes.dropdown,
         )}
         onClick={isDisabled ? undefined : onClick}
-        onKeyDown={(event) => 
-          (event.key === 'Enter' || event.key === ' ')
-            && isDisabled
-              ? event.preventDefault()
-              : onClick?.()
+        onKeyDown={(event) =>
+          (event.key === 'Enter' || event.key === ' ') && isDisabled
+            ? event.preventDefault()
+            : onClick?.()
         }
         role="button"
         tabIndex={0}

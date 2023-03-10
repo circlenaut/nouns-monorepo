@@ -36,47 +36,44 @@ import responsiveUiUtilsClasses from '@/utils/ResponsiveUIUtils.module.css'
 // import Noggles from '@/assets/icons/Noggles.svg'
 // import logo from '@/assets/logo.svg'
 import testnetNoun from '@/assets/testnet-noun.png'
-import noggles from '@/assets/noggles.svg';
+import noggles from '@/assets/noggles.svg'
 // import { ReactComponent as Noggles } from '@/assets/icons/Noggles.svg';
 
-
-
-
-  const Noggles: React.FC<{ fill?: string }> = ({
-    fill = 'currentColor',
-    ...props
-  }) => (
-    <svg viewBox="0 0 24 24" fill={fill} {...props}>
-      <path
-        d="M19,9h-1h-1h-1h-1h-1v1v1h-1v-1V9h-1h-1h-1H9H8H7v1v1H6H5H4v1v1v1h1v-1v-1h1h1v1v1v1h1h1h1h1h1h1v-1v-1v-1h1v1v1v1h1h1h1h1
+const Noggles: React.FC<{ fill?: string }> = ({
+  fill = 'currentColor',
+  ...props
+}) => (
+  <svg viewBox="0 0 24 24" fill={fill} {...props}>
+    <path
+      d="M19,9h-1h-1h-1h-1h-1v1v1h-1v-1V9h-1h-1h-1H9H8H7v1v1H6H5H4v1v1v1h1v-1v-1h1h1v1v1v1h1h1h1h1h1h1v-1v-1v-1h1v1v1v1h1h1h1h1
   h1h1v-1v-1v-1v-1v-1V9H19z M9,14H8v-1v-1v-1v-1h1h1v1v1v1v1H9z M16,14h-1v-1v-1v-1v-1h1h1v1v1v1v1H16z"
-      />
-    </svg>
+    />
+  </svg>
+)
+const NavBar: React.FC = () => {
+  const activeAccount = useAppSelector((state) => state.account.activeAccount)
+
+  const stateBgColor = useAppSelector(
+    (state) => state.application.stateBackgroundColor,
   )
-  const NavBar: React.FC = () => {
-    const activeAccount = useAppSelector((state) => state.account.activeAccount)
-  
-    const stateBgColor = useAppSelector(
-      (state) => state.application.stateBackgroundColor,
-    )
-    const isCool = useAppSelector((state) => state.application.isCoolBackground)
-    const location = useLocation()
-  
-    // Setting default address to avoid hook order error on useEtherBalance and useTreasuryBalance
-    const { contractAddresses } = useContractAddresses()
-  
-    const ethBalance = useEtherBalance(contractAddresses.nounsDaoExecutor)
-    const lidoBalanceAsETH = useLidoBalance()
-    const tokenBuyerBalanceAsETH = useTokenBuyerBalance()
-    const zero = BigNumber.from(0)
-    const treasuryBalance =
-      ethBalance
-        ?.add(lidoBalanceAsETH ?? zero)
-        .add(tokenBuyerBalanceAsETH ?? zero) ?? zero
-  
-    const daoEtherscanLink = contractAddresses
-      ? buildEtherscanHoldingsLink(contractAddresses.nounsDaoExecutor)
-      : null
+  const isCool = useAppSelector((state) => state.application.isCoolBackground)
+  const location = useLocation()
+
+  // Setting default address to avoid hook order error on useEtherBalance and useTreasuryBalance
+  const { contractAddresses } = useContractAddresses()
+
+  const ethBalance = useEtherBalance(contractAddresses.nounsDaoExecutor)
+  const lidoBalanceAsETH = useLidoBalance()
+  const tokenBuyerBalanceAsETH = useTokenBuyerBalance()
+  const zero = BigNumber.from(0)
+  const treasuryBalance =
+    ethBalance
+      ?.add(lidoBalanceAsETH ?? zero)
+      .add(tokenBuyerBalanceAsETH ?? zero) ?? zero
+
+  const daoEtherscanLink = contractAddresses
+    ? buildEtherscanHoldingsLink(contractAddresses.nounsDaoExecutor)
+    : null
 
   const [isNavExpanded, setIsNavExpanded] = useState(false)
 
@@ -104,7 +101,11 @@ import noggles from '@/assets/noggles.svg';
         <Container style={{ maxWidth: 'unset' }}>
           <div className={classes.brandAndTreasuryWrapper}>
             <Navbar.Brand as={Link} to="/" className={classes.navBarBrand}>
-              <img src={noggles} className={classes.navBarLogo} alt="Nouns DAO noggles" />
+              <img
+                src={noggles}
+                className={classes.navBarLogo}
+                alt="Nouns DAO noggles"
+              />
             </Navbar.Brand>
             {Number(CHAIN_ID) !== ChainId.Mainnet && (
               <Nav.Item>

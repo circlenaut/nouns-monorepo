@@ -5,8 +5,8 @@ import NavBarButton, { NavBarButtonStyle } from '@/components/NavBarButton'
 import ShortAddress from '@/components/ShortAddress'
 import { useAppSelector } from '@/hooks'
 import { useContractAddresses } from '@/hooks/useAddresses'
-import { useUserDelegatee, useUserNounTokenBalance } from '@/wrappers/nounToken'
 import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
+import { useUserDelegatee, useUserNounTokenBalance } from '@/wrappers/nounToken'
 
 import classes from './CurrentDelegatePanel.module.css'
 

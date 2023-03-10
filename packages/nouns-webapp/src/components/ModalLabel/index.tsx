@@ -1,11 +1,11 @@
-import React from 'react';
+import React from 'react'
 
-import classes from './ModalLabel.module.css';
+import classes from './ModalLabel.module.css'
 
 interface ModalLabelProps {
-  children?: React.ReactNode;
+  children?: React.ReactNode
 }
 const ModalLabel = ({ children }: ModalLabelProps) => {
-  return <div className={classes.label}>{children}</div>;
+  return <div className={classes.label}>{children}</div>
 }
 export default ModalLabel

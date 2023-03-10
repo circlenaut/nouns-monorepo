@@ -2,271 +2,271 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type { Provider } from "@ethersproject/providers";
-import { Contract, Signer, utils } from "ethers";
+import type { Provider } from '@ethersproject/providers'
+import { Contract, Signer, utils } from 'ethers'
 import type {
   StreamFactoryAbi,
   StreamFactoryAbiInterface,
-} from "../StreamFactoryAbi";
+} from '../StreamFactoryAbi'
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_streamImplementation",
-        type: "address",
+        internalType: 'address',
+        name: '_streamImplementation',
+        type: 'address',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    stateMutability: 'nonpayable',
+    type: 'constructor',
   },
   {
     inputs: [],
-    name: "DurationMustBePositive",
-    type: "error",
+    name: 'DurationMustBePositive',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "PayerIsAddressZero",
-    type: "error",
+    name: 'PayerIsAddressZero',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "RecipientIsAddressZero",
-    type: "error",
+    name: 'RecipientIsAddressZero',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "TokenAmountIsZero",
-    type: "error",
+    name: 'TokenAmountIsZero',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "TokenAmountLessThanDuration",
-    type: "error",
+    name: 'TokenAmountLessThanDuration',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "UnexpectedStreamAddress",
-    type: "error",
+    name: 'UnexpectedStreamAddress',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "msgSender",
-        type: "address",
+        internalType: 'address',
+        name: 'msgSender',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "payer",
-        type: "address",
+        internalType: 'address',
+        name: 'payer',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "tokenAmount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'tokenAmount',
+        type: 'uint256',
       },
       {
         indexed: false,
-        internalType: "address",
-        name: "tokenAddress",
-        type: "address",
+        internalType: 'address',
+        name: 'tokenAddress',
+        type: 'address',
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "startTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256',
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "stopTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'stopTime',
+        type: 'uint256',
       },
       {
         indexed: false,
-        internalType: "address",
-        name: "streamAddress",
-        type: "address",
+        internalType: 'address',
+        name: 'streamAddress',
+        type: 'address',
       },
     ],
-    name: "StreamCreated",
-    type: "event",
+    name: 'StreamCreated',
+    type: 'event',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "tokenAmount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'tokenAmount',
+        type: 'uint256',
       },
       {
-        internalType: "address",
-        name: "tokenAddress",
-        type: "address",
+        internalType: 'address',
+        name: 'tokenAddress',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "startTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256',
       },
       {
-        internalType: "uint256",
-        name: "stopTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'stopTime',
+        type: 'uint256',
       },
     ],
-    name: "createAndFundStream",
+    name: 'createAndFundStream',
     outputs: [
       {
-        internalType: "address",
-        name: "stream",
-        type: "address",
+        internalType: 'address',
+        name: 'stream',
+        type: 'address',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "tokenAmount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'tokenAmount',
+        type: 'uint256',
       },
       {
-        internalType: "address",
-        name: "tokenAddress",
-        type: "address",
+        internalType: 'address',
+        name: 'tokenAddress',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "startTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256',
       },
       {
-        internalType: "uint256",
-        name: "stopTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'stopTime',
+        type: 'uint256',
       },
       {
-        internalType: "uint8",
-        name: "nonce",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'nonce',
+        type: 'uint8',
       },
       {
-        internalType: "address",
-        name: "predictedStreamAddress",
-        type: "address",
+        internalType: 'address',
+        name: 'predictedStreamAddress',
+        type: 'address',
       },
     ],
-    name: "createStream",
+    name: 'createStream',
     outputs: [
       {
-        internalType: "address",
-        name: "stream",
-        type: "address",
+        internalType: 'address',
+        name: 'stream',
+        type: 'address',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "msgSender",
-        type: "address",
+        internalType: 'address',
+        name: 'msgSender',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "payer",
-        type: "address",
+        internalType: 'address',
+        name: 'payer',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "tokenAmount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'tokenAmount',
+        type: 'uint256',
       },
       {
-        internalType: "address",
-        name: "tokenAddress",
-        type: "address",
+        internalType: 'address',
+        name: 'tokenAddress',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "startTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'startTime',
+        type: 'uint256',
       },
       {
-        internalType: "uint256",
-        name: "stopTime",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'stopTime',
+        type: 'uint256',
       },
     ],
-    name: "predictStreamAddress",
+    name: 'predictStreamAddress',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "streamImplementation",
+    name: 'streamImplementation',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
-] as const;
+] as const
 
 export class StreamFactoryAbi__factory {
-  static readonly abi = _abi;
+  static readonly abi = _abi
   static createInterface(): StreamFactoryAbiInterface {
-    return new utils.Interface(_abi) as StreamFactoryAbiInterface;
+    return new utils.Interface(_abi) as StreamFactoryAbiInterface
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    signerOrProvider: Signer | Provider,
   ): StreamFactoryAbi {
-    return new Contract(address, _abi, signerOrProvider) as StreamFactoryAbi;
+    return new Contract(address, _abi, signerOrProvider) as StreamFactoryAbi
   }
 }

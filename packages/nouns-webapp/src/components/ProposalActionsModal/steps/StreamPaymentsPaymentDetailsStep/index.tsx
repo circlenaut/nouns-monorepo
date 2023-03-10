@@ -1,33 +1,41 @@
-import { Trans } from '@lingui/macro';
-import React, { useEffect, useState } from 'react';
-import { ProposalActionModalStepProps } from '../..';
-import BrandNumericEntry from '../../../BrandNumericEntry';
-import BrandTextEntry from '../../../BrandTextEntry';
-import ModalBottomButtonRow from '../../../ModalBottomButtonRow';
-import ModalTitle from '../../../ModalTitle';
-import { SupportedCurrency } from '../TransferFundsDetailsStep';
-import BigNumber from 'bignumber.js';
-import { utils } from 'ethers';
-import ModalSubTitle from '../../../ModalSubtitle';
-import BrandDropdown from '../../../BrandDropdown';
+import { Trans } from '@lingui/macro'
+import BigNumber from 'bignumber.js'
+import { utils } from 'ethers'
+import React, { useEffect, useState } from 'react'
+import { ProposalActionModalStepProps } from '../..'
+import BrandDropdown from '../../../BrandDropdown'
+import BrandNumericEntry from '../../../BrandNumericEntry'
+import BrandTextEntry from '../../../BrandTextEntry'
+import ModalBottomButtonRow from '../../../ModalBottomButtonRow'
+import ModalSubTitle from '../../../ModalSubtitle'
+import ModalTitle from '../../../ModalTitle'
+import { SupportedCurrency } from '../TransferFundsDetailsStep'
 
-const StreamPaymentsDetailsStep: React.FC<ProposalActionModalStepProps> = props => {
-  const { onPrevBtnClick, onNextBtnClick, state, setState } = props;
+const StreamPaymentsDetailsStep: React.FC<ProposalActionModalStepProps> = (
+  props,
+) => {
+  const { onPrevBtnClick, onNextBtnClick, state, setState } = props
 
-  const [amount, setAmount] = useState<string>(state.amount ?? '');
-  const [currency, setCurrency] = useState<SupportedCurrency.WETH | SupportedCurrency.USDC>(
-    SupportedCurrency.WETH,
-  );
-  const [formattedAmount, setFormattedAmount] = useState<string>(state.amount ?? '');
-  const [address, setAddress] = useState(state.address ?? '');
+  const [amount, setAmount] = useState<string>(state.amount ?? '')
+  const [currency, setCurrency] = useState<
+    SupportedCurrency.WETH | SupportedCurrency.USDC
+  >(SupportedCurrency.WETH)
+  const [formattedAmount, setFormattedAmount] = useState<string>(
+    state.amount ?? '',
+  )
+  const [address, setAddress] = useState(state.address ?? '')
 
-  const [isValidForNextStage, setIsValidForNextStage] = useState(false);
+  const [isValidForNextStage, setIsValidForNextStage] = useState(false)
 
   useEffect(() => {
-    if (utils.isAddress(address) && parseFloat(amount) > 0 && !isValidForNextStage) {
-      setIsValidForNextStage(true);
+    if (
+      utils.isAddress(address) &&
+      parseFloat(amount) > 0 &&
+      !isValidForNextStage
+    ) {
+      setIsValidForNextStage(true)
     }
-  }, [amount, address, isValidForNextStage]);
+  }, [amount, address, isValidForNextStage])
 
   return (
     <>
@@ -42,11 +50,11 @@ const StreamPaymentsDetailsStep: React.FC<ProposalActionModalStepProps> = props 
       <BrandDropdown
         label={'Currency'}
         value={currency === SupportedCurrency.WETH ? 'WETH' : 'USDC'}
-        onChange={e => {
+        onChange={(e) => {
           if (e.target.value === 'WETH') {
-            setCurrency(SupportedCurrency.WETH);
+            setCurrency(SupportedCurrency.WETH)
           } else {
-            setCurrency(SupportedCurrency.USDC);
+            setCurrency(SupportedCurrency.USDC)
           }
         }}
         chevronTop={38}
@@ -58,17 +66,19 @@ const StreamPaymentsDetailsStep: React.FC<ProposalActionModalStepProps> = props 
       <BrandNumericEntry
         label={'Amount'}
         value={formattedAmount}
-        onValueChange={e => {
-          setAmount(e.value);
-          setFormattedAmount(e.formattedValue);
+        onValueChange={(e) => {
+          setAmount(e.value)
+          setFormattedAmount(e.formattedValue)
         }}
-        placeholder={`0 ${currency === SupportedCurrency.USDC ? 'USDC' : 'WETH'}`}
+        placeholder={`0 ${
+          currency === SupportedCurrency.USDC ? 'USDC' : 'WETH'
+        }`}
         isInvalid={parseFloat(amount) > 0 && new BigNumber(amount).isNaN()}
       />
 
       <BrandTextEntry
         label={'Recipient'}
-        onChange={e => setAddress(e.target.value)}
+        onChange={(e) => setAddress(e.target.value)}
         value={address}
         type="string"
         placeholder="0x..."
@@ -80,13 +90,18 @@ const StreamPaymentsDetailsStep: React.FC<ProposalActionModalStepProps> = props 
         onPrevBtnClick={onPrevBtnClick}
         nextBtnText={<Trans>Add Stream Date Details</Trans>}
         onNextBtnClick={() => {
-          setState(x => ({ ...x, address, amount, TransferFundsCurrency: currency }));
-          onNextBtnClick();
+          setState((x) => ({
+            ...x,
+            address,
+            amount,
+            TransferFundsCurrency: currency,
+          }))
+          onNextBtnClick()
         }}
         isNextBtnDisabled={!isValidForNextStage}
       />
     </>
-  );
-};
+  )
+}
 
-export default StreamPaymentsDetailsStep;
+export default StreamPaymentsDetailsStep

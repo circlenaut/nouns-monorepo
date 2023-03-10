@@ -11,12 +11,14 @@ import { useAuctionBids } from '@/wrappers/onDisplayAuction'
 
 import classes from './BidHistoryModal.module.css'
 
-export const Backdrop: React.FC<{ onDismiss: () => void }> = ({ onDismiss}) => {
+export const Backdrop: React.FC<{ onDismiss: () => void }> = ({
+  onDismiss,
+}) => {
   return (
     <div
       className={classes.backdrop}
       onClick={onDismiss}
-      onKeyDown={(e) => (e.key === 'Enter') && onDismiss()}
+      onKeyDown={(e) => e.key === 'Enter' && onDismiss()}
       role="button"
       tabIndex={0}
     />

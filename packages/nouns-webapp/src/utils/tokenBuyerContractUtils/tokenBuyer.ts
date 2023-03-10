@@ -1,14 +1,18 @@
-import { Contract } from 'ethers';
-import { Interface } from 'ethers/lib/utils';
+import { Contract } from 'ethers'
+import { Interface } from 'ethers/lib/utils'
 
-import tokenBuyerABI from '@/libs/abi/tokenBuyerABI.json';
-import { useCachedCall } from '@/wrappers/contracts';
-import { TokenBuyerABI } from '@/types/typechain/TokenBuyerABI';
+import tokenBuyerABI from '@/libs/abi/tokenBuyerABI.json'
+import { TokenBuyerABI } from '@/types/typechain/TokenBuyerABI'
+import { useCachedCall } from '@/wrappers/contracts'
 
-const abi = new Interface(tokenBuyerABI);
-const BUFFER_BPS = 5_000;
+const abi = new Interface(tokenBuyerABI)
+const BUFFER_BPS = 5_000
 
-export const useEthNeeded = (address: string, additionalTokens: number, skip?: boolean) => {
+export const useEthNeeded = (
+  address: string,
+  additionalTokens: number,
+  skip?: boolean,
+) => {
   const contract = new Contract(address, abi) as TokenBuyerABI
 
   const { value: ethNeeded, error } =
@@ -24,6 +28,6 @@ export const useEthNeeded = (address: string, additionalTokens: number, skip?: b
     console.error(error.message)
     return undefined
   }
-  
-  return ethNeeded && ethNeeded[0]?.toString();
-};
+
+  return ethNeeded && ethNeeded[0]?.toString()
+}
