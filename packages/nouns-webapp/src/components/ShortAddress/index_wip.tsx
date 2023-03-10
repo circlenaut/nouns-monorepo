@@ -23,7 +23,7 @@ import {
   toVeryShortAddress,
   toVeryShortENS,
   toVeryShortNNS,
-} from '../../utils/addressAndChainNameDisplayUtils'
+} from '@/utils/addressAndChainNameDisplayUtils'
 
 import classes from './ShortAddress.module.css'
 

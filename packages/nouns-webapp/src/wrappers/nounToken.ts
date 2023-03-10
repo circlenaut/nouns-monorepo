@@ -48,11 +48,11 @@ export const useNounToken = (
   addresses: ContractAddresses,
   nounId: EthersBN,
 ): NounToken | undefined => {
-  const { library } = useEthers()
+  // const { library } = useEthers()
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    library,
+    // library,
   ) as NounsToken
 
   // console.debug(`Calling function 'dataURI' on contract ${contract.address}`);
@@ -162,12 +162,12 @@ export const useNounSeed = (
   const seeds = useNounSeeds(addresses)
 
   const seed = seeds?.[nounId.toNumber()]
-  const { library } = useEthers()
+  // const { library } = useEthers()
 
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    library,
+    // library,
   ) as NounsToken
 
   // console.debug(`Calling function 'seeds' on contract ${contract.address}`);
@@ -220,11 +220,11 @@ export const useAccountVotes = (
   addresses: ContractAddresses,
   account?: string,
 ): number | undefined => {
-  const { library } = useEthers()
+  // const { library } = useEthers()
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    library,
+    // library,
   ) as NounsToken
 
   // console.debug(`Calling function 'getCurrentVotes' on contract ${contract.address}`);
@@ -247,13 +247,13 @@ export const useAccountVotes = (
 export const useUserDelegatee = (
   addresses: ContractAddresses,
 ): string | undefined => {
-  const { library } = useEthers()
+  // const { library } = useEthers()
   const { activeAccount } = useAppSelector((state) => state.account)
 
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    library,
+    // library,
   ) as NounsToken
 
   // console.debug(`Calling function 'delegates' on contract ${contract.address}`);
@@ -277,13 +277,13 @@ export const useUserVotesAsOfBlock = (
   addresses: ContractAddresses,
   block: number | undefined,
 ): number | undefined => {
-  const { library: provider } = useEthers()
+  // const { library: provider } = useEthers()
   const { activeAccount } = useAppSelector((state) => state.account)
 
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    provider,
+    // provider,
   ) as NounsToken
 
   // console.debug(`Calling function 'getPriorVotes' on contract ${contract.address}`);
@@ -310,7 +310,7 @@ export const useDelegateVotes = (addresses: ContractAddresses) => {
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    provider,
+    // provider,
   ) as NounsToken
   const signer = provider?.getSigner()
   const signedContract =
@@ -332,7 +332,7 @@ export const useNounTokenBalance = (
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    provider,
+    // provider,
   ) as NounsToken
 
   // console.debug(`Calling function 'balanceOf' on contract ${contract.address}`);
@@ -354,13 +354,13 @@ export const useNounTokenBalance = (
 export const useUserNounTokenBalance = (
   addresses: ContractAddresses,
 ): number | undefined => {
-  const { library: provider } = useEthers()
+  // const { library: provider } = useEthers()
   const { activeAccount } = useAppSelector((state) => state.account)
 
   const contract = new Contract(
     addresses.nounsToken,
     abi,
-    provider,
+    // provider,
   ) as NounsToken
 
   // console.debug(`Calling function 'balanceOf' on contract ${contract.address}`);
