@@ -33,6 +33,10 @@ export const DEFAULT_GRAPHQL_CLIENT = GraphQLClient.APOLLO
 
 export const DEFAULT_REACT_QUERY_STALE_TIME = Infinity
 
+export const CACHE_MAX_AGE = 1000 * 60 * 5 // cache for 5 minutes
+
+export const CACHE_MAX_ITEMS = 1000 // store at most 500 objects
+
 export const AUCTION_SETTLEMENT_TIMEOUT = 120
 
 export const CHAIN_ID = getValidChainNetwork(environmentVariables['CHAIN_ID'])

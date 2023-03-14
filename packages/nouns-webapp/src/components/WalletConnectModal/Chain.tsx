@@ -13,7 +13,6 @@ export const Chain: React.FC<ChainProps> = ({ chainId }) => {
   if (chainId === undefined) return null
 
   const name = chainId ? CHAINS[chainId]?.name : undefined
-
   return name ? (
     <div>
       {' '}

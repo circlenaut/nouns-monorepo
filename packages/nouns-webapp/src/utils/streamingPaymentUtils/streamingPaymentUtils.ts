@@ -1,9 +1,21 @@
 import { Contract, utils } from 'ethers'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { SupportedCurrency } from '@/components/ProposalActionsModal/steps/TransferFundsDetailsStep'
+import { useLRUCache } from '@/contexts/cache'
+import { useAppDispatch } from '@/hooks'
 import { useContractAddresses } from '@/hooks/useAddresses'
-import StreamFactoryABI from '@/libs/abi/streamFactory.abi.json'
+import {
+  RecordActions,
+  recordCacheFetch,
+  recordCacheMiss,
+  recordCacheRemoval,
+  recordCacheUpdate,
+  recordNetworkCall,
+} from '@/state/slices/cache'
 import { useCachedCall } from '@/wrappers/contracts'
+
+import StreamFactoryABI from '@/libs/abi/streamFactory.abi.json'
 
 interface UsePredictStreamAddressProps {
   msgSender?: string
@@ -27,30 +39,92 @@ export const usePredictStreamAddress = ({
   endTime,
 }: UsePredictStreamAddressProps) => {
   const { contractAddresses } = useContractAddresses()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'quorumVotes'
+  const args = [
+    msgSender,
+    payer,
+    recipient,
+    tokenAmount,
+    tokenAddress,
+    startTime,
+    endTime,
+  ]
 
   const contract = new Contract(contractAddresses.nounsStreamFactory ?? '', abi)
+
+  const cacheKey = `${contract.address}_${method}_${args.join('_')}`
+  const cachedData = fetchCache(cacheKey) as string
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
+
   // console.debug(`Calling function 'auction' on contract ${contract.address}`);
   const { value: predictedAddress, error } =
     useCachedCall(
-      contract && {
-        contract: contract,
-        method: 'predictStreamAddress',
-        args: [
-          msgSender,
-          payer,
-          recipient,
-          tokenAmount,
-          tokenAddress,
-          startTime,
-          endTime,
-        ],
-      },
+      contract &&
+        !isFullyCached && {
+          contract,
+          method,
+          args,
+        },
     ) ?? {}
   if (error) {
     console.error(error.message)
     return undefined
   }
-  return predictedAddress && predictedAddress[0].toString()
+
+  const result = predictedAddress && predictedAddress[0].toString()
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<string>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    console.warn('key', cacheKey, cachedTimeLeft)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+  return data
 }
 
 export const formatTokenAmount = (

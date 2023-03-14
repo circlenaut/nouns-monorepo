@@ -38,7 +38,11 @@ const GovernancePage: React.FC = () => {
       ?.add(lidoBalanceAsETH ?? zero)
       .add(tokenBuyerBalanceAsETH ?? zero) ?? zero
 
-  const treasuryBalanceUSD = useTreasuryUSDValue(treasuryBalance)
+  const memoTreasuryBalanceUSD = useTreasuryUSDValue(treasuryBalance)
+  const treasuryBalanceUSD = useMemo(
+    () => memoTreasuryBalanceUSD,
+    [memoTreasuryBalanceUSD],
+  )
 
   // Note: We have to extract this copy out of the <span> otherwise the Lingui macro gets confused
   const nounSingular = <Trans>Noun</Trans>

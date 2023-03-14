@@ -1,8 +1,8 @@
 import { Log } from '@ethersproject/providers'
 import { useBlockNumber } from '@usedapp/core'
-import LRUCache from 'lru-cache'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 
+import { useLRUCache } from '@/contexts/cache'
 import { useAppDispatch, useAppSelector } from '@/hooks'
 import { useReadonlyProvider } from '@/hooks/useReadonlyProvider'
 import {
@@ -13,15 +13,21 @@ import {
 import { EventFilter, keyToFilter } from '@/utils/logParsing'
 
 const MAX_BLOCKS_PER_CALL = 1_000_000
-const CACHE_MAX_AGE = 1000 * 60 * 5 // cache for 5 minutes
-const CACHE_MAX_ITEMS = 1000 // store at most 500 objects
-
-const cache = new LRUCache({ max: CACHE_MAX_ITEMS, ttl: CACHE_MAX_AGE })
 
 const LogFetcher = (): null => {
   const dispatch = useAppDispatch()
   const state = useAppSelector((state) => state.logs)
   const provider = useReadonlyProvider()
+
+  const {
+    cache,
+    isCached,
+    fetchCache,
+    removeCache,
+    updateCache,
+    cacheDump,
+    removeExpired,
+  } = useLRUCache()
 
   const blockNumber = useBlockNumber()
 
@@ -54,8 +60,8 @@ const LogFetcher = (): null => {
     (filter: EventFilter, results: PromiseSettledResult<Log[]>[]) => {
       const cacheKey = JSON.stringify(filter)
 
-      if (cache.has(cacheKey)) {
-        const cachedValue = cache.get(cacheKey) as {
+      if (isCached(cacheKey)) {
+        const cachedValue = fetchCache(cacheKey) as {
           blockNumber: number
           logs: Log[]
         }
@@ -83,12 +89,15 @@ const LogFetcher = (): null => {
       dispatch(fetchedLogs({ filter, results: value }))
 
       // cache the value
-      if (cache.size >= CACHE_MAX_ITEMS) {
-        const leastRecentlyUsedKey = cache.purgeStale()
-        cache.delete(leastRecentlyUsedKey)
+      if (cache.size >= cache.maxSize) {
+        cacheDump.length
+        const leastRecentlyUsedKey = ((dump) => dump[dump.length - 1]?.[0])(
+          cacheDump,
+        )
+        removeCache(leastRecentlyUsedKey)
       }
 
-      cache.set(cacheKey, value)
+      updateCache(cacheKey, value)
     },
     [dispatch, blockNumber],
   )
@@ -143,7 +152,7 @@ const LogFetcher = (): null => {
       prevFilters.current = filtersNeedFetch
     })
 
-    return () => cache.clear()
+    return () => void removeExpired()
   }, [
     blockNumber,
     dispatch,

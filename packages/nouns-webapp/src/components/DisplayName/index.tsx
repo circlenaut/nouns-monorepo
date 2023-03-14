@@ -36,7 +36,6 @@ const DisplayName: React.FC<DisplayNameProps> = ({
   // onst [displayName, setDisplayName] = useState<string>()
   const dispatch = useAppDispatch()
   const { activeAccount, activeName } = useAppSelector((state) => state.account)
-  console.warn('activeName', activeName, activeAccount)
 
   const nns = useNounsNameService(
     address,
@@ -53,7 +52,6 @@ const DisplayName: React.FC<DisplayNameProps> = ({
 
   // const ensMatchesBlocklistRegex = containsBlockedText(ens || '', 'en');
   const shortAddress = toShortAddress(address)
-  console.warn('address', address, nns, ens, shortAddress)
 
   useEffect(() => {
     if (address === constants.AddressZero && !activeAccount) return

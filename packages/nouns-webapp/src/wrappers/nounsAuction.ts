@@ -5,9 +5,19 @@ import BigNumber from 'bignumber.js'
 import { BigNumber as EthersBN, Contract, utils } from 'ethers'
 
 import { ContractAddresses } from '@/configs'
-import { useAppSelector } from '@/hooks'
+import { useLRUCache } from '@/contexts/cache'
+import { useAppDispatch, useAppSelector } from '@/hooks'
 import { AuctionState } from '@/state/slices/auction'
+import {
+  RecordActions,
+  recordCacheFetch,
+  recordCacheMiss,
+  recordCacheRemoval,
+  recordCacheUpdate,
+  recordNetworkCall,
+} from '@/state/slices/cache'
 import { isNounderNoun } from '@/utils/nounderNoun'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useCachedCall } from './contracts'
 
 export enum AuctionHouseContractFunction {
@@ -35,30 +45,95 @@ export const useAuction = (
   provider?: WebSocketProvider,
 ): Auction | undefined => {
   const { library } = useEthers()
+
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'auction'
+
   const contract = new Contract(
     auctionHouseProxyAddress,
     abi,
     provider ?? library,
   ) as NounsAuctionHouse
 
+  const cacheKey = `${contract.address}_${method}`
+  const cachedData = fetchCache(cacheKey) as Auction
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
+
   // console.debug(`Calling function 'auction' on contract ${contract.address}`);
   const { value: auction, error } =
     useCachedCall(
-      contract && {
-        contract: contract,
-        method: 'auction',
-        args: [],
-      },
+      contract &&
+        !isFullyCached && {
+          contract,
+          method,
+          args: [],
+        },
     ) ?? {}
   if (error) {
     console.error(error.message)
     return undefined
   }
-  return auction
+
+  const result = auction
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<Auction>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+  return data
 }
 
 export const useAuctionMinBidIncPercentage = (addresses: ContractAddresses) => {
   const { library: provider } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'minBidIncrementPercentage'
 
   const contract = new Contract(
     addresses.nounsAuctionHouseProxy,
@@ -66,22 +141,79 @@ export const useAuctionMinBidIncPercentage = (addresses: ContractAddresses) => {
     provider,
   ) as NounsAuctionHouse
 
+  const cacheKey = `${contract.address}_${method}`
+  const cachedData = fetchCache(cacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
+
   const { value: minBidIncrement, error } =
     useCachedCall(
-      contract && {
-        contract: contract,
-        method: 'minBidIncrementPercentage',
-        args: [],
-      },
+      contract &&
+        !isFullyCached && {
+          contract,
+          method,
+          args: [],
+        },
     ) ?? {}
   if (error) {
     console.error(error.message)
     return undefined
   }
+
+  const result = minBidIncrement && minBidIncrement[0]
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+
   if (!minBidIncrement) {
     return
   }
-  return new BigNumber(minBidIncrement[0])
+
+  return !!data ? new BigNumber(data) : new BigNumber(0)
 }
 
 /**

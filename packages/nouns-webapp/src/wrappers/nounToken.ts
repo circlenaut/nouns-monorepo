@@ -1,16 +1,30 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useContractFunction, useEthers } from '@usedapp/core'
+import { useContractFunction } from '@usedapp/core'
 import { connectContractToSigner } from '@usedapp/core/dist/cjs/src/hooks'
 import { useWeb3React } from '@web3-react/core'
 import { BigNumber as EthersBN, Contract, ethers, utils } from 'ethers'
 import { print } from 'graphql/language/printer'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { NounsTokenABI, type NounsToken } from '@nouns/sdk'
 
-import { cache, cacheKey, CHAIN_ID, ContractAddresses } from '@/configs'
-import { useAppSelector } from '@/hooks'
+import {
+  cache,
+  cacheKey as genSeedCacheKey,
+  CHAIN_ID,
+  ContractAddresses,
+} from '@/configs'
+import { useLRUCache } from '@/contexts/cache'
+import { useAppDispatch, useAppSelector } from '@/hooks'
 import { useConfig } from '@/hooks/useConfig'
+import {
+  RecordActions,
+  recordCacheFetch,
+  recordCacheMiss,
+  recordCacheRemoval,
+  recordCacheUpdate,
+  recordNetworkCall,
+} from '@/state/slices/cache'
 import { useCachedCall } from './contracts'
 import { seedsQuery, useQuery } from './subgraph'
 import { Seed } from './subgraph/schema'
@@ -49,20 +63,33 @@ export const useNounToken = (
   nounId: EthersBN,
 ): NounToken | undefined => {
   // const { library } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'dataURI'
+
   const contract = new Contract(
     addresses.nounsToken,
     abi,
     // library,
   ) as NounsToken
 
+  const lruCacheKey = `${contract.address}_${method}_${nounId}`
+  const cachedData = fetchCache(lruCacheKey) as NounToken
+  const isFullyCached = useMemo(
+    () => isCached(lruCacheKey) && !!cachedData,
+    [lruCacheKey],
+  )
+
   // console.debug(`Calling function 'dataURI' on contract ${contract.address}`);
   const { value: noun, error } =
     useCachedCall(
-      contract && {
-        contract: contract,
-        method: 'dataURI',
-        args: [nounId],
-      },
+      contract &&
+        !isFullyCached && {
+          contract,
+          method,
+          args: [nounId],
+        },
     ) ?? {}
   if (error) {
     console.error(error.message)
@@ -72,8 +99,56 @@ export const useNounToken = (
   const nounImgData = noun && (noun[0]?.split(';base64,').pop() as string)
   const json: NounToken | undefined =
     nounImgData && JSON.parse(atob(nounImgData))
-  return json
-  // return nounImgData && JSON.parse(Buffer.from(nounImgData, 'base64').toString('utf-8'));
+  // result = nounImgData && JSON.parse(Buffer.from(nounImgData, 'base64').toString('utf-8'));
+
+  const result = json
+  useEffect(() => void updateCache(lruCacheKey, result), [lruCacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<NounToken>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(lruCacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(lruCacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(lruCacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, lruCacheKey, isFullyCached, result])
+
+  return data
 }
 
 const seedArrayToObject = (seeds: (INounSeed & { id: string })[]) => {
@@ -94,7 +169,7 @@ const useNounSeeds = (
   addresses: ContractAddresses,
 ): Record<string, INounSeed> => {
   const seedCacheKey =
-    cache.seed && cacheKey(cache.seed, CHAIN_ID, addresses.nounsToken)
+    cache.seed && genSeedCacheKey(cache.seed, CHAIN_ID, addresses.nounsToken)
 
   const cachedSeeds = (seedCacheKey &&
     (localStorage.getItem(seedCacheKey) as string) &&
@@ -156,8 +231,13 @@ export const useNounSeed = (
   addresses: ContractAddresses,
   nounId: EthersBN,
 ): INounSeed | undefined => {
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'seeds'
+
   const seedCacheKey =
-    cache.seed && cacheKey(cache.seed, CHAIN_ID, addresses.nounsToken)
+    cache.seed && genSeedCacheKey(cache.seed, CHAIN_ID, addresses.nounsToken)
 
   const seeds = useNounSeeds(addresses)
 
@@ -170,12 +250,20 @@ export const useNounSeed = (
     // library,
   ) as NounsToken
 
+  const lruCacheKey = `${contract.address}_${method}_${nounId}`
+  const cachedData = fetchCache(lruCacheKey) as INounSeed
+  const isFullyCached = useMemo(
+    () => isCached(lruCacheKey) && !!cachedData,
+    [lruCacheKey],
+  )
+
   // console.debug(`Calling function 'seeds' on contract ${contract.address}`);
   const { value: response, error } =
     useCachedCall(
       contract &&
         seeds &&
-        Object.keys(seeds).length - 1 < nounId.toNumber() && {
+        Object.keys(seeds).length - 1 < nounId.toNumber() &&
+        !isFullyCached && {
           contract: contract,
           method: 'seeds',
           args: [nounId],
@@ -185,22 +273,77 @@ export const useNounSeed = (
     console.error(error.message)
     return undefined
   }
-  if (response && seedCacheKey) {
-    const seedCache = localStorage.getItem(seedCacheKey)
-    if (seedCache && isSeedValid(response)) {
+
+  // return const result = seed
+  const result = response
+  // useEffect(() => void updateCache(lruCacheKey, result), [lruCacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<INounSeed>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(lruCacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(lruCacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(lruCacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, lruCacheKey, isFullyCached, result])
+
+  const processNounSeed = (_response: INounSeed, _seedCacheKey: string) => {
+    const _seedCache = localStorage.getItem(_seedCacheKey)
+    if (_seedCache && isSeedValid(response)) {
       const updatedSeedCache = JSON.stringify({
-        ...JSON.parse(seedCache),
+        ...JSON.parse(_seedCache),
         [nounId.toString()]: {
-          accessory: response.accessory,
-          background: response.background,
-          body: response.body,
-          glasses: response.glasses,
-          head: response.head,
+          accessory: _response.accessory,
+          background: _response.background,
+          body: _response.body,
+          glasses: _response.glasses,
+          head: _response.head,
         },
       })
-      localStorage.setItem(seedCacheKey, updatedSeedCache)
+      localStorage.setItem(_seedCacheKey, updatedSeedCache)
     }
     return response
+  }
+  if (response && seedCacheKey) {
+    return processNounSeed(response, seedCacheKey)
+  }
+  if (data && seedCacheKey) {
+    return processNounSeed(data, seedCacheKey)
   }
   return seed
 }
@@ -221,19 +364,32 @@ export const useAccountVotes = (
   account?: string,
 ): number | undefined => {
   // const { library } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'getCurrentVotes'
+
   const contract = new Contract(
     addresses.nounsToken,
     abi,
     // library,
   ) as NounsToken
 
+  const lruCacheKey = `${contract.address}_${method}_${account}`
+  const cachedData = fetchCache(lruCacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(lruCacheKey) && !!cachedData,
+    [lruCacheKey],
+  )
+
   // console.debug(`Calling function 'getCurrentVotes' on contract ${contract.address}`);
   const { value: votes, error } =
     useCachedCall(
       contract &&
-        account && {
-          contract: contract,
-          method: 'getCurrentVotes',
+        account &&
+        !isFullyCached && {
+          contract,
+          method,
           args: [account],
         },
     ) ?? {}
@@ -241,14 +397,66 @@ export const useAccountVotes = (
     console.error(error.message)
     return undefined
   }
-  return votes && EthersBN.from(votes[0]).toNumber()
+  const result = votes && EthersBN.from(votes[0]).toNumber()
+  useEffect(() => void updateCache(lruCacheKey, result), [lruCacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(lruCacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(lruCacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(lruCacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, lruCacheKey, isFullyCached, result])
+
+  return data
 }
 
 export const useUserDelegatee = (
   addresses: ContractAddresses,
 ): string | undefined => {
   // const { library } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
   const { activeAccount } = useAppSelector((state) => state.account)
+
+  const method = 'delegates'
 
   const contract = new Contract(
     addresses.nounsToken,
@@ -256,11 +464,19 @@ export const useUserDelegatee = (
     // library,
   ) as NounsToken
 
+  const lruCacheKey = `${contract.address}_${method}_${activeAccount}`
+  const cachedData = fetchCache(lruCacheKey) as string
+  const isFullyCached = useMemo(
+    () => isCached(lruCacheKey) && !!cachedData,
+    [lruCacheKey],
+  )
+
   // console.debug(`Calling function 'delegates' on contract ${contract.address}`);
   const { value: delegate, error } =
     useCachedCall(
       contract &&
-        activeAccount && {
+        activeAccount &&
+        !isFullyCached && {
           contract: contract,
           method: 'delegates',
           args: [activeAccount],
@@ -270,7 +486,55 @@ export const useUserDelegatee = (
     console.error(error.message)
     return undefined
   }
-  return delegate && delegate[0]
+
+  const result = delegate && delegate[0]
+  useEffect(() => void updateCache(lruCacheKey, result), [lruCacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<string>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(lruCacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(lruCacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(lruCacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, lruCacheKey, isFullyCached, result])
+
+  return data
 }
 
 export const useUserVotesAsOfBlock = (
@@ -278,7 +542,12 @@ export const useUserVotesAsOfBlock = (
   block: number | undefined,
 ): number | undefined => {
   // const { library: provider } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
   const { activeAccount } = useAppSelector((state) => state.account)
+
+  const method = 'getPriorVotes'
 
   const contract = new Contract(
     addresses.nounsToken,
@@ -286,12 +555,20 @@ export const useUserVotesAsOfBlock = (
     // provider,
   ) as NounsToken
 
+  const lruCacheKey = `${contract.address}_${method}_${activeAccount}_${block}`
+  const cachedData = fetchCache(lruCacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(lruCacheKey) && !!cachedData,
+    [lruCacheKey],
+  )
+
   // console.debug(`Calling function 'getPriorVotes' on contract ${contract.address}`);
   const { value: votes, error } =
     useCachedCall(
       contract &&
         activeAccount &&
-        block && {
+        block &&
+        !isFullyCached && {
           contract: contract,
           method: 'getPriorVotes',
           args: [activeAccount, block],
@@ -301,7 +578,55 @@ export const useUserVotesAsOfBlock = (
     console.error(error.message)
     return undefined
   }
-  return votes && EthersBN.from(votes[0]).toNumber()
+
+  const result = votes && EthersBN.from(votes[0]).toNumber()
+  useEffect(() => void updateCache(lruCacheKey, result), [lruCacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(lruCacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(lruCacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(lruCacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, lruCacheKey, isFullyCached, result])
+
+  return data
 }
 
 export const useDelegateVotes = (addresses: ContractAddresses) => {
@@ -327,7 +652,11 @@ export const useNounTokenBalance = (
   addresses: ContractAddresses,
   address: string,
 ): number => {
-  const { library: provider } = useEthers()
+  // const { library: provider } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'balanceOf'
 
   const contract = new Contract(
     addresses.nounsToken,
@@ -335,26 +664,89 @@ export const useNounTokenBalance = (
     // provider,
   ) as NounsToken
 
+  const lruCacheKey = `${contract.address}_${method}_${address}`
+  const cachedData = fetchCache(lruCacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(lruCacheKey) && !!cachedData,
+    [lruCacheKey],
+  )
+
   // console.debug(`Calling function 'balanceOf' on contract ${contract.address}`);
   const { value: tokenBalance, error } =
     useCachedCall(
-      contract && {
-        contract: contract,
-        method: 'balanceOf',
-        args: [address],
-      },
+      contract &&
+        !isFullyCached && {
+          contract,
+          method,
+          args: [address],
+        },
     ) ?? {}
   if (error) {
     console.error(error.message)
     return 0
   }
-  return tokenBalance ? EthersBN.from(tokenBalance[0]).toNumber() : 0
+
+  const result = tokenBalance ? EthersBN.from(tokenBalance).toNumber() : 0
+
+  useEffect(() => void updateCache(lruCacheKey, result), [lruCacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(lruCacheKey)
+
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(lruCacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(lruCacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, lruCacheKey, isFullyCached, result])
+
+  return data ? EthersBN.from(data).toNumber() : 0
 }
 
 export const useUserNounTokenBalance = (
   addresses: ContractAddresses,
 ): number | undefined => {
   // const { library: provider } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'balanceOf'
+
   const { activeAccount } = useAppSelector((state) => state.account)
 
   const contract = new Contract(
@@ -363,11 +755,19 @@ export const useUserNounTokenBalance = (
     // provider,
   ) as NounsToken
 
+  const lruCacheKey = `${contract.address}_${method}_${activeAccount}`
+  const cachedData = fetchCache(lruCacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(lruCacheKey) && !!cachedData,
+    [lruCacheKey],
+  )
+
   // console.debug(`Calling function 'balanceOf' on contract ${contract.address}`);
   const { value: tokenBalance, error } =
     useCachedCall(
       contract &&
-        activeAccount && {
+        activeAccount &&
+        !isFullyCached && {
           contract: contract,
           method: 'balanceOf',
           args: [activeAccount],
@@ -377,5 +777,53 @@ export const useUserNounTokenBalance = (
     console.error(error.message)
     return undefined
   }
-  return tokenBalance?.[0].toNumber()
+
+  const result = tokenBalance?.[0].toNumber()
+  useEffect(() => void updateCache(lruCacheKey, result), [lruCacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(lruCacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(lruCacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(lruCacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, lruCacheKey, isFullyCached, result])
+
+  return data
 }

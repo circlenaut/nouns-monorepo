@@ -1,3 +1,13 @@
+import { useLRUCache } from '@/contexts/cache'
+import { useAppDispatch } from '@/hooks'
+import {
+  RecordActions,
+  recordCacheFetch,
+  recordCacheMiss,
+  recordCacheRemoval,
+  recordCacheUpdate,
+  recordNetworkCall,
+} from '@/state/slices/cache'
 import { Encoder } from '@msgpack/msgpack'
 import { Call, CallResult, QueryParams, useCall, useCalls } from '@usedapp/core'
 import {
@@ -5,16 +15,9 @@ import {
   Falsy,
   TypedContract,
 } from '@usedapp/core/dist/esm/src/model'
-import LRUCache from 'lru-cache'
-
-import { useAppDispatch } from '@/hooks'
+import { useCallback } from 'react'
 // import { useLogs } from '@/hooks/useLogs'
-// import { setCacheHit, setNewCall } from '@/state/slices/cache';
-
-const CACHE_MAX_AGE = 1000 * 60 * 5 // cache for 5 minutes
-const CACHE_MAX_ITEMS = 1000 // store at most 500 objects
-
-const cache = new LRUCache({ max: CACHE_MAX_ITEMS, ttl: CACHE_MAX_AGE })
+// import { recordCacheFetch, recordCacheUpdate } from '@/state/slices/cache';
 
 const encoder = new Encoder()
 // const decoder = new TextDecoder();
@@ -59,20 +62,35 @@ export const useCachedCalls = <
   calls: (Call<T, MN> | Falsy)[],
   queryParams: QueryParams = {},
 ): CallResult<T, MN>[] => {
+  const { isCached, fetchCache, updateCache, remainingCacheTime, removeCache } =
+    useLRUCache()
+  const dispatch = useAppDispatch()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
   const newResults =
     useCalls(
       calls.filter((call) => {
-        const cachedKey = call
-          ? {
-              address: call.contract.address,
-              method: call.method,
-              args: call.args,
-            }
+        const cachedKey = !!call
+          ? `${call.contract.address}_${call.method}_${call.args.join('_')}`
           : null
-        if (cachedKey) {
-          const serializedCacheKey = serialize(cachedKey)
-          return !!call && cache.has(serializedCacheKey)
-        }
+        return !!call && isCached(cachedKey)
       }),
       queryParams,
     ) ?? []
@@ -84,73 +102,49 @@ export const useCachedCalls = <
         `Error encountered calling ${call.method} on ${call.contract.address}: ${result.error.message}`,
       )
     }
-
     const cachedKey = !!call
-      ? {
-          address: call.contract.address,
-          method: call.method,
-          args: call.args,
-        }
+      ? `${call.contract.address}_${call.method}_${call.args.join('_')}`
       : null
 
-    if (cachedKey && result) {
-      const serializedCacheKey = serialize(cachedKey)
-      // const serializedResult = serialize(result)
-      cache.set(serializedCacheKey, result)
-      // const deserializedResult = deserialize(serializedResult) as CallResult<T, MN>
-      // cache.set(serializedCacheKey, serializedResult)
-      // const deserializedResult = deserialize(serializedResult) as CallResult<T, MN>
+    if (cachedKey && !!result) {
+      updateCache(cachedKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
     }
   })
 
   const cachedResults = calls
     .filter((call) => {
       const cachedKey = call
-        ? {
-            address: call.contract.address,
-            method: call.method,
-            args: call.args,
-          }
+        ? `${call.contract.address}_${call.method}_${call.args.join('_')}`
         : null
       if (cachedKey) {
-        const serializedCacheKey = serialize(cachedKey)
-        if (cache.has(serializedCacheKey)) {
-          const cachedResult = cache.get(serializedCacheKey)
+        const cachedTimeLeft = remainingCacheTime(cachedKey)
+        if (isCached(cachedKey)) {
+          const cachedResult = fetchCache(cachedKey)
+          recordApiStat(RecordActions.FETCH)
           return isCallResult(cachedResult)
         }
+        if (cachedTimeLeft <= 0) {
+          removeCache(cachedKey)
+          recordApiStat(RecordActions.REMOVE)
+          return
+        }
+        recordApiStat(RecordActions.MISS)
       }
-      // const serializedCacheKey = cachedKey ? serialize(cachedKey) : null;
-      // if (cache.has(serializedCacheKey)) {
-      //   const serializedResult = cache.get(serializedCacheKey)
-      //   const deserializedResult = deserialize(serializedResult) as CallResult<T, MN>
-      //   return isCallResult(deserializedResult)
-      // }
     })
     .map((call) => {
       const cachedKey = call
-        ? {
-            address: call.contract.address,
-            method: call.method,
-            args: call.args,
-          }
+        ? `${call.contract.address}_${call.method}_${call.args.join('_')}`
         : null
 
       if (cachedKey) {
-        const serializedCacheKey = serialize(cachedKey)
-        const cachedResult = cache.get(serializedCacheKey) as CallResult<T, MN>
+        const cachedResult = fetchCache(cachedKey) as CallResult<T, MN>
         return cachedResult
-        // const serializedResult = cache.get(serializedCacheKey)
-        // const deserializedResult = deserialize(serializedResult) as CallResult<T, MN>
-        // return deserializedResult
-        // const deserializedResult = deserialize(serializedResult) as CallResult<T, MN>
       }
     })
 
-  // return newResults
-  // return cachedResults
-  // const results = [...cachedResults, ...newResults]
-  // return results
-  return newResults
+  return [...cachedResults, ...newResults]
 }
 
 export const useCachedCall = <
@@ -160,45 +154,40 @@ export const useCachedCall = <
   call: Call<T, MN> | Falsy,
   queryParams: QueryParams = {},
 ): CallResult<T, MN> => {
-  const dispatch = useAppDispatch()
+  return useCall<T, MN>(call, queryParams)
 
-  const cacheKey = call
-    ? {
-        address: call.contract.address,
-        method: call.method,
-        args: call.args,
-      }
-    : null
+  // const dispatch = useAppDispatch()
+  // const { isCached, fetchCache, updateCache } = useLRUCache()
+
+  // const cacheKey = call
+  //   ? {
+  //       address: call.contract.address,
+  //       method: call.method,
+  //       args: call.args,
+  //     }
+  //   : null
 
   // const cacheKey = JSON.stringify(cacheKeyParams);
-  const serializedKey = cacheKey ? serialize(cacheKey) : null
+  // const serializedKey = cacheKey ? serialize(cacheKey) : null
 
-  const cachedResult = cache.has(serializedKey)
-    ? (cache.get(serializedKey) as CallResult<T, MN>)
-    : null
+  // const cachedResult = isCached(serializedKey)
+  //   ? (fetchCache(serializedKey) as CallResult<T, MN>)
+  //   : null
 
-  const newResult = useCall<T, MN>(!cachedResult && call, queryParams)
+  // const newResult = useCall<T, MN>(!cachedResult && call, queryParams)
+
+  // if (!!newResult) {
+  //   updateCache(serializedKey, newResult)
+  // }
 
   //@TODO finish cache tracker
   // const incrementNewCall = useCallback(() =>
-  //   void dispatch(setNewCall(1)),  [dispatch, newResult])
+  //   void dispatch(recordCacheUpdate(1)),  [dispatch, newResult])
 
   // // useEffect(() => newResult && incrementNewCall(), [incrementNewCall, newResult])
 
   // const incrementCacheHit = useCallback(() =>
-  //   void dispatch(setCacheHit(1)),  [dispatch, cachedResult])
+  //   void dispatch(recordCacheFetch(1)),  [dispatch, cachedResult])
 
-  if (newResult) {
-    if (cache.size >= CACHE_MAX_ITEMS) {
-      const leastRecentlyUsedKey = cache.purgeStale()
-      cache.delete(leastRecentlyUsedKey)
-    }
-    cache.set(serializedKey, newResult)
-    // incrementNewCall()
-  }
-  if (cachedResult) {
-    // incrementCacheHit()
-  }
-
-  return cachedResult ?? newResult
+  // return cachedResult ?? newResult
 }

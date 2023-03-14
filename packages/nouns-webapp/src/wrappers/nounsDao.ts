@@ -30,10 +30,20 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { NounsDAOV2ABI, type NounsDAOLogicV2 } from '@nouns/sdk'
 
 import { CHAIN_ID, ContractAddresses } from '@/configs'
-import { useAppSelector } from '@/hooks'
+import { useLRUCache } from '@/contexts/cache'
+import { useAppDispatch, useAppSelector } from '@/hooks'
 import { useBlockTimestamp } from '@/hooks/useBlockTimestamp'
 import { useConfig } from '@/hooks/useConfig'
 import { useLogs } from '@/hooks/useLogs'
+import {
+  RecordActions,
+  recordCacheFetch,
+  recordCacheMiss,
+  recordCacheRemoval,
+  recordCacheUpdate,
+  recordNetworkCall,
+} from '@/state/slices/cache'
+import { NounsDAOStorageV2 } from '@nouns/contracts/typechain/contracts/governance/NounsDAOInterfaces.sol'
 import { useCachedCall, useCachedCalls } from './contracts'
 import { partialProposalsQuery, proposalQuery, useQuery } from './subgraph'
 
@@ -238,15 +248,27 @@ export const useCurrentQuorum = (
   skip = false,
 ): number | undefined => {
   // const { library } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'quorumVotes'
+
   const contract = new Contract(nounsDao, abi) as NounsDAOLogicV2
+
+  const cacheKey = `${contract.address}_${method}_${proposalId}`
+  const cachedData = fetchCache(cacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
 
   // console.debug(`Calling function 'quorumVotes' on contract ${contract.address}`);
   const { value: quorum, error } =
     useCachedCall(
       contract &&
-        !skip && {
-          contract: contract,
-          method: 'quorumVotes',
+        (!skip || !isFullyCached) && {
+          contract,
+          method,
           args: [proposalId],
         },
     ) ?? {}
@@ -255,7 +277,53 @@ export const useCurrentQuorum = (
     return undefined
   }
 
-  return quorum && EthersBN.from(quorum[0]).toNumber()
+  const result = quorum && EthersBN.from(quorum[0]).toNumber()
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+  return data
 }
 
 export const useDynamicQuorumProps = (
@@ -263,15 +331,30 @@ export const useDynamicQuorumProps = (
   block: number,
 ): DynamicQuorumParams | undefined => {
   // const { library } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'getDynamicQuorumParamsAt'
+
   const contract = new Contract(nounsDao, abi) as NounsDAOLogicV2
+
+  const cacheKey = `${contract.address}_${method}_${block}`
+  const cachedData = fetchCache(
+    cacheKey,
+  ) as NounsDAOStorageV2.DynamicQuorumParamsStructOutput
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
 
   // console.debug(`Calling function 'getDynamicQuorumParamsAt' on contract ${contract.address}`);
   const { value: params, error } =
     useCachedCall(
       contract &&
-        block && {
-          contract: contract,
-          method: 'getDynamicQuorumParamsAt',
+        block &&
+        !isFullyCached && {
+          contract,
+          method,
           args: [block],
         },
     ) ?? {}
@@ -279,7 +362,55 @@ export const useDynamicQuorumProps = (
     console.error(error.message)
     return undefined
   }
-  return params && params[0]
+
+  const result = params && params[0]
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] =
+    useState<NounsDAOStorageV2.DynamicQuorumParamsStructOutput>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+  return data
 }
 
 export const useHasVotedOnProposal = (
@@ -287,8 +418,12 @@ export const useHasVotedOnProposal = (
   proposalId: string | undefined,
 ): boolean | undefined => {
   // const { library } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'getReceipt'
+
   const { activeAccount } = useAppSelector((state) => state.account)
-  console.warn(activeAccount)
 
   const contract = new Contract(
     addresses.nounsDAOProxy,
@@ -296,15 +431,23 @@ export const useHasVotedOnProposal = (
     // library,
   ) as NounsDAOLogicV2
 
+  const cacheKey = `${contract.address}_${method}_${proposalId}`
+  const cachedData = fetchCache(cacheKey) as boolean
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
+
   // Fetch a voting receipt for the passed proposal id
   // console.debug(`Calling function 'getReceipt' on contract ${contract.address}`);
   const { value: receipt, error } =
     useCachedCall(
       contract &&
         activeAccount &&
-        proposalId && {
-          contract: contract,
-          method: 'getReceipt',
+        proposalId &&
+        !isFullyCached && {
+          contract,
+          method,
           args: [proposalId, activeAccount],
         },
     ) ?? {}
@@ -312,7 +455,54 @@ export const useHasVotedOnProposal = (
     console.error(error.message)
     return undefined
   }
-  return receipt ? receipt[0]?.hasVoted : false
+
+  const result = receipt ? receipt[0]?.hasVoted : false
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<boolean>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+  return data
 }
 
 export const useProposalVote = (
@@ -321,11 +511,23 @@ export const useProposalVote = (
 ): string | undefined => {
   const { account, library } = useEthers()
 
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'getReceipt'
+
   const contract = new Contract(
     addresses.nounsDAOProxy,
     abi,
     library,
   ) as NounsDAOLogicV2
+
+  const cacheKey = `${contract.address}_${method}_${proposalId}_${account}`
+  const cachedData = fetchCache(cacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
 
   // Fetch a voting receipt for the passed proposal id
   // console.debug(`Calling function 'getReceipt' on contract ${contract.address}`);
@@ -333,9 +535,10 @@ export const useProposalVote = (
     useCachedCall(
       contract &&
         account &&
-        proposalId && {
-          contract: contract,
-          method: 'getReceipt',
+        proposalId &&
+        !isFullyCached && {
+          contract,
+          method,
           args: [proposalId, account],
         },
     ) ?? {}
@@ -343,7 +546,53 @@ export const useProposalVote = (
     console.error(error.message)
     return undefined
   }
-  const voteStatus = receipt ? receipt[0]?.support : -1
+
+  const result = receipt ? (receipt[0]?.support as number) : -1
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+  const [voteStatus, setVoteStatus] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setVoteStatus(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setVoteStatus(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+
   if (voteStatus === 0) {
     return 'Against'
   }
@@ -358,48 +607,169 @@ export const useProposalVote = (
 export const useProposalCount = (
   addresses: ContractAddresses,
 ): number | undefined => {
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'proposalCount'
+
   const contract = new Contract(addresses.nounsDAOProxy, abi) as NounsDAOLogicV2
+  const cacheKey = `${contract.address}_${method}`
+  const cachedData = fetchCache(cacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
 
   // console.debug(`Calling function 'proposalCount' on contract ${contract.address}`);
   const { value: count, error } =
     useCachedCall(
-      contract && {
-        contract: contract,
-        method: 'proposalCount',
-        args: [],
-      },
+      contract &&
+        !isFullyCached && {
+          contract,
+          method,
+          args: [],
+        },
     ) ?? {}
   if (error) {
     console.error(error.message)
     return undefined
   }
-  return count && EthersBN.from(count[0]).toNumber()
+
+  const result = count && EthersBN.from(count[0]).toNumber()
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+
+  return data
 }
 
 export const useProposalThreshold = (
   addresses: ContractAddresses,
 ): number | undefined => {
   // const { library } = useEthers()
+  const { updateCache, fetchCache, isCached, remainingCacheTime, removeCache } =
+    useLRUCache()
+
+  const method = 'proposalThreshold'
+
   const contract = new Contract(
     addresses.nounsDAOProxy,
     abi,
     // library,
   ) as NounsDAOLogicV2
 
+  const cacheKey = `${contract.address}_${method}`
+  const cachedData = fetchCache(cacheKey) as number
+  const isFullyCached = useMemo(
+    () => isCached(cacheKey) && !!cachedData,
+    [cacheKey],
+  )
+
   // console.debug(`Calling function 'proposalThreshold' on contract ${contract.address}`);
   const { value: count, error } =
     useCachedCall(
-      contract && {
-        contract: contract,
-        method: 'proposalThreshold',
-        args: [],
-      },
+      contract &&
+        !isFullyCached && {
+          contract,
+          method,
+          args: [],
+        },
     ) ?? {}
   if (error) {
     console.error(error.message)
     return undefined
   }
-  return count && EthersBN.from(count[0]).toNumber()
+
+  const result = count && EthersBN.from(count[0]).toNumber()
+  useEffect(() => void updateCache(cacheKey, result), [cacheKey, result])
+
+  const dispatch = useAppDispatch()
+
+  const [data, setData] = useState<number>()
+
+  const recordApiStat = useCallback(
+    (cacheAction: RecordActions) => {
+      switch (cacheAction) {
+        case RecordActions.UPDATE:
+          return void dispatch(recordCacheUpdate(1))
+        case RecordActions.FETCH:
+          return void dispatch(recordCacheFetch(1))
+        case RecordActions.REMOVE:
+          return void dispatch(recordCacheRemoval(1))
+        case RecordActions.MISS:
+          return void dispatch(recordCacheMiss(1))
+        case RecordActions.NETWORK_CALL:
+          return void dispatch(recordNetworkCall(1))
+      }
+    },
+    [dispatch],
+  )
+
+  useEffect(() => {
+    const cachedTimeLeft = remainingCacheTime(cacheKey)
+    if (isFullyCached || cachedTimeLeft > 0) {
+      recordApiStat(RecordActions.FETCH)
+      setData(cachedData)
+      return
+    }
+    if (!!result) {
+      updateCache(cacheKey, result)
+      recordApiStat(RecordActions.UPDATE)
+      recordApiStat(RecordActions.NETWORK_CALL)
+      setData(result)
+      return
+    }
+    if (cachedTimeLeft <= 0) {
+      removeCache(cacheKey)
+      recordApiStat(RecordActions.REMOVE)
+      return
+    }
+    recordApiStat(RecordActions.MISS)
+  }, [dispatch, cacheKey, isFullyCached, result])
+
+  return data
 }
 
 const countToIndices = (count?: number) =>
@@ -682,8 +1052,6 @@ export const useAllProposalsViaSubgraph = (): PartialProposalData => {
   }
 }
 
-
-
 export const useAllProposalsViaChain = (
   addresses: ContractAddresses,
   skip = false,
@@ -804,8 +1172,6 @@ export const useProposal = (
   id?: string | number,
   forceFetch?: boolean,
 ): Proposal | undefined => {
-  // console.error('================')
-
   const blockNumber = useBlockNumber()
   const timestamp = useBlockTimestamp(blockNumber)
 
@@ -861,8 +1227,6 @@ export const useProposal = (
     }
   }, [data, blockNumber, timestamp])
 
-  // console.error('useProposal status',propId, proposal?.id, proposal?.status)
-  // console.error('================')
   return proposal
 }
 

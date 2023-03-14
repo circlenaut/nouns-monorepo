@@ -6,6 +6,7 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ChainId, DAppProvider } from '@usedapp/core'
 import { Web3ReactProvider } from '@web3-react/core'
+import LRUCache from 'lru-cache'
 import React, { FC, useCallback, useEffect, useRef } from 'react'
 import { Provider } from 'react-redux'
 
@@ -19,7 +20,12 @@ import { ConfigProvider, useConfig } from '@/hooks/useConfig'
 import { LanguageProvider } from '@/i18n/LanguageProvider'
 import reportWebVitals from '@/reportWebVitals'
 import LogsUpdater from '@/state/updaters/logs'
-import { apolloClientFactory, reactClientFactory } from '@/wrappers/subgraph'
+import {
+  apolloClientFactory,
+  lruCacheFactory,
+  reactClientFactory,
+} from '@/wrappers'
+import { LRUCacheProvider } from './cache'
 
 interface ProvidersProps {
   children: React.ReactNode
@@ -57,21 +63,12 @@ export const Providers: FC<ProvidersProps> = ({ children }) => {
     queryClientRef.current = reactClientFactory()
   }
 
-  const Updaters = useCallback(
-    () => (
-      <>
-        <LogsUpdater />
-      </>
-    ),
-    [],
-  )
-  // const Updaters = () => {
-  //   return (
-  //     <>
-  //       <LogsUpdater />
-  //     </>
-  //   )
-  // }
+  const lruCacheRef = useRef<LRUCache<unknown, unknown>>()
+
+  if (!lruCacheRef.current) {
+    lruCacheRef.current = lruCacheFactory({ maxAge: 5000 })
+  }
+  const Updaters = useCallback(() => <LogsUpdater />, [])
 
   // If you want to start measuring performance in your app, pass a function
   // to log results (for example: reportWebVitals(console.info))
@@ -80,23 +77,25 @@ export const Providers: FC<ProvidersProps> = ({ children }) => {
 
   return (
     <Provider store={store}>
-      <ContractAddressesProvider>
-        <ConfigProvider>
-          <Web3ReactProvider connectors={connectors}>
-            <ConnectionProvider />
-            <ChainSubscriber />
-            <QueryClientProvider client={queryClientRef.current}>
-              <ApolloProvider client={clientRef.current}>
-                <PastAuctions />
-                <DAppProvider config={useDappConfigRef.current}>
-                  <LanguageProvider>{children}</LanguageProvider>
-                  <Updaters />
-                </DAppProvider>
-              </ApolloProvider>
-            </QueryClientProvider>
-          </Web3ReactProvider>
-        </ConfigProvider>
-      </ContractAddressesProvider>
+      <LRUCacheProvider cache={lruCacheRef.current}>
+        <ContractAddressesProvider>
+          <ConfigProvider>
+            <Web3ReactProvider connectors={connectors}>
+              <ConnectionProvider />
+              <ChainSubscriber />
+              <QueryClientProvider client={queryClientRef.current}>
+                <ApolloProvider client={clientRef.current}>
+                  <PastAuctions />
+                  <DAppProvider config={useDappConfigRef.current}>
+                    <LanguageProvider>{children}</LanguageProvider>
+                    <Updaters />
+                  </DAppProvider>
+                </ApolloProvider>
+              </QueryClientProvider>
+            </Web3ReactProvider>
+          </ConfigProvider>
+        </ContractAddressesProvider>
+      </LRUCacheProvider>
     </Provider>
   )
 }

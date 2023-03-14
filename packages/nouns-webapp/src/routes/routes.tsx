@@ -7,7 +7,7 @@ import {
   Web3Provider,
 } from '@ethersproject/providers'
 import { useEthers } from '@usedapp/core'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import Footer from '@/components/Footer'
@@ -27,7 +27,7 @@ import VotePage from '@/pages/Vote'
 // tslint:disable:ordered-imports
 import '@/styles/globals.css'
 import classes from '../App.module.css'
-import { useAppSelector } from '@/hooks'
+import DebugStats from '@/components/DebugStats'
 
 type ValidProviders = Web3Provider | JsonRpcProvider | BaseProvider
 
@@ -47,9 +47,6 @@ const AuctionRoutes: React.FC = () => {
 export const AppRoutes: React.FC<RoutesProps> = () => {
   const [currentProvider, setCurrentProvider] = useState<ValidProviders>()
 
-  // const newCall = useAppSelector((state) => state.cache.newCall ?? 0)
-  // const cacheHit = useAppSelector((state) => state.cache.cacheHit ?? 0)
-
   const { library } = useEthers()
 
   useEffect(() => {
@@ -60,29 +57,9 @@ export const AppRoutes: React.FC<RoutesProps> = () => {
     )
   }, [library])
 
-  // const [renderIter, setRenderIter] = useState(0)
-
-  // const incrementRenderIter = useCallback(() => {
-  //   setRenderIter(renderIter + 1)
-  // }, [renderIter])
-
-  // useEffect(() => {
-  //   console.debug(`DOM render iteration: ${renderIter}`)
-  // }, [renderIter])
-
-  // useEffect(() => {
-  //   setRenderIter((prev) => prev + 1);
-  // }, []);
-
-  // const cacheHitRate = useMemo(() => (newCall/(newCall+cacheHit)), [newCall, cacheHit])
-
   return (
     <>
-      {/* <div>
-        <button
-          onClick={incrementRenderIter}>{`Increment Render Iteration: ${renderIter}, Current Cache: ${!isNaN(cacheHitRate) ?cacheHitRate : 0}`}
-        </button>
-      </div> */}
+      <DebugStats />
       <div className={`${classes.wrapper}`}>
         <NetworkCheck />
         <BrowserRouter basename="/">

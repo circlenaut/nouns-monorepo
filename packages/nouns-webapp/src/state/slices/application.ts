@@ -9,10 +9,16 @@ export interface AlertModal {
   message?: ReactNode
 }
 
+export interface EtherPrice {
+  currency: string | null
+  rate: number
+}
+
 export interface ApplicationState {
   stateBackgroundColor: string
   isCoolBackground: boolean
   alertModal: AlertModal
+  etherPrice: EtherPrice
 }
 
 const initialState: ApplicationState = {
@@ -20,6 +26,10 @@ const initialState: ApplicationState = {
   isCoolBackground: true,
   alertModal: {
     show: false,
+  },
+  etherPrice: {
+    currency: null,
+    rate: 0,
   },
 }
 
@@ -36,10 +46,16 @@ export const applicationSlice = createSlice({
       if (isElement) return
       state.alertModal = action.payload
     },
+    setEthPrice: (state, action: PayloadAction<EtherPrice>) => {
+      console.info(
+        `Setting eth price to ${action.payload.rate} ${action.payload.currency}`,
+      )
+      state.etherPrice = action.payload
+    },
   },
 })
 
-export const { setStateBackgroundColor, setAlertModal } =
+export const { setStateBackgroundColor, setAlertModal, setEthPrice } =
   applicationSlice.actions
 
 const applicationReducer = applicationSlice.reducer
