@@ -106,7 +106,7 @@ export const LRUCacheProvider: React.FC<LRUCacheProviderProp> = ({
       setCacheState(cache)
       dispatch(setCacheKeyStore(getKeyMap(result)))
       // dispatch(recordCacheUpdate(1))
-      console.warn(`Set cache key (${key}): ${cache.get(key)}`)
+      console.debug(`Set cache key (${key}): ${cache.get(key)}`)
       return result
     },
     [dispatch, cache],

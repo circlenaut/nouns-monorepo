@@ -1,6 +1,7 @@
+import React, { useMemo } from 'react'
+
 import { containsBlockedText } from '@/utils/moderation/containsBlockedText'
 import { useReverseNameServiceLookUp } from '@/utils/nameLookup'
-import React from 'react'
 
 interface NnsOrEnsOrLongAddressProps {
   address: string
@@ -12,7 +13,8 @@ interface NnsOrEnsOrLongAddressProps {
 const NnsOrEnsOrLongAddress: React.FC<NnsOrEnsOrLongAddressProps> = ({
   address,
 }) => {
-  const name = useReverseNameServiceLookUp(address)
+  const nameMemo = useReverseNameServiceLookUp(address)
+  const name = useMemo(() => nameMemo, [nameMemo])
   const ensMatchesBlocklistRegex = containsBlockedText(name || '', 'en')
   return <>{name && !ensMatchesBlocklistRegex ? name : address}</>
 }

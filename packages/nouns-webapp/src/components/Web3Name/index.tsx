@@ -3,8 +3,8 @@ import React, { useCallback, useMemo } from 'react'
 import { useActiveLocale } from '@/hooks/useActivateLocale'
 import { DEFAULT_LOCALE, Locales } from '@/i18n/locales'
 import {
-  isValidENSSuffix,
-  isValidNNSSuffix,
+  isValidEnsName,
+  isValidNnsName,
   toShortENS,
   toShortNNS,
   toVeryShortENS,
@@ -41,9 +41,9 @@ const Web3Name: React.FC<Web3Name> = ({ name }) => {
   const displayName = useMemo(
     () =>
       name && !ensMatchesBlocklistRegex
-        ? isValidNNSSuffix(name)
+        ? isValidNnsName(name)
           ? renderNNS(name)
-          : isValidENSSuffix(name)
+          : isValidEnsName(name)
           ? renderENS(name)
           : null
         : null,

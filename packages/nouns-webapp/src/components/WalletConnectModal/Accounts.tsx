@@ -41,7 +41,7 @@ interface AccountsProps {
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   accounts: ReturnType<Web3ReactHooks['useAccounts']>
   provider: ReturnType<Web3ReactHooks['useProvider']>
-  ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
+  // ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
   isConnectRequested: boolean | null
   children?: React.ReactNode
 }
@@ -51,11 +51,10 @@ export const Accounts: React.FC<AccountsProps> = ({
   isActive,
   accounts,
   provider,
-  ENSNames,
+  // ENSNames,
   isConnectRequested,
 }: AccountsProps) => {
   const balances = useBalances(provider, accounts)
-  console.warn('ENSNames', ENSNames)
 
   const [isLoading, setIsLoading] = useState<boolean>(false)
 

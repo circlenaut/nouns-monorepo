@@ -26,7 +26,7 @@ export interface CardProps {
   isActive: ReturnType<Web3ReactHooks['useIsActive']>
   error: Error | undefined
   setError: (error: Error | undefined) => void
-  ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
+  // ENSNames: ReturnType<Web3ReactHooks['useENSNames']>
   provider?: ReturnType<Web3ReactHooks['useProvider']>
   accounts?: string[]
 }
@@ -38,7 +38,7 @@ export const Card: React.FC<CardProps> = ({
   isActive,
   error,
   setError,
-  ENSNames,
+  // ENSNames,
   accounts,
   provider,
 }: CardProps) => {
@@ -74,7 +74,7 @@ export const Card: React.FC<CardProps> = ({
           isActive={isActive}
           accounts={accounts}
           provider={provider}
-          ENSNames={ENSNames}
+          // ENSNames={ENSNames}
           isConnectRequested={isConnectRequested}
         />
       </div>

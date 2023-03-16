@@ -1,12 +1,13 @@
 import { useEthers } from '@usedapp/core'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useReverseNameServiceLookUp } from './nameLookup'
 
 export const useNamedAvatarLookup = (address: string) => {
   const { library: provider } = useEthers()
   const [namedAvatar, setNamedAvatar] = useState<string>()
 
-  const name = useReverseNameServiceLookUp(address)
+  const nameMemo = useReverseNameServiceLookUp(address)
+  const name = useMemo(() => nameMemo, [nameMemo])
 
   useEffect(() => {
     if (!provider) return

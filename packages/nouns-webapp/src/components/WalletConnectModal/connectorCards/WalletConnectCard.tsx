@@ -2,7 +2,7 @@
 
 // import { URI_AVAILABLE } from '@web3-react/walletconnect-v2'
 import { URI_AVAILABLE } from '@web3-react/walletconnect'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 // import { hooks, walletConnectV2 } from '@/connectors/walletConnectV2'
 import { hooks, walletConnect } from '@/connectors/walletConnect'
@@ -24,7 +24,8 @@ interface WalletConnectCardProps {
 export const WalletConnectCard: React.FC<WalletConnectCardProps> = ({
   connect,
 }) => {
-  const chainId = useChainId()
+  const chainIdMemo = useChainId()
+  const chainId = useMemo(() => chainIdMemo, [chainIdMemo])
   const accounts = useAccounts()
   const isActivating = useIsActivating()
 
@@ -32,7 +33,7 @@ export const WalletConnectCard: React.FC<WalletConnectCardProps> = ({
   // onIsActive && onIsActive(!isActive);
 
   const provider = useProvider()
-  const ENSNames = useENSNames(provider)
+  // const ENSNames = useENSNames(provider)
 
   const [error, setError] = useState<Error | undefined>(undefined)
 
@@ -64,7 +65,7 @@ export const WalletConnectCard: React.FC<WalletConnectCardProps> = ({
       setError={setError}
       accounts={accounts}
       provider={provider}
-      ENSNames={ENSNames}
+      // ENSNames={ENSNames}
     />
   )
 }

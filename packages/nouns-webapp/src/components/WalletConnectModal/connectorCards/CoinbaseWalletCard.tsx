@@ -1,6 +1,6 @@
 // Borrowed from: https://github.com/Uniswap/web3-react/blob/main/example/components/connectorCards/CoinbaseWalletCard.tsx
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { coinbaseWallet, hooks } from '@/connectors/coinbaseWallet'
 import { Card } from '../Card'
@@ -11,7 +11,7 @@ const {
   useIsActivating,
   useIsActive,
   useProvider,
-  useENSNames,
+  // useENSNames,
 } = hooks
 
 interface CoinbaseWalletCardProps {
@@ -21,14 +21,15 @@ interface CoinbaseWalletCardProps {
 export const CoinbaseWalletCard: React.FC<CoinbaseWalletCardProps> = ({
   connect,
 }) => {
-  const chainId = useChainId()
+  const chainIdMemo = useChainId()
+  const chainId = useMemo(() => chainIdMemo, [chainIdMemo])
   const accounts = useAccounts()
   const isActivating = useIsActivating()
 
   const isActive = useIsActive()
 
   const provider = useProvider()
-  const ENSNames = useENSNames(provider)
+  // const ENSNames = useENSNames(provider)
 
   const [error, setError] = useState<Error | undefined>(undefined)
 
@@ -50,7 +51,7 @@ export const CoinbaseWalletCard: React.FC<CoinbaseWalletCardProps> = ({
       setError={setError}
       accounts={accounts}
       provider={provider}
-      ENSNames={ENSNames}
+      // ENSNames={ENSNames}
     />
   )
 }

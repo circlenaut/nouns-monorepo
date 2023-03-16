@@ -46,7 +46,7 @@ export const useReverseNameServiceLookUp = (
 
   const processCacheData = useCallback(
     async (_cacheKey: string, _address: string) => {
-      if (!provider) return
+
 
       const cachedTimeLeft = remainingCacheTime(_cacheKey)
       const cachedData = fetchCache(_cacheKey) as string
@@ -56,8 +56,11 @@ export const useReverseNameServiceLookUp = (
         recordApiStat(RecordActions.FETCH)
         return cachedData
       }
+
+      if (!provider) return
       try {
-        const result = await lookupNNSOrENS(provider, _address)
+        // const result = await lookupNNSOrENS(provider, _address)
+        const result = 'null'
         if (!!result || result === null) {
           updateCache(_cacheKey, result ?? 'null', cacheTTL)
           recordApiStat(RecordActions.UPDATE)
@@ -90,6 +93,7 @@ export const useReverseNameServiceLookUp = (
       const cacheKey = `nsData_${address}`
       ;(async () => {
         const result = await processCacheData(cacheKey, address)
+        console.error('result!!!!!!!', cacheKey,  result)
         if (!!result && result !== 'null') {
           setName(result)
         }
@@ -98,7 +102,7 @@ export const useReverseNameServiceLookUp = (
     return () => {
       setName('')
     }
-  }, [address, provider])
+  }, [provider])
 
   if (isValidNameFormat(address)) return address
 

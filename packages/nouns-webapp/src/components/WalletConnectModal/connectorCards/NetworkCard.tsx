@@ -1,6 +1,6 @@
 // Borrowed from: https://github.com/Uniswap/web3-react/blob/main/example/components/connectorCards/NetworkCard.tsx
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { hooks, network } from '@/connectors/network'
 import { Card } from '../Card'
@@ -11,7 +11,7 @@ const {
   useIsActivating,
   useIsActive,
   useProvider,
-  useENSNames,
+  // useENSNames,
 } = hooks
 
 interface NetworkCardProps {
@@ -19,7 +19,8 @@ interface NetworkCardProps {
 }
 
 export const NetworkCard: React.FC<NetworkCardProps> = ({ connect }) => {
-  const chainId = useChainId()
+  const chainIdMemo = useChainId()
+  const chainId = useMemo(() => chainIdMemo, [chainIdMemo])
   const accounts = useAccounts()
   const isActivating = useIsActivating()
 
@@ -27,7 +28,7 @@ export const NetworkCard: React.FC<NetworkCardProps> = ({ connect }) => {
   // onIsActive && onIsActive(!isActive);
 
   const provider = useProvider()
-  const ENSNames = useENSNames(provider)
+  // const ENSNames = useENSNames(provider)
 
   const [error, setError] = useState<Error | undefined>(undefined)
 
@@ -49,7 +50,7 @@ export const NetworkCard: React.FC<NetworkCardProps> = ({ connect }) => {
       setError={setError}
       accounts={accounts}
       provider={provider}
-      ENSNames={ENSNames}
+      // ENSNames={ENSNames}
     />
   )
 }

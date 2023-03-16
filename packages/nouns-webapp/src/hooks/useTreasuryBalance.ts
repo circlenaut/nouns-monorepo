@@ -92,37 +92,10 @@ export const useTreasuryUSDValue = (
     void getPrice()
   }, [dispatch, currency, blockNo, isFullyCached])
 
-  // const lruContext = useLRUCache();
-  // useEffect (() => {
-  //   console.warn('init?', isFullyCached)
-  //   if (latestEtherPrice != undefined || isFullyCached) return
-  //   (async() => {
-  //     console.warn('latest?', !!latestEtherPrice, isFullyCached)
-  //     const { data: result } = await useAsyncCachedHook({
-  //       fn: getCoingeckoPrice,
-  //       params: ['ethereum', currency],
-  //       cacheKey: `ethereum-${currency}`,
-  //       skip: !!latestEtherPrice || isFullyCached,
-  //       lruContext,
-  //       appDispatch: dispatch
-  //     })
-  //     console.warn('!!!!! result', result)
-  //     if (result) {
-  //       setLatestEtherPrice(result)
-  //       handleNewApiCall(1)
-  //       dispatch(
-  //         setEthPrice({currency: currency, rate: Number(latestEtherPrice)})
-  //       )
-  //     }
-  //   })()
-  // }, [dispatch])
-
   return useMemo(() => {
     const treasuryBalanceETH = Number(
       ethers.utils.formatEther(ethBalance.toString() || '0'),
     )
-
-    // console.warn('rate', currentEtherPriceRef.current.rate, Number(etherPrice), treasuryBalanceETH)
     return (
       (Number(cachedPrice) ||
         currentEtherPrice.rate ||

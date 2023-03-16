@@ -35,7 +35,7 @@ export const toVeryShortAddress = (address: string) =>
   @param {string} name The name to check.
   @returns {boolean} Whether the name is a valid ENS name ending with the suffice '.eth'.
   */
-export const isValidENSSuffix = (name?: string): boolean =>
+export const isValidEnsName = (name?: string): boolean =>
   !name ? false : name?.endsWith('.eth')
 
 /**
@@ -67,7 +67,7 @@ export const toVeryShortENS = (ens: string) =>
   @param {string} name The name to check.
   @returns {boolean} Whether the name is a valid NNS name ending with the suffice '.⌐◨-◨'.
   */
-export const isValidNNSSuffix = (name?: string): boolean =>
+export const isValidNnsName = (name?: string): boolean =>
   !name ? false : name?.endsWith('.⌐◨-◨')
 
 /**
