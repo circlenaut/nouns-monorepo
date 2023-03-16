@@ -36,13 +36,11 @@ const deserializeBids = (reduxSafeBids: BidEvent[]): Bid[] => {
 }
 
 const useOnDisplayAuction = (): Auction | undefined => {
-  const lastAuctionNounId = useAppSelector(
-    (state) => state.auction.activeAuction?.nounId,
-  )
   const onDisplayAuctionNounId = useAppSelector(
     (state) => state.onDisplayAuction.onDisplayAuctionNounId,
   )
   const currentAuction = useAppSelector((state) => state.auction.activeAuction)
+  const lastAuctionNounId = currentAuction?.nounId
   const pastAuctions = useAppSelector(
     (state) => state.pastAuctions.pastAuctions,
   )

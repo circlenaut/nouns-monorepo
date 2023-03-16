@@ -15,8 +15,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useWeb3React } from '@web3-react/core'
 import type { Connector } from '@web3-react/types'
 
-import Modal from '@/components//Modal'
 import WalletButton, { WALLET_TYPE } from '@/components/WalletButton'
+import WalletModal from './WalletModal'
 
 import { CoinbaseWalletCard } from '@/components/WalletConnectModal/connectorCards/CoinbaseWalletCard'
 import { GnosisSafeCard } from '@/components/WalletConnectModal/connectorCards/GnosisSafeCard'
@@ -448,7 +448,7 @@ const WalletConnectModal: React.FC<Props> = (props) => {
   }, [])
 
   return (
-    <Modal
+    <WalletModal
       title={<Trans>Connect your wallet</Trans>}
       content={isConnectFailed ? errorMessage : showWallets()}
       onDismiss={onDismiss}

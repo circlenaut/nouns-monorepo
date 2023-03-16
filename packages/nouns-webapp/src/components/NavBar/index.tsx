@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { ChainId, useEtherBalance } from '@usedapp/core'
 import clsx from 'clsx'
 import { BigNumber, utils } from 'ethers'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Container, Dropdown, Nav, Navbar } from 'react-bootstrap'
 import { Link, useLocation } from 'react-router-dom'
 
@@ -19,13 +19,14 @@ import NavDropdown from '@/components/NavDropdown'
 import NavLocaleSwitcher from '@/components/NavLocaleSwitcher'
 import NavWallet from '@/components/NavWallet'
 import { CHAIN_ID, ETH_DECIMAL_PLACES } from '@/configs'
-import { useAppSelector } from '@/hooks'
+import { useAppDispatch, useAppSelector } from '@/hooks'
 import { useContractAddresses } from '@/hooks/useAddresses'
 import useLidoBalance from '@/hooks/useLidoBalance'
 import useTokenBuyerBalance from '@/hooks/useTokenBuyerBalance'
 import { usePickByState } from '@/utils/colorResponsiveUIUtils'
 import { buildEtherscanHoldingsLink } from '@/utils/etherscan'
 import { ExternalURL, externalURL } from '@/utils/externalURL'
+
 // import { useTreasuryBalance } from '@/hooks/useTreasuryBalance';
 
 // tslint:disable:ordered-imports
@@ -37,6 +38,7 @@ import responsiveUiUtilsClasses from '@/utils/ResponsiveUIUtils.module.css'
 // import logo from '@/assets/logo.svg'
 import testnetNoun from '@/assets/testnet-noun.png'
 import noggles from '@/assets/noggles.svg'
+import { setDevMode } from '@/state/slices/application'
 // import { ReactComponent as Noggles } from '@/assets/icons/Noggles.svg';
 
 const Noggles: React.FC<{ fill?: string }> = ({
@@ -51,12 +53,15 @@ const Noggles: React.FC<{ fill?: string }> = ({
   </svg>
 )
 const NavBar: React.FC = () => {
-  const activeAccount = useAppSelector((state) => state.account.activeAccount)
+  const { activeAccount } = useAppSelector((state) => state.account)
 
-  const stateBgColor = useAppSelector(
-    (state) => state.application.stateBackgroundColor,
-  )
-  const isCool = useAppSelector((state) => state.application.isCoolBackground)
+  const dispatch = useAppDispatch()
+
+  const {
+    stateBackgroundColor: stateBgColor,
+    isCoolBackground: isCool,
+    devMode,
+  } = useAppSelector((state) => state.application)
   const location = useLocation()
 
   // Setting default address to avoid hook order error on useEtherBalance and useTreasuryBalance
@@ -90,6 +95,10 @@ const NavBar: React.FC = () => {
 
   const closeNav = () => setIsNavExpanded(false)
 
+  const handleDevMode = useCallback(() => {
+    dispatch(setDevMode(!devMode))
+  }, [devMode])
+
   return (
     <div className={classes.wrapper}>
       <Navbar
@@ -108,14 +117,15 @@ const NavBar: React.FC = () => {
               />
             </Navbar.Brand>
             {Number(CHAIN_ID) !== ChainId.Mainnet && (
-              <Nav.Item>
-                <img
-                  className={classes.testnetImg}
-                  src={testnetNoun}
-                  alt="testnet noun"
-                />
-                TESTNET
-              </Nav.Item>
+              <Navbar.Brand className={classes.navBarBrand}>
+                <button onClick={handleDevMode}>
+                  <img
+                    className={classes.testnetImg}
+                    src={testnetNoun}
+                    alt="testnet noun"
+                  />
+                </button>
+              </Navbar.Brand>
             )}
             <Nav.Item>
               {daoEtherscanLink && treasuryBalance && (

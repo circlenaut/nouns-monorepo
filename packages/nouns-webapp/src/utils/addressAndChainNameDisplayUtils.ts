@@ -106,3 +106,28 @@ export const toVeryShortNNS = (nns: string) =>
   */
 export const isValidNameFormat = (name?: string): boolean =>
   validNameSuffixes.some((suffix) => name?.endsWith(suffix))
+
+/**
+Truncates an Ethereum address to a dynamic length with an ellipsis.
+@param {string} address - The address to truncate.
+@param {number} width - The maximum width of the truncated address.
+@returns {string} The truncated address with an ellipsis if applicable.
+*/
+export const toDynamicShortAddress = (address: string, maxWidth: number) => {
+  const maxLength = Math.max(10, maxWidth - 6)
+  const ellipsis = '.'.repeat(
+    Math.min(Math.max(address.length - maxLength, 0), 3),
+  )
+  if (address.length <= maxLength) {
+    return address
+  } else {
+    const startLength = Math.floor((maxLength - ellipsis.length) / 2)
+    const endLength =
+      maxLength - ellipsis.length - startLength < 1
+        ? 1
+        : maxLength - ellipsis.length - startLength
+    return `${address.substring(0, startLength)}${
+      endLength === 1 ? '..' : ellipsis
+    }${address.substring(address.length - endLength)}`
+  }
+}

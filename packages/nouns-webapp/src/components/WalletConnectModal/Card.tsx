@@ -1,6 +1,5 @@
 // Adapted from: https://github.com/Uniswap/web3-react/blob/main/example/components/Card.tsx
 
-import { ChainId } from '@usedapp/core'
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { Web3ReactHooks } from '@web3-react/core'
 import { GnosisSafe } from '@web3-react/gnosis-safe'
@@ -14,9 +13,10 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 
 import { useAppSelector } from '@/hooks'
 import { Accounts } from './Accounts'
-import { Chain } from './Chain'
 import { ConnectWithSelect } from './ConnectWithSelect'
-import { Status } from './Status'
+import { Display, Status } from './Status'
+
+import classes from './WalletConnectModal.module.css'
 
 export interface CardProps {
   // connector: MetaMask | WalletConnectV2 | CoinbaseWallet | Network | GnosisSafe
@@ -42,7 +42,7 @@ export const Card: React.FC<CardProps> = ({
   accounts,
   provider,
 }: CardProps) => {
-  const { activeWallet } = useAppSelector((state) => state.account)
+  const { devMode } = useAppSelector((state) => state.application)
 
   dayjs.extend(relativeTime)
 
@@ -56,42 +56,18 @@ export const Card: React.FC<CardProps> = ({
   }, [])
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        width: '20rem',
-        padding: '1rem',
-        margin: '1rem',
-        overflow: 'auto',
-        border: '1px solid',
-        borderRadius: '1rem',
-      }}
-    >
+    <div className={classes.card}>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <div style={{ marginRight: '5px' }}>
           <Status
             isActivating={isActivating}
             isActive={isActive}
             error={error}
-            showIconOnly={true}
+            display={devMode ? Display.IconAndText : Display.IconOnly}
+            chainId={chainId}
           />
         </div>
-        {activeWallet}
-        {chainId && chainId !== ChainId.Goerli && (
-          <div style={{ marginLeft: '2.5px' }}>
-            <Status
-              isActivating={isActivating}
-              isActive={isActive}
-              error={error}
-              showIconOnly={false}
-            />
-          </div>
-        )}
       </div>
-
-      {chainId !== ChainId.Goerli && <Chain chainId={chainId} />}
       <div style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
         <Accounts
           chainId={chainId}

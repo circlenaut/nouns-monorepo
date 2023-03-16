@@ -32,7 +32,7 @@ const CreateProposalPage: React.FC = () => {
   // Setting default address to avoid hook order error on useEtherBalance and useTreasuryBalance
   const { contractAddresses } = useContractAddresses()
 
-  const activeAccount = useAppSelector((state) => state.account.activeAccount)
+  const { activeAccount } = useAppSelector((state) => state.account)
   const navigate = useNavigate()
 
   const latestProposalIdCall = useProposalCount(contractAddresses)

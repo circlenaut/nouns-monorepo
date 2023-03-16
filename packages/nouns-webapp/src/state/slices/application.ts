@@ -19,6 +19,7 @@ export interface ApplicationState {
   isCoolBackground: boolean
   alertModal: AlertModal
   etherPrice: EtherPrice
+  devMode: boolean
 }
 
 const initialState: ApplicationState = {
@@ -31,6 +32,7 @@ const initialState: ApplicationState = {
     currency: null,
     rate: 0,
   },
+  devMode: false,
 }
 
 export const applicationSlice = createSlice({
@@ -52,11 +54,19 @@ export const applicationSlice = createSlice({
       )
       state.etherPrice = action.payload
     },
+    setDevMode: (state, action: PayloadAction<boolean>) => {
+      console.info(`Enabling development mode`)
+      state.devMode = action.payload
+    },
   },
 })
 
-export const { setStateBackgroundColor, setAlertModal, setEthPrice } =
-  applicationSlice.actions
+export const {
+  setStateBackgroundColor,
+  setAlertModal,
+  setEthPrice,
+  setDevMode,
+} = applicationSlice.actions
 
 const applicationReducer = applicationSlice.reducer
 export default applicationReducer

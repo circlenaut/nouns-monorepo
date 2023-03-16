@@ -22,9 +22,8 @@
   top: 50%;
   padding-top: 10px;
   transform: translate(-50%, -50%);
-  /* width: 90%; */
-  min-width: 45vw;
-  max-width: 90vw;
+  min-width: fit-content;
+  max-width: 50vw;
   max-height: 90vh;
   box-sizing: border-box;
   overflow-y: scroll;
@@ -126,8 +125,8 @@
     top: 50%;
     padding-top: 10px;
     transform: translate(-50%, -50%);
-    min-width: 45vw;
-    max-width: 90vw;
+    min-width: fit-content;
+    max-width: 50vw;
     max-height: 90vh;
     box-sizing: border-box;
     overflow-y: scroll;

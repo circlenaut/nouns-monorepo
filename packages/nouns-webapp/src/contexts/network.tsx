@@ -78,7 +78,7 @@ export const connectors: [
 export const NetworkCheck: React.FC = () => {
   const dispatch = useAppDispatch()
 
-  const alertModal = useAppSelector((state) => state.application.alertModal)
+  const { alertModal } = useAppSelector((state) => state.application)
   const { activeChainId } = useAppSelector((state) => state.account)
 
   return (

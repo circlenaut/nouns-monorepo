@@ -9,9 +9,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 import TruncatedAmount from '@/components/TruncatedAmount'
-import { useReverseENSLookUp } from '@/utils/ensLookup'
 import { buildEtherscanTxLink } from '@/utils/etherscan'
-import { containsBlockedText } from '@/utils/moderation/containsBlockedText'
 import { Bid } from '@/utils/types'
 
 // tslint:disable:ordered-imports

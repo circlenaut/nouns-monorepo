@@ -25,7 +25,7 @@ interface LRUCacheProviderContext {
   cache: LRUCache<unknown, unknown>
   cacheState: LRUCache<unknown, unknown>
   getKeyMap: (_cache: LRUCache<unknown, unknown>) => object
-  updateCache: (key: unknown, value: unknown) => void
+  updateCache: (key: unknown, value: unknown, ttl?: number) => void
   removeCache: (key: unknown) => void
   isCached: (key: unknown) => boolean
   fetchCache: (key: unknown) => unknown
@@ -101,12 +101,12 @@ export const LRUCacheProvider: React.FC<LRUCacheProviderProp> = ({
   const updateCache = useCallback(
     (key: unknown, value: unknown, ttl?: number) => {
       const result = cache.set(key, value, {
-        // ttl: ttl ?? cache.ttl
+        ttl: ttl ?? cache.ttl,
       })
       setCacheState(cache)
       dispatch(setCacheKeyStore(getKeyMap(result)))
       // dispatch(recordCacheUpdate(1))
-      console.debug(`Set cache key (${key}): ${cache.get(key)}`)
+      console.warn(`Set cache key (${key}): ${cache.get(key)}`)
       return result
     },
     [dispatch, cache],

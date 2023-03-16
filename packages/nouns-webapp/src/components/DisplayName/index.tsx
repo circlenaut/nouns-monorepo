@@ -1,17 +1,23 @@
 import { constants } from 'ethers'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import Identicon from '@/components/Identicon'
-// import { useShareableIsCountdownActive } from '@/state/shared'
 import { useAppDispatch, useAppSelector } from '@/hooks'
-import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
-import { useReverseENSLookUp } from '@/utils/ensLookup'
-import { useNounsNameService } from '@/wrappers/nounsNameService'
+import {
+  isValidAddressFormat,
+  isValidNameFormat,
+  toDynamicShortAddress,
+  toShortAddress,
+} from '@/utils/addressAndChainNameDisplayUtils'
+import { useReverseNameServiceLookUp } from '@/utils/nameLookup'
 import Web3Name from '../Web3Name'
 
 import { setActiveName } from '@/state/slices/account'
-import { useWeb3React } from '@web3-react/core'
+import { useEthers } from '@usedapp/core'
 import classes from '../ShortAddress/ShortAddress.module.css'
+import { containsBlockedText } from '@/utils/moderation/containsBlockedText'
+
+const MIN_WINDOW_WIDTH = 554
 
 interface DisplayNameProps {
   address: string
@@ -21,6 +27,7 @@ interface DisplayNameProps {
   renderCountdown?: boolean
   showZero?: boolean
   fetchIsCountdownRunning?: (state: boolean) => void
+  showDynamicLength?: boolean
 }
 const DisplayName: React.FC<DisplayNameProps> = ({
   address,
@@ -30,35 +37,63 @@ const DisplayName: React.FC<DisplayNameProps> = ({
   renderCountdown = true,
   fetchIsCountdownRunning,
   showZero = false,
+  showDynamicLength = false,
 }) => {
-  // const { library: provider } = useEthers();
-  const { provider } = useWeb3React()
-  // onst [displayName, setDisplayName] = useState<string>()
+  const { library: provider } = useEthers()
+  const [displayName, setDisplayName] = useState<string>()
   const dispatch = useAppDispatch()
   const { activeAccount, activeName } = useAppSelector((state) => state.account)
 
-  const nns = useNounsNameService(
+  const memoName = useReverseNameServiceLookUp(
     address,
-    address === constants.AddressZero || !!activeName,
+    address === constants.AddressZero ||
+      !!activeName ||
+      isValidNameFormat(address),
   )
-  const nounsName = useMemo(() => nns, [nns])
+  const name = useMemo(() => memoName, [memoName])
 
-  const ens = useReverseENSLookUp(
-    address,
-    address === constants.AddressZero || !!activeName,
+  useEffect(() => {
+    if (!provider) return
+    ;(async () => {
+      !!name && !ensMatchesBlocklistRegex && setDisplayName(name)
+    })()
+  }, [provider, name])
+
+  const ensMatchesBlocklistRegex = containsBlockedText(name || '', 'en');
+  const validAddress = isValidAddressFormat(address)
+
+  const [addressLength, setAddressLength] = useState(
+    window.innerWidth > MIN_WINDOW_WIDTH
+      ? 4 + (window.innerWidth - MIN_WINDOW_WIDTH)
+      : 4,
   )
-  const ethName = useMemo(() => ens, [ens])
-  const name = nounsName || ethName
 
-  // const ensMatchesBlocklistRegex = containsBlockedText(ens || '', 'en');
-  const shortAddress = toShortAddress(address)
+  const shortAddress =
+    address !== constants.AddressZero && validAddress
+      ? showZero || addressLength > 0
+        ? showDynamicLength
+          ? toDynamicShortAddress(address, addressLength)
+          : toShortAddress(address)
+        : ''
+      : ''
 
   useEffect(() => {
     if (address === constants.AddressZero && !activeAccount) return
     if (!activeAccount) dispatch(setActiveName(null))
+    dispatch(setActiveName(displayName || shortAddress))
+  }, [dispatch, address, activeAccount, displayName, shortAddress])
 
-    dispatch(setActiveName(nounsName || ethName || shortAddress))
-  }, [dispatch, address, activeAccount, nounsName, ethName, shortAddress])
+  useEffect(() => {
+    const handleResize = () => {
+      setAddressLength(
+        window.innerWidth > MIN_WINDOW_WIDTH
+          ? 4 + (window.innerWidth - MIN_WINDOW_WIDTH)
+          : 4,
+      )
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   if (avatar) {
     return (
@@ -68,17 +103,15 @@ const DisplayName: React.FC<DisplayNameProps> = ({
             <Identicon size={size} address={address} provider={provider} />
           </div>
         )}
-        {/* <span>{ens && !ensMatchesBlocklistRegex ? ens : shortAddress}</span> */}
-        {name ? <Web3Name name={name}></Web3Name> : shortAddress}
+        {displayName ? <Web3Name name={displayName}></Web3Name> : shortAddress}
       </div>
     )
   }
 
-  // return <>{ens && !ensMatchesBlocklistRegex ? ens : shortAddress}</>;
   return (
     <>
-      {name ? (
-        <Web3Name name={name}></Web3Name>
+      {(displayName) ? (
+        <Web3Name name={displayName}></Web3Name>
       ) : !showZero ? (
         shortAddress
       ) : null}

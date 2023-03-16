@@ -73,7 +73,7 @@ const VotePage: React.FC = () => {
   const [forceFetch, setForceFetch] = useState(false)
   const proposal = useProposal(propId ?? 0, forceFetch)
 
-  const activeAccount = useAppSelector((state) => state.account.activeAccount)
+  const { activeAccount } = useAppSelector((state) => state.account)
 
   const [showVoteModal, setShowVoteModal] = useState<boolean>(false)
   const [showDynamicQuorumInfoModal, setShowDynamicQuorumInfoModal] =

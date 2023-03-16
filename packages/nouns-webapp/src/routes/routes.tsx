@@ -1,6 +1,7 @@
 import { AvatarProvider } from '@davatar/react'
 import {
   BaseProvider,
+  FallbackProvider,
   getDefaultProvider,
   getNetwork,
   JsonRpcProvider,
@@ -23,13 +24,14 @@ import NotFoundPage from '@/pages/NotFound'
 import NoundersPage from '@/pages/Nounders'
 import PlaygroundPage from '@/pages/Playground'
 import VotePage from '@/pages/Vote'
+import DebugStats from '@/components/DebugStats'
+import { useAppSelector } from '@/hooks'
 
 // tslint:disable:ordered-imports
 import '@/styles/globals.css'
 import classes from '../App.module.css'
-import DebugStats from '@/components/DebugStats'
 
-type ValidProviders = Web3Provider | JsonRpcProvider | BaseProvider
+type ValidProviders = Web3Provider | JsonRpcProvider | FallbackProvider | BaseProvider
 
 interface RoutesProps {
   children?: React.ReactNode
@@ -45,6 +47,8 @@ const AuctionRoutes: React.FC = () => {
 }
 
 export const AppRoutes: React.FC<RoutesProps> = () => {
+  const { devMode } = useAppSelector((state) => state.application)
+
   const [currentProvider, setCurrentProvider] = useState<ValidProviders>()
 
   const { library } = useEthers()
@@ -59,7 +63,7 @@ export const AppRoutes: React.FC<RoutesProps> = () => {
 
   return (
     <>
-      <DebugStats />
+      {devMode && <DebugStats />}
       <div className={`${classes.wrapper}`}>
         <NetworkCheck />
         <BrowserRouter basename="/">

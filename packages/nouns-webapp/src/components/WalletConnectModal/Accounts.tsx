@@ -4,7 +4,10 @@ import type { BigNumber } from '@ethersproject/bignumber'
 import { Web3ReactHooks } from '@web3-react/core'
 import React, { useEffect, useState } from 'react'
 
-import ShortAddress from '@/components/ShortAddress'
+import { ETH_DECIMAL_PLACES } from '@/configs'
+import { formatEther } from '@ethersproject/units'
+import { constants } from 'ethers'
+import DisplayName from '../DisplayName'
 
 const useBalances = (
   provider?: ReturnType<Web3ReactHooks['useProvider']>,
@@ -52,6 +55,9 @@ export const Accounts: React.FC<AccountsProps> = ({
   isConnectRequested,
 }: AccountsProps) => {
   const balances = useBalances(provider, accounts)
+  console.warn('ENSNames', ENSNames)
+
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   // const [isLoading, setIsLoading] = useState<boolean | null>(null)
 
@@ -84,18 +90,19 @@ export const Accounts: React.FC<AccountsProps> = ({
                 >
                   {(isConnectRequested || (isActive && !!chainId)) && (
                     <>
-                      <ShortAddress
-                        address={ENSNames?.[i] ?? account}
+                      {console.error('account', account)}
+                      <DisplayName
+                        address={account}
+                        showDynamicLength={true}
                         // fetchIsCountdownRunning={fetchIsCountdownRunning}
                       />
-
                       <>
-                        {/* {isLoading
+                        {isLoading
                           ? null
                           : balances?.[i] &&
                             ` (${constants.EtherSymbol}${Number(
                               formatEther(balances[i]),
-                            ).toFixed(ETH_DECIMAL_PLACES)})`} */}
+                            ).toFixed(ETH_DECIMAL_PLACES)})`}
                       </>
                     </>
                   )}

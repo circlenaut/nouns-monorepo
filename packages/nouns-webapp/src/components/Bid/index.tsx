@@ -83,9 +83,10 @@ const Bid: React.FC<{
 }> = (props) => {
   const { auction, auctionEnded, delay = AUCTION_SETTLEMENT_TIMEOUT } = props
 
-  const activeAccount = useAppSelector((state) => state.account.activeAccount)
   const { provider } = useWeb3React()
-  const { activeChainId } = useAppSelector((state) => state.account)
+  const { activeChainId, activeAccount } = useAppSelector(
+    (state) => state.account,
+  )
   const { contractAddresses } = useContractAddresses()
 
   const countdown = useRef(Date.now() + delay * 1000)
@@ -109,8 +110,6 @@ const Bid: React.FC<{
       ? connectContractToSigner(nounsAuctionHouseContract, undefined, signer)
       : nounsAuctionHouseContract
 
-  const account = useAppSelector((state) => state.account.activeAccount)
-
   const bidInputRef = useRef<HTMLInputElement>(null)
 
   const [bidInput, setBidInput] = useState('')
@@ -123,8 +122,9 @@ const Bid: React.FC<{
 
   const isWinningBidder = useMemo(
     () =>
-      activeChainId && auction.bidder?.toLowerCase() === account?.toLowerCase(),
-    [activeChainId, auction, account],
+      activeChainId &&
+      auction.bidder?.toLowerCase() === activeAccount?.toLowerCase(),
+    [activeChainId, auction, activeAccount],
   )
 
   const isWalletConnected = useMemo(
@@ -350,7 +350,7 @@ const Bid: React.FC<{
 
   // successful bid using redux store state
   useEffect(() => {
-    if (!account) return
+    if (!activeAccount) return
 
     // tx state is mining
     const isMiningUserTx = placeBidState.status === 'Mining'
@@ -360,7 +360,7 @@ const Bid: React.FC<{
     )
     if (
       isMiningUserTx &&
-      auction.bidder?.toLowerCase() === account?.toLowerCase() &&
+      auction.bidder?.toLowerCase() === activeAccount?.toLowerCase() &&
       isCorrectTx
     ) {
       placeBidState.status = 'Success'
@@ -375,7 +375,7 @@ const Bid: React.FC<{
       })
       clearBidInput()
     }
-  }, [auction, placeBidState, account, setModal])
+  }, [auction, placeBidState, activeAccount, setModal])
 
   const cleanup = useRef(() => {
     setModal({ show: false })

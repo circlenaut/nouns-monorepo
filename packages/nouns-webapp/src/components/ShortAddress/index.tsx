@@ -1,24 +1,59 @@
-import React, { useRef } from 'react'
-
 import { useReadonlyProvider } from '@/hooks/useReadonlyProvider'
-import { toShortAddress } from '@/utils/addressAndChainNameDisplayUtils'
-import Identicon from '../Identicon'
-
+import {
+  isValidAddressFormat,
+  toDynamicShortAddress,
+  toShortAddress,
+} from '@/utils/addressAndChainNameDisplayUtils'
 import { constants } from 'ethers'
+import React, { useEffect, useRef, useState } from 'react'
+import Identicon from '../Identicon'
 import classes from './ShortAddress.module.css'
+
+const MIN_WINDOW_WIDTH = 554
 
 const ShortAddress: React.FC<{
   address: string
   avatar?: boolean
   size?: number
   showZero?: boolean
-}> = (props) => {
-  const { address, avatar, size = 24, showZero = false } = props
+  showDynamicLength?: boolean
+}> = ({
+  address,
+  avatar,
+  size = 24,
+  showZero = false,
+  showDynamicLength = false,
+}) => {
   const provider = useRef(useReadonlyProvider())
 
-  const shortAddress = toShortAddress(
-    address === constants.AddressZero && showZero ? constants.AddressZero : '',
+  const validAddress = isValidAddressFormat(address)
+
+  const [addressLength, setAddressLength] = useState(
+    window.innerWidth > MIN_WINDOW_WIDTH
+      ? 4 + (window.innerWidth - MIN_WINDOW_WIDTH)
+      : 4,
   )
+
+  useEffect(() => {
+    const handleResize = () => {
+      setAddressLength(
+        window.innerWidth > MIN_WINDOW_WIDTH
+          ? 4 + (window.innerWidth - MIN_WINDOW_WIDTH)
+          : 4,
+      )
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const shortAddress =
+    address !== constants.AddressZero && validAddress
+      ? showZero || addressLength > 0
+        ? showDynamicLength
+          ? toDynamicShortAddress(address, addressLength)
+          : toShortAddress(address)
+        : ''
+      : ''
 
   if (avatar) {
     return (

@@ -6,12 +6,13 @@ import { GnosisSafe } from '@web3-react/gnosis-safe'
 import type { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 // import { WalletConnect as WalletConnectV2 } from '@web3-react/walletconnect-v2'
-import { ChainId } from '@usedapp/core'
 import { WalletConnect } from '@web3-react/walletconnect'
 import React, { useCallback, useState } from 'react'
 
 import { DEFAULT_CHAIN_ID } from '@/configs'
 import { CHAINS, getAddChainParameters, URLS } from '@/connectors/chains'
+import { useAppSelector } from '@/hooks'
+import { useConfig } from '@/hooks/useConfig'
 
 import classes from './WalletConnectModal.module.css'
 
@@ -26,6 +27,12 @@ const ChainSelect = ({
   displayDefault: boolean
   chainIds: number[]
 }) => {
+  const { envs } = useConfig()
+  const defaultChainId = envs
+    ? parseInt(envs.CHAIN_ID)
+    : Number(DEFAULT_CHAIN_ID)
+  const defaultName = CHAINS[defaultChainId]?.name
+
   return (
     <div className={classes.selectBox}>
       <select
@@ -35,7 +42,9 @@ const ChainSelect = ({
         }}
         disabled={switchChain === undefined}
       >
-        {displayDefault ? <option value={-1}>Default Chain</option> : null}
+        {displayDefault ? (
+          <option value={-1}>{`Default (${defaultName ?? 'Chain'})`}</option>
+        ) : null}
         {chainIds.map((chainId) => (
           <option key={chainId} value={chainId}>
             {CHAINS[chainId]?.name ?? chainId}
@@ -68,6 +77,8 @@ export const ConnectWithSelect: React.FC<ConnectWithSelectProps> = ({
   onConnectClick,
   onDisconnectClick,
 }: ConnectWithSelectProps) => {
+  const { devMode } = useAppSelector((state) => state.application)
+
   const isNetwork = connector instanceof Network
   const displayDefault = !isNetwork
   const chainIds = (isNetwork ? Object.keys(URLS) : Object.keys(CHAINS)).map(
@@ -179,7 +190,7 @@ export const ConnectWithSelect: React.FC<ConnectWithSelectProps> = ({
   if (error) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {(chainId ? chainId !== ChainId.Goerli : false) && (
+        {(chainId ? devMode : false) && (
           <>
             {!(connector instanceof GnosisSafe) && (
               <ChainSelect
@@ -198,7 +209,7 @@ export const ConnectWithSelect: React.FC<ConnectWithSelectProps> = ({
   } else if (isActive) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {(chainId ? chainId !== ChainId.Goerli : false) && (
+        {(chainId ? devMode : false) && (
           <>
             {!(connector instanceof GnosisSafe) && (
               <ChainSelect
@@ -221,7 +232,7 @@ export const ConnectWithSelect: React.FC<ConnectWithSelectProps> = ({
   } else {
     return (
       <div style={{ display: 'flex', flexDirection: 'column' }}>
-        {(chainId ? chainId !== ChainId.Goerli : false) && (
+        {devMode && (
           <>
             {!(connector instanceof GnosisSafe) && (
               <ChainSelect

@@ -7,7 +7,7 @@ import ReactMarkdown from 'react-markdown'
 import { Link } from 'react-router-dom'
 import remarkBreaks from 'remark-breaks'
 
-import EnsOrLongAddress from '@/components/EnsOrLongAddress'
+import NnsOrEnsOrLongAddress from '@/components/NnsOrEnsOrLongAddress'
 import ShortAddress from '@/components/ShortAddress'
 import { useContractAddresses } from '@/hooks/useAddresses'
 import {
@@ -31,7 +31,7 @@ export const linkIfAddress = (content: string) => {
         target="_blank"
         rel="noreferrer"
       >
-        <EnsOrLongAddress address={content} />
+        <NnsOrEnsOrLongAddress address={content} />
       </Link>
     )
   }

@@ -104,7 +104,6 @@ export const usePredictStreamAddress = ({
 
   useEffect(() => {
     const cachedTimeLeft = remainingCacheTime(cacheKey)
-    console.warn('key', cacheKey, cachedTimeLeft)
     if (isFullyCached || cachedTimeLeft > 0) {
       recordApiStat(RecordActions.FETCH)
       setData(cachedData)

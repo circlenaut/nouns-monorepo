@@ -97,7 +97,7 @@ const Proposals: React.FC<{ proposals: PartialProposal[] }> = ({
 }) => {
   const navigate = useNavigate()
 
-  const activeAccount = useAppSelector((state) => state.account.activeAccount)
+  const { activeAccount } = useAppSelector((state) => state.account)
   // const appState = useAppSelector((state) => state)
 
   const { contractAddresses } = useContractAddresses()

@@ -1,23 +1,21 @@
 import { i18n } from '@lingui/core'
 import { Trans } from '@lingui/macro'
-import { useEthers } from '@usedapp/core'
 import clsx from 'clsx'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 
 import { useActiveLocale } from '@/hooks/useActivateLocale'
-import { ensCacheKey } from '@/utils/ensLookup'
-import { lookupNNSOrENS } from '@/utils/lookupNNSOrENS'
-import { Proposal } from '../../wrappers/nounsDao'
+import { Proposal } from '@/wrappers/nounsDao'
 import DelegateGroupedNounImageVoteTable, {
   DelegateVote,
-} from '../DelegateGroupedNounImageVoteTable'
-import NounImageVoteTable from '../NounImageVoteTable'
-import VoteProgressBar from '../VoteProgressBar'
+} from '@/components/DelegateGroupedNounImageVoteTable'
+import NounImageVoteTable from '@/components/NounImageVoteTable'
+import VoteProgressBar from '@/components/VoteProgressBar'
 
 // tslint:disable:ordered-imports
 import classes from './VoteCard.module.css'
 import responsiveUiUtilsClasses from '@/utils/ResponsiveUIUtils.module.css'
+import cacheNameServiceAddresses from '@/utils/cacheAddresses'
 
 export enum VoteCardVariant {
   FOR,
@@ -69,8 +67,6 @@ const VoteCard: React.FC<VoteCardProps> = (props) => {
       break
   }
 
-  const { library } = useEthers()
-  const [ensCached, setEnsCached] = useState(false)
   const locale = useActiveLocale()
   const filteredDelegateGroupedVoteData =
     delegateGroupedVoteData?.filter(
@@ -80,37 +76,15 @@ const VoteCard: React.FC<VoteCardProps> = (props) => {
 
   // Pre-fetch ENS  of delegates (with 30min TTL)
   // This makes hover cards load more smoothly
-  useEffect(() => {
-    if (!delegateGroupedVoteData || !library || ensCached) {
-      return
-    }
-
-    delegateGroupedVoteData.forEach((delegateInfo: { delegate: string }) => {
-      const delegateEns = ensCacheKey(delegateInfo.delegate)
-      if (delegateEns && localStorage.getItem(delegateEns)) {
-        return
-      }
-
-      lookupNNSOrENS(library, delegateInfo.delegate)
-        .then((name) => {
-          // Store data as mapping of address_Expiration => address or ENS
-          if (name && delegateEns) {
-            localStorage.setItem(
-              delegateEns,
-              JSON.stringify({
-                name,
-                expires: Date.now() / 1000 + 30 * 60,
-              }),
-            )
-          }
-        })
-        .catch((error) => {
-          console.error(`error resolving reverse ens lookup: `, error)
-          localStorage.clear()
-        })
-    })
-    setEnsCached(true)
-  }, [library, ensCached, delegateGroupedVoteData])
+  const delegateAddresses = useMemo(
+    () =>
+      delegateGroupedVoteData?.map(
+        (delegateInfo: { delegate: string }) => delegateInfo.delegate,
+      ),
+    [delegateGroupedVoteData],
+  )
+  delegateAddresses &&
+    cacheNameServiceAddresses({ addresses: delegateAddresses, cacheTTL: 30000 })
 
   return (
     <Col lg={4} className={classes.wrapper}>

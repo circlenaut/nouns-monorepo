@@ -61,7 +61,7 @@ const ChangeDelegatePannel: React.FC<ChangeDelegatePannelProps> = (props) => {
 
   // const { library, account } = useEthers();
   const { provider } = useWeb3React()
-  const activeAccount = useAppSelector((state) => state.account.activeAccount)
+  const { activeAccount } = useAppSelector((state) => state.account)
   const { contractAddresses } = useContractAddresses()
 
   const [delegateAddress, setDelegateAddress] = useState(delegateTo ?? '')
